@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.container;
 
 import com.taobao.arthas.core.config.Configure;
+import com.taobao.arthas.core.container.configuration.InvokeBeanDefinitionRegistryPostProcessor;
 import com.taobao.arthas.core.container.listener.InvokeListenerFactory;
 import com.taobao.arthas.core.env.ArthasEnvironment;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -17,7 +18,7 @@ public class SpringContainer {
 
     //private static final Logger startupLogger = LogFactory.getStartupLogger();
 
-    private static final AnnotationConfigApplicationContext springContainer = new AnnotationConfigApplicationContext("com.taobao.arthas.core.container");
+    private static final AnnotationConfigApplicationContext springContainer = new AnnotationConfigApplicationContext();
 
     private static final AtomicBoolean springStarted = new AtomicBoolean();
 
@@ -41,6 +42,10 @@ public class SpringContainer {
 
         //初始化容器
         if (!springStarted.compareAndSet(false, true)) {
+
+            springContainer.addBeanFactoryPostProcessor(new InvokeBeanDefinitionRegistryPostProcessor());
+            springContainer.scan("com.designer.turbo.tests.container");
+            springContainer.refresh();
 
         }
 
