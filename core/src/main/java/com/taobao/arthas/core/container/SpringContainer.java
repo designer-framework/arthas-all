@@ -3,15 +3,9 @@ package com.taobao.arthas.core.container;
 import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.container.listener.InvokeListenerFactory;
 import com.taobao.arthas.core.env.ArthasEnvironment;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -23,13 +17,17 @@ public class SpringContainer {
 
     //private static final Logger startupLogger = LogFactory.getStartupLogger();
 
-    private static final DefaultListableBeanFactory springContainer = new DefaultListableBeanFactory();
+    private static final AnnotationConfigApplicationContext springContainer = new AnnotationConfigApplicationContext("com.taobao.arthas.core.container");
 
     private static final AtomicBoolean springStarted = new AtomicBoolean();
 
     private static final AtomicBoolean springStopped = new AtomicBoolean();
 
     private static long startTime = 0L;
+
+    public static void main(String[] args) {
+        InvokeListenerFactory bean = springContainer.getBean(InvokeListenerFactory.class);
+    }
 
     /**
      * 启动服务容器
@@ -40,29 +38,9 @@ public class SpringContainer {
     }
 
     public static void start() {
-        
+
         //初始化容器
         if (!springStarted.compareAndSet(false, true)) {
-
-            springContainer.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
-            springContainer.addBeanPostProcessor(new InitDestroyAnnotationBeanPostProcessor());
-            //
-            List<InvokeListenerFactory> invokeListeners = SpringFactoriesLoader.loadFactories(InvokeListenerFactory.class, InvokeListenerFactory.class.getClassLoader());
-
-            //注入容器中
-            for (InvokeListenerFactory invokeListener : invokeListeners) {
-
-                String beanName = invokeListener.getClass().getSimpleName();
-                BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(invokeListener.getClass());
-                definition.setScope(BeanDefinition.SCOPE_SINGLETON);
-                springContainer.registerBeanDefinition(beanName, definition.getBeanDefinition());
-
-                String[] beanDefinitionNames = springContainer.getBeanDefinitionNames();
-                for (String beanDefinitionName : beanDefinitionNames) {
-                    springContainer.getBean(beanDefinitionName);
-                }
-
-            }
 
         }
 
@@ -75,7 +53,7 @@ public class SpringContainer {
 
         //销毁容器
         if (!springStopped.compareAndSet(false, true)) {
-            springContainer.destroySingletons();
+            springContainer.close();
             return;
         }
 

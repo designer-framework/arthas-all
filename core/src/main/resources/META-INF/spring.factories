@@ -1,0 +1,2 @@
+com.taobao.arthas.core.container.listener.InvokeListener=\
+  com.taobao.arthas.core.container.listener.InvokeListenerImpl
