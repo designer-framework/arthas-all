@@ -10,9 +10,9 @@ import com.alibaba.deps.org.objectweb.asm.ClassReader;
 import com.alibaba.deps.org.objectweb.asm.Opcodes;
 import com.alibaba.deps.org.objectweb.asm.tree.ClassNode;
 import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
-import com.taobao.arthas.core.advisor.SpringSpyInterceptors;
 import com.taobao.arthas.core.container.SpringContainer;
-import com.taobao.arthas.core.container.matcher.Matcher;
+import com.taobao.arthas.core.container.interceptor.SpyInterceptors;
+import com.taobao.arthas.core.container.matcher.MatchCandidate;
 
 import java.arthas.SpyAPI;
 import java.lang.instrument.ClassFileTransformer;
@@ -23,36 +23,10 @@ import java.util.List;
 public class SpringInstrumentTransformer implements ClassFileTransformer {
 
     static {
-        SpyAPI.setSpy(new SpyAPI.AbstractSpy() {
-            @Override
-            public void atEnter(Class<?> clazz, String methodInfo, Object target, Object[] args) {
-            }
-
-            @Override
-            public void atExit(Class<?> clazz, String methodInfo, Object target, Object[] args, Object returnObject) {
-
-            }
-
-            @Override
-            public void atExceptionExit(Class<?> clazz, String methodInfo, Object target, Object[] args, Throwable throwable) {
-
-            }
-
-            @Override
-            public void atBeforeInvoke(Class<?> clazz, String invokeInfo, Object target) {
-
-            }
-
-            @Override
-            public void atAfterInvoke(Class<?> clazz, String invokeInfo, Object target) {
-
-            }
-
-            @Override
-            public void atInvokeException(Class<?> clazz, String invokeInfo, Object target, Throwable throwable) {
-
-            }
-        });
+        /**
+         * 从容器中获取Spy实现类
+         */
+        SpyAPI.setSpy(SpringContainer.getBean(SpyAPI.AbstractSpy.class));
     }
 
     private final Logger logger = Loggers.getLogger(getClass());
@@ -66,8 +40,8 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
         classNode = AsmUtils.removeJSRInstructions(classNode);
 
         //类不匹配
-        Matcher matcher = SpringContainer.getBean(Matcher.class);
-        if (!matcher.klass(classNode)) {
+        MatchCandidate matchCandidate = SpringContainer.getBean(MatchCandidate.class);
+        if (!matchCandidate.isCandidateClass(classNode)) {
             return null;
         }
 
@@ -77,7 +51,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
         }
 
         DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-        List<InterceptorProcessor> interceptorProcessors = processors.parse(SpringSpyInterceptors.class);
+        List<InterceptorProcessor> interceptorProcessors = processors.parse(SpringContainer.getBean(SpyInterceptors.class).getClass());
 
         //匹配上，则进行字节码替换处理
         for (InterceptorProcessor processor : interceptorProcessors) {
@@ -102,7 +76,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
                 }
 
                 //方法不匹配
-                if (!matcher.method(classNode, methodNode)) {
+                if (!matchCandidate.isCandidateMethod(classNode, methodNode)) {
                     return null;
                 }
 

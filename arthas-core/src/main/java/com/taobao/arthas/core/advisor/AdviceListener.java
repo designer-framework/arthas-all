@@ -6,6 +6,11 @@ package com.taobao.arthas.core.advisor;
  */
 public interface AdviceListener {
 
+    /**
+     * id
+     *
+     * @return
+     */
     long id();
 
     /**
@@ -31,9 +36,7 @@ public interface AdviceListener {
      * @param args       参数列表
      * @throws Throwable 通知过程出错
      */
-    void before(
-            Class<?> clazz, String methodName, String methodDesc,
-            Object target, Object[] args) throws Throwable;
+    void before(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) throws Throwable;
 
     /**
      * 返回通知
@@ -48,10 +51,7 @@ public interface AdviceListener {
      *                     若为无返回值方法(void),则为null
      * @throws Throwable 通知过程出错
      */
-    void afterReturning(
-            Class<?> clazz, String methodName, String methodDesc,
-            Object target, Object[] args,
-            Object returnObject) throws Throwable;
+    void afterReturning(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) throws Throwable;
 
     /**
      * 异常通知
@@ -65,9 +65,6 @@ public interface AdviceListener {
      * @param throwable  目标异常
      * @throws Throwable 通知过程出错
      */
-    void afterThrowing(
-            Class<?> clazz, String methodName, String methodDesc,
-            Object target, Object[] args,
-            Throwable throwable) throws Throwable;
+    void afterThrowing(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) throws Throwable;
 
 }

@@ -1,13 +1,14 @@
-package com.taobao.arthas.core.advisor;
+package com.taobao.arthas.core.container.advisor;
 
-import com.taobao.arthas.core.container.SpringContainer;
-import com.taobao.arthas.core.container.handler.InvokeDispatcher;
+import com.taobao.arthas.core.advisor.ArthasMethod;
+import com.taobao.arthas.core.container.handler.InvokeAdviceHandler;
 
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 参见
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
 public class SpringAdviceListener extends SpringAdviceListenerAdapter {
@@ -18,6 +19,12 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
      * 调用链
      */
     private static final ThreadLocal<InvokeStack> invokeStack = ThreadLocal.withInitial(InvokeStack::new);
+
+    private final InvokeAdviceHandler invokeAdviceHandler;
+
+    public SpringAdviceListener(InvokeAdviceHandler invokeAdviceHandler) {
+        this.invokeAdviceHandler = invokeAdviceHandler;
+    }
 
     @Override
     public long id() {
@@ -36,6 +43,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
 
         SpringAdvice springAdvice = SpringAdvice.newForBefore(loader, clazz, method, target, args, processorId(), ID_GENERATOR.addAndGet(1));
 
+        invokeAdviceHandler.handler(springAdvice);
     }
 
     @Override
@@ -46,6 +54,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
 
         SpringAdvice springAdvice = SpringAdvice.newForAfterReturning(loader, clazz, method, target, args, returnObject, processorId(), invokeId);
 
+        invokeAdviceHandler.handler(springAdvice);
     }
 
     @Override
@@ -56,12 +65,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
 
         SpringAdvice springAdvice = SpringAdvice.newForAfterThrowing(loader, clazz, method, target, args, throwable, processorId(), invokeId);
 
-    }
-
-    private void handlerInvoke(SpringAdvice springAdvice) {
-        InvokeDispatcher invokeDispatcher = SpringContainer.getBean(InvokeDispatcher.class);
-        //
-        invokeDispatcher.handler(springAdvice);
+        invokeAdviceHandler.handler(springAdvice);
     }
 
     static class InvokeStack {

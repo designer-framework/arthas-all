@@ -130,7 +130,7 @@
                                     </mapper>
                                 </data>
                                 <data>
-                                    <src>../packaging/src/deb/copyright/copyright.1</src>
+                                    <src>../arthas-packaging/src/deb/copyright/copyright.1</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
@@ -213,7 +213,7 @@
                                     <groupname>root</groupname>
                                     <sources>
                                         <source>
-                                            <location>../packaging/src/deb/man1/arthas.1</location>
+                                            <location>../arthas-packaging/src/deb/man1/arthas.1</location>
                                         </source>
                                     </sources>
                                 </mapping>

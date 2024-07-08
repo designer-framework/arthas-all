@@ -8,6 +8,9 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
@@ -20,12 +23,15 @@ import java.util.List;
  * @author vlinux on 15/5/19.
  */
 public class AgentBootstrap {
+
     private static final String ARTHAS_CORE_JAR = "arthas-core.jar";
+
     private static final String ARTHAS_BOOTSTRAP = "com.taobao.arthas.core.server.ArthasBootstrap";
+
     private static final String GET_INSTANCE = "getInstance";
-    private static final String IS_BIND = "isBind";
 
     private static PrintStream ps = System.err;
+
     /**
      * <pre>
      * 1. 全局持有classloader用于隔离 Arthas 实现，防止多次attach重复初始化
@@ -36,16 +42,17 @@ public class AgentBootstrap {
     private static volatile ClassLoader arthasClassLoader;
 
     static {
+
         try {
-            File arthasLogDir = new File(System.getProperty("user.home") + File.separator + "logs" + File.separator
-                    + "arthas" + File.separator);
+
+            File arthasLogDir = new File(System.getProperty("user.home") + File.separator + "logs" + File.separator + "arthas" + File.separator);
             if (!arthasLogDir.exists()) {
                 arthasLogDir.mkdirs();
             }
+
             if (!arthasLogDir.exists()) {
                 // #572
-                arthasLogDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "logs" + File.separator
-                        + "arthas" + File.separator);
+                arthasLogDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "logs" + File.separator + "arthas" + File.separator);
                 if (!arthasLogDir.exists()) {
                     arthasLogDir.mkdirs();
                 }
@@ -56,10 +63,13 @@ public class AgentBootstrap {
             if (!log.exists()) {
                 log.createNewFile();
             }
+
             ps = new PrintStream(new FileOutputStream(log, true));
+
         } catch (Throwable t) {
             t.printStackTrace(ps);
         }
+
     }
 
     public static void premain(String args, Instrumentation inst) {
@@ -114,20 +124,26 @@ public class AgentBootstrap {
         }
     }
 
-    private static synchronized void main(String args, final Instrumentation inst) {
-        // 尝试判断arthas是否已在运行，如果是的话，直接就退出
+    private static synchronized void main(String args, Instrumentation inst) {
         try {
-            Class.forName("java.arthas.SpyAPI"); // 加载不到会抛异常
+            // 加载不到会抛异常
+            Class.forName("java.arthas.SpyAPI");
+            // 尝试判断arthas是否已在运行，如果是的话，直接就退出
             if (SpyAPI.isInited()) {
+
                 ps.println("Arthas server already stared, skip attach.");
                 ps.flush();
                 return;
+
             }
         } catch (Throwable e) {
             // ignore
         }
+
         try {
+
             ps.println("Arthas server agent start...");
+
             // 传递的args参数分两个部分:arthasCoreJar路径和agentArgs, 分别是Agent的JAR包路径和期望传递到服务端的参数
             if (args == null) {
                 args = "";
@@ -135,7 +151,7 @@ public class AgentBootstrap {
             args = decodeArg(args);
 
             String arthasCoreJar;
-            final String agentArgs;
+            String agentArgs;
             int index = args.indexOf(';');
             if (index != -1) {
                 arthasCoreJar = args.substring(0, index);
@@ -147,21 +163,27 @@ public class AgentBootstrap {
 
             File arthasCoreJarFile = new File(arthasCoreJar);
             if (!arthasCoreJarFile.exists()) {
+
                 ps.println("Can not find arthas-core jar file from args: " + arthasCoreJarFile);
                 // try to find from arthas-agent.jar directory
                 CodeSource codeSource = AgentBootstrap.class.getProtectionDomain().getCodeSource();
                 if (codeSource != null) {
+
                     try {
-                        File arthasAgentJarFile = new File(codeSource.getLocation().toURI().getSchemeSpecificPart());
+
+                        File arthasAgentJarFile = new File(getAgentLibPath());
                         arthasCoreJarFile = new File(arthasAgentJarFile.getParentFile(), ARTHAS_CORE_JAR);
                         if (!arthasCoreJarFile.exists()) {
                             ps.println("Can not find arthas-core jar file from agent jar directory: " + arthasAgentJarFile);
                         }
+
                     } catch (Throwable e) {
                         ps.println("Can not find arthas-core jar file from " + codeSource.getLocation());
                         e.printStackTrace(ps);
                     }
+
                 }
+
             }
             if (!arthasCoreJarFile.exists()) {
                 return;
@@ -170,7 +192,7 @@ public class AgentBootstrap {
             /**
              * Use a dedicated thread to run the binding logic to prevent possible memory leak. #195
              */
-            final ClassLoader agentLoader = getClassLoader(inst, arthasCoreJarFile);
+            ClassLoader agentLoader = getClassLoader(inst, arthasCoreJarFile);
 
             Thread bindingThread = new Thread() {
                 @Override
@@ -186,6 +208,7 @@ public class AgentBootstrap {
             bindingThread.setName("arthas-binding-thread");
             bindingThread.start();
             bindingThread.join();
+
         } catch (Throwable t) {
             t.printStackTrace(ps);
             try {
@@ -208,7 +231,7 @@ public class AgentBootstrap {
          */
         Class<?> bootstrapClass = agentLoader.loadClass(ARTHAS_BOOTSTRAP);
         Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE, Instrumentation.class, String.class).invoke(null, inst, args);
-        boolean isBind = (Boolean) bootstrapClass.getMethod(IS_BIND).invoke(bootstrap);
+        boolean isBind = (Boolean) bootstrapClass.getMethod("IS_BIND").invoke(bootstrap);
         if (!isBind) {
             String errorMsg = "Arthas server port binding failed! Please check $HOME/logs/arthas/arthas.log for more details.";
             ps.println(errorMsg);
@@ -224,4 +247,26 @@ public class AgentBootstrap {
             return arg;
         }
     }
+
+    private static String getAgentLibPath() throws URISyntaxException {
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        List<String> jvmArgs = bean.getInputArguments();
+
+        for (String jvmArg : jvmArgs) {
+
+            int index = jvmArg.indexOf("-javaagent:");
+            if (index + 1 >= jvmArg.length()) {
+                continue;
+            }
+
+            String value = jvmArg.substring(index + 1);
+
+            if (value.endsWith("arthas-agent.jar")) {
+                return value.substring(0, value.lastIndexOf(File.separator) + 1);
+            }
+        }
+
+        return AgentBootstrap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getSchemeSpecificPart();
+    }
+
 }

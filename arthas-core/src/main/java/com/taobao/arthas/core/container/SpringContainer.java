@@ -2,7 +2,7 @@ package com.taobao.arthas.core.container;
 
 import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.container.configuration.InvokeBeanDefinitionRegistryPostProcessor;
-import com.taobao.arthas.core.container.handler.InvokeDispatcher;
+import com.taobao.arthas.core.container.handler.InvokeAdviceHandler;
 import com.taobao.arthas.core.env.ArthasEnvironment;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -27,7 +27,7 @@ public class SpringContainer {
     private static long startTime = 0L;
 
     public static void main(String[] args) {
-        InvokeDispatcher bean = springContainer.getBean(InvokeDispatcher.class);
+        InvokeAdviceHandler bean = springContainer.getBean(InvokeAdviceHandler.class);
     }
 
     /**

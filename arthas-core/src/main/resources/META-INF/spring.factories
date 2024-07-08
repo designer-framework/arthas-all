@@ -1,2 +1,12 @@
-com.taobao.arthas.core.container.listener.InvokeListener=\
-  com.taobao.arthas.core.container.listener.impl.InvokeListenerImpl
+#
+java.arthas.SpyAPI.AbstractSpy=\
+  com.taobao.arthas.core.container.spy.SpringSpyImpl
+#
+com.taobao.arthas.core.container.interceptor.SpyInterceptors=\
+com.taobao.arthas.core.container.interceptor.SpringSpyInterceptors
+#
+com.taobao.arthas.core.container.matcher.MatchCandidate=\
+com.taobao.arthas.core.container.matcher.MatchCandidate
+#
+com.taobao.arthas.core.advisor.AdviceListener=\
+com.taobao.arthas.core.container.advisor.SpringAdviceListener

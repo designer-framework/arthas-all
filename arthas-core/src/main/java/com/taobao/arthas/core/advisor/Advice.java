@@ -16,46 +16,6 @@ public class Advice {
     private final boolean isThrow;
     private final boolean isReturn;
 
-    public boolean isBefore() {
-        return isBefore;
-    }
-
-    public boolean isAfterReturning() {
-        return isReturn;
-    }
-
-    public boolean isAfterThrowing() {
-        return isThrow;
-    }
-
-    public ClassLoader getLoader() {
-        return loader;
-    }
-
-    public Object getTarget() {
-        return target;
-    }
-
-    public Object[] getParams() {
-        return params;
-    }
-
-    public Object getReturnObj() {
-        return returnObj;
-    }
-
-    public Throwable getThrowExp() {
-        return throwExp;
-    }
-
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
-    public ArthasMethod getMethod() {
-        return method;
-    }
-
     /**
      * for finish
      *
@@ -68,7 +28,7 @@ public class Advice {
      * @param throwExp  抛出异常
      * @param access    进入场景
      */
-    private Advice(
+    protected Advice(
             ClassLoader loader,
             Class<?> clazz,
             ArthasMethod method,
@@ -141,6 +101,46 @@ public class Advice {
                 AccessPoint.ACCESS_AFTER_THROWING.getValue()
         );
 
+    }
+
+    public boolean isBefore() {
+        return isBefore;
+    }
+
+    public boolean isAfterReturning() {
+        return isReturn;
+    }
+
+    public boolean isAfterThrowing() {
+        return isThrow;
+    }
+
+    public ClassLoader getLoader() {
+        return loader;
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public Object[] getParams() {
+        return params;
+    }
+
+    public Object getReturnObj() {
+        return returnObj;
+    }
+
+    public Throwable getThrowExp() {
+        return throwExp;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
+    public ArthasMethod getMethod() {
+        return method;
     }
 
 }

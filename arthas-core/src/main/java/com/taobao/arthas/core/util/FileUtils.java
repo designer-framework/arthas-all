@@ -2,17 +2,13 @@ package com.taobao.arthas.core.util;
 
 /**
  * Copied from {@link org.apache.commons.io.FileUtils}
+ *
  * @author ralf0131 2016-12-28 11:46.
  */
-import io.termd.core.util.Helper;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-
-import com.taobao.arthas.common.ArthasConstants;
 
 public class FileUtils {
 
@@ -97,124 +93,6 @@ public class FileUtils {
             }
         }
         return new FileOutputStream(file, append);
-    }
-
-    private static boolean isAuthCommand(String command) {
-        // 需要改写 auth command, TODO 更准确应该是用mask去掉密码信息
-        return command != null && command.trim().startsWith(ArthasConstants.AUTH);
-    }
-
-    private static final int[] AUTH_CODEPOINTS = Helper.toCodePoints(ArthasConstants.AUTH);
-    /**
-     * save the command history to the given file, data will be overridden.
-     * @param history the command history, each represented by an int array
-     * @param file the file to save the history
-     */
-    public static void saveCommandHistory(List<int[]> history, File file) {
-        OutputStream out = null;
-        try {
-            out = new BufferedOutputStream(openOutputStream(file, false));
-            for (int[] command: history) {
-                String commandStr = Helper.fromCodePoints(command);
-                if (isAuthCommand(commandStr)) {
-                    command = AUTH_CODEPOINTS;
-                }
-
-                for (int i : command) {
-                    out.write(i);
-                }
-                out.write('\n');
-            }
-        } catch (IOException e) {
-            // ignore
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ioe) {
-                // ignore
-            }
-        }
-    }
-
-    public static List<int[]> loadCommandHistory(File file) {
-        BufferedReader br = null;
-        List<int[]> history = new ArrayList<int[]>();
-        try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            String line;
-            while ((line = br.readLine()) != null) {
-                history.add(Helper.toCodePoints(line));
-            }
-        } catch (IOException e) {
-            // ignore
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException ioe) {
-                // ignore
-            }
-        }
-        return history;
-    }
-
-    /**
-     * save the command history to the given file, data will be overridden.
-     * @param history the command history
-     * @param file the file to save the history
-     */
-    public static void saveCommandHistoryString(List<String> history, File file) {
-        OutputStream out = null;
-        try {
-            out = new BufferedOutputStream(openOutputStream(file, false));
-            for (String command: history) {
-                if (!StringUtils.isBlank(command)) {
-                    if (isAuthCommand(command)) {
-                        command = ArthasConstants.AUTH;
-                    }
-                    out.write(command.getBytes("utf-8"));
-                    out.write('\n');
-                }
-            }
-        } catch (IOException e) {
-            // ignore
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ioe) {
-                // ignore
-            }
-        }
-    }
-
-    public static List<String> loadCommandHistoryString(File file) {
-        BufferedReader br = null;
-        List<String> history = new ArrayList<String>();
-        try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (!StringUtils.isBlank(line)) {
-                    history.add(line);
-                }
-            }
-        } catch (IOException e) {
-            // ignore
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException ioe) {
-                // ignore
-            }
-        }
-        return history;
     }
 
     public static String readFileToString(File file, Charset encoding) throws IOException {

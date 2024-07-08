@@ -26,7 +26,6 @@ import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.util.FileUtils;
 import com.taobao.arthas.core.util.InstrumentationUtils;
 import com.taobao.arthas.core.util.LogUtil;
-import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.arthas.SpyAPI;
 import java.io.File;
@@ -37,11 +36,6 @@ import java.lang.reflect.Method;
 import java.security.CodeSource;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 
@@ -50,27 +44,36 @@ import java.util.jar.JarFile;
  * @author hengyunabc
  */
 public class ArthasBootstrap {
+
     public static final String ARTHAS_HOME_PROPERTY = "arthas.home";
+
     public static final String CONFIG_NAME_PROPERTY = "arthas.config.name";
+
     public static final String CONFIG_LOCATION_PROPERTY = "arthas.config.location";
+
     public static final String CONFIG_OVERRIDE_ALL = "arthas.config.overrideAll";
+
     private static final String ARTHAS_SPY_JAR = "arthas-spy.jar";
+
     private static String ARTHAS_HOME = null;
+
     private static ArthasBootstrap arthasBootstrap;
+
     private static LoggerContext loggerContext;
+
+    private final TransformerManager transformerManager;
+
     private ArthasEnvironment arthasEnvironment;
+
     private Configure configure;
-    private AtomicBoolean isBindRef = new AtomicBoolean(false);
+
     private Instrumentation instrumentation;
+
     private InstrumentTransformer classLoaderInstrumentTransformer;
+
     private Thread shutdown;
-    private ScheduledExecutorService executorService;
+
     private File outputPath;
-    private EventExecutorGroup workerGroup;
-
-    private Timer timer = new Timer("arthas-timer", true);
-
-    private TransformerManager transformerManager;
 
     //private ResultViewResolver resultViewResolver;
 
@@ -81,6 +84,7 @@ public class ArthasBootstrap {
 
         // 1. initSpy()
         initSpy();
+
         // 2. ArthasEnvironment
         initArthasEnvironment(args);
 
@@ -89,6 +93,7 @@ public class ArthasBootstrap {
             outputPathStr = ArthasConstants.ARTHAS_OUTPUT;
         }
         outputPath = new File(outputPathStr);
+
         outputPath.mkdirs();
 
         // 3. init logger
@@ -106,15 +111,6 @@ public class ArthasBootstrap {
         // 6. start agent server
         bind(configure);
 
-        executorService = Executors.newScheduledThreadPool(1, new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r, "arthas-command-execute");
-                t.setDaemon(true);
-                return t;
-            }
-        });
-
         shutdown = new Thread("as-shutdown-hooker") {
 
             @Override
@@ -124,6 +120,7 @@ public class ArthasBootstrap {
         };
 
         transformerManager = new TransformerManager(instrumentation);
+
         Runtime.getRuntime().addShutdownHook(shutdown);
     }
 
@@ -199,6 +196,7 @@ public class ArthasBootstrap {
     }
 
     private void enhanceSpringBoot() {
+
     }
 
     private void initFastjson() {
@@ -229,7 +227,9 @@ public class ArthasBootstrap {
                 // ignore
             }
         }
+
         if (spyClass == null) {
+
             CodeSource codeSource = ArthasBootstrap.class.getProtectionDomain().getCodeSource();
             if (codeSource != null) {
                 File arthasCoreJarFile = new File(codeSource.getLocation().toURI().getSchemeSpecificPart());
@@ -238,6 +238,7 @@ public class ArthasBootstrap {
             } else {
                 throw new IllegalStateException("can not find " + ARTHAS_SPY_JAR);
             }
+
         }
     }
 
@@ -245,9 +246,9 @@ public class ArthasBootstrap {
         if (configure.getEnhanceLoaders() == null) {
             return;
         }
-        Set<String> loaders = new HashSet<String>();
-        for (String s : configure.getEnhanceLoaders().split(",")) {
-            loaders.add(s.trim());
+        Set<String> loaders = new HashSet<>();
+        for (String enhanceLoader : configure.getEnhanceLoaders().split(",")) {
+            loaders.add(enhanceLoader.trim());
         }
 
         // 增强 ClassLoader#loadClsss ，解决一些ClassLoader加载不到 SpyAPI的问题
@@ -353,32 +354,10 @@ public class ArthasBootstrap {
     private void bind(Configure configure) throws Throwable {
     }
 
-    private void shutdownWorkGroup() {
-        if (workerGroup != null) {
-            workerGroup.shutdownGracefully(200, 200, TimeUnit.MILLISECONDS);
-            workerGroup = null;
-        }
-    }
-
-    /**
-     * 判断服务端是否已经启动
-     *
-     * @return true:服务端已经启动;false:服务端关闭
-     */
-    public boolean isBind() {
-        return isBindRef.get();
-    }
-
     /**
      * call reset() before destroy()
      */
     public void destroy() {
-        if (timer != null) {
-            timer.cancel();
-        }
-        if (executorService != null) {
-            executorService.shutdownNow();
-        }
         if (transformerManager != null) {
             transformerManager.destroy();
         }
@@ -387,7 +366,6 @@ public class ArthasBootstrap {
         }
         // clear the reference in Spy class.
         cleanUpSpyReference();
-        shutdownWorkGroup();
         if (shutdown != null) {
             try {
                 Runtime.getRuntime().removeShutdownHook(shutdown);
@@ -399,10 +377,6 @@ public class ArthasBootstrap {
         if (loggerContext != null) {
             loggerContext.stop();
         }
-    }
-
-    public void execute(Runnable command) {
-        executorService.execute(command);
     }
 
     /**
@@ -425,14 +399,6 @@ public class ArthasBootstrap {
         }
     }
 
-    public Timer getTimer() {
-        return timer;
-    }
-
-    public ScheduledExecutorService getScheduledExecutorService() {
-        return executorService;
-    }
-
     public Instrumentation getInstrumentation() {
         return instrumentation;
     }
@@ -452,4 +418,5 @@ public class ArthasBootstrap {
     public Configure getConfigure() {
         return configure;
     }
+
 }
