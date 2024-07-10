@@ -22,11 +22,6 @@ import java.util.List;
 public class SpringProfilingConfiguration {
 
     @Bean
-    ArthasProperties arthasProperties() {
-        return new ArthasProperties();
-    }
-
-    @Bean
     SpyExtensionApi spyExtensionApi(List<AdviceListener> springAdviceListeners) {
         return new SpringSpyExtensionApiImpl(springAdviceListeners);
     }
