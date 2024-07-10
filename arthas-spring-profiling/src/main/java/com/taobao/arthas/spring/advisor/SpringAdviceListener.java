@@ -47,7 +47,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
     }
 
     @Override
-    public void before(ClassLoader loader, Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
+    public void before(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {
         InvokeStack stack = invokeStack.get();
 
         long currInvokeId = ID_GENERATOR.addAndGet(1);
@@ -55,31 +55,31 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
         long headInvokeId = headInvokeId();
 
         invokeAdviceHandler.before(
-                InvokeVO.newForBefore(loader, clazz, methodName, methodDesc, target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
+                InvokeVO.newForBefore(loader, clazz, methodName, methodArgumentTypes, target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
     }
 
     @Override
-    public void afterReturning(ClassLoader loader, Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
+    public void afterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
 
         InvokeStack stack = invokeStack.get();
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
         invokeAdviceHandler.afterReturning(
-                InvokeVO.newForAfterReturning(loader, clazz, methodName, methodDesc, target, args, returnObject, InvokeType.ENTER, headInvokeId, currInvokeId)
+                InvokeVO.newForAfterReturning(loader, clazz, methodName, methodArgumentTypes, target, args, returnObject, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
     }
 
     @Override
-    public void afterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) throws Throwable {
+    public void afterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) throws Throwable {
 
         InvokeStack stack = invokeStack.get();
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
         invokeAdviceHandler.afterThrowing(
-                InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodDesc, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
+                InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
     }
 

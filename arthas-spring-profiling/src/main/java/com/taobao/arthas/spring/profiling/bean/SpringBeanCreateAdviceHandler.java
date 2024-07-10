@@ -40,7 +40,6 @@ public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler {
 
     @Override
     public void before(InvokeVO invokeVO) {
-        System.out.println(invokeVO.getParams()[0]);
     }
 
     @Override

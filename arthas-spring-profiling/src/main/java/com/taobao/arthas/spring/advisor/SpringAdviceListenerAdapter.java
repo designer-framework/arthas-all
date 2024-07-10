@@ -22,18 +22,18 @@ public abstract class SpringAdviceListenerAdapter implements AdviceListener {
     }
 
     @Override
-    final public void before(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) throws Throwable {
-        before(clazz.getClassLoader(), clazz, methodName, methodDesc, target, args);
+    final public void before(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) throws Throwable {
+        before(clazz.getClassLoader(), clazz, methodName, methodArgumentTypes, target, args);
     }
 
     @Override
-    final public void afterReturning(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) throws Throwable {
-        afterReturning(clazz.getClassLoader(), clazz, methodName, methodDesc, target, args, returnObject);
+    final public void afterReturning(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) throws Throwable {
+        afterReturning(clazz.getClassLoader(), clazz, methodName, methodArgumentTypes, target, args, returnObject);
     }
 
     @Override
-    final public void afterThrowing(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) throws Throwable {
-        afterThrowing(clazz.getClassLoader(), clazz, methodName, methodDesc, target, args, throwable);
+    final public void afterThrowing(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) throws Throwable {
+        afterThrowing(clazz.getClassLoader(), clazz, methodName, methodArgumentTypes, target, args, throwable);
     }
 
     /**
@@ -46,7 +46,7 @@ public abstract class SpringAdviceListenerAdapter implements AdviceListener {
      * @param args   参数列表
      * @throws Throwable 通知过程出错
      */
-    public abstract void before(ClassLoader loader, Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) throws Throwable;
+    public abstract void before(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) throws Throwable;
 
     /**
      * 返回通知
@@ -59,7 +59,7 @@ public abstract class SpringAdviceListenerAdapter implements AdviceListener {
      * @param returnObject 返回结果 若为无返回值方法(void),则为null
      * @throws Throwable 通知过程出错
      */
-    public abstract void afterReturning(ClassLoader loader, Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) throws Throwable;
+    public abstract void afterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) throws Throwable;
 
     /**
      * 异常通知
@@ -72,7 +72,7 @@ public abstract class SpringAdviceListenerAdapter implements AdviceListener {
      * @param throwable 目标异常
      * @throws Throwable 通知过程出错
      */
-    public abstract void afterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) throws Throwable;
+    public abstract void afterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) throws Throwable;
 
     @Override
     public void destroy() {

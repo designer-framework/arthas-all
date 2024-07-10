@@ -36,10 +36,24 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
     @Override
     public void atExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
+        try {
+            for (AdviceListener adviceListener : adviceListeners) {
+                adviceListener.afterReturning(clazz, methodName, null, target, args, returnObject);
+            }
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void atExceptionExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) {
+        try {
+            for (AdviceListener adviceListener : adviceListeners) {
+                adviceListener.afterThrowing(clazz, methodName, null, target, args, throwable);
+            }
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
