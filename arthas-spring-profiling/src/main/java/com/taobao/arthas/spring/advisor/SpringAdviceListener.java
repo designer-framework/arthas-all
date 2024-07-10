@@ -3,6 +3,10 @@ package com.taobao.arthas.spring.advisor;
 import com.taobao.arthas.profiling.api.enums.InvokeType;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -12,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 参见
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
-public class SpringAdviceListener extends SpringAdviceListenerAdapter {
+public class SpringAdviceListener extends SpringAdviceListenerAdapter implements BeanDefinitionRegistryPostProcessor {
 
     private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
 
@@ -71,6 +75,14 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
         invokeAdviceHandler.handler(
                 InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodDesc, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
     }
 
     static class InvokeStack {

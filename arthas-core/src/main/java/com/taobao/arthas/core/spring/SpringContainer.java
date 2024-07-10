@@ -43,9 +43,19 @@ public class SpringContainer {
         //初始化容器
         if (springStarted.compareAndSet(false, true)) {
 
-            springContainer.addBeanFactoryPostProcessor(new InvokeBeanDefinitionRegistryPostProcessor());
-            springContainer.scan("com.taobao.arthas.core.container");
-            springContainer.refresh();
+            try {
+                Class<?> context = Class.forName("org.springframework.context.annotation.AnnotationConfigApplicationContext");
+                Object contextInstance = context.newInstance();
+                springContainer.addBeanFactoryPostProcessor(new InvokeBeanDefinitionRegistryPostProcessor());
+                springContainer.scan("com.taobao.arthas");
+                springContainer.refresh();
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
 
         }
 
