@@ -31,13 +31,13 @@
         </file>
 
         <file>
-            <source>../arthas-spring-profiling/target/arthas-spring-profiling.jar</source>
-            <destName>arthas-spring-profiling.jar</destName>
+            <source>../arthas-profiling-api/target/arthas-profiling-api.jar</source>
+            <destName>arthas-profiling-api.jar</destName>
         </file>
 
         <file>
-            <source>../arthas-profiling-api/target/arthas-profiling-api.jar</source>
-            <destName>arthas-profiling-api.jar</destName>
+            <source>../arthas-spring-profiling/target/arthas-spring-profiling.jar</source>
+            <destName>arthas-spring-profiling.jar</destName>
         </file>
 
         <file>

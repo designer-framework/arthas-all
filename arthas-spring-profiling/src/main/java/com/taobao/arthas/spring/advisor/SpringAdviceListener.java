@@ -3,6 +3,7 @@ package com.taobao.arthas.spring.advisor;
 import com.taobao.arthas.profiling.api.enums.InvokeType;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
+import com.taobao.arthas.spring.properties.ArthasProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -19,7 +20,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SpringAdviceListener extends SpringAdviceListenerAdapter implements BeanDefinitionRegistryPostProcessor {
 
     private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
-
     /**
      * 调用链
      */
@@ -27,8 +27,14 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
 
     private final InvokeAdviceHandler invokeAdviceHandler;
 
-    public SpringAdviceListener(InvokeAdviceHandler invokeAdviceHandler) {
+    private final ArthasProperties arthasProperties;
+
+    public SpringAdviceListener(
+            InvokeAdviceHandler invokeAdviceHandler
+            , ArthasProperties arthasProperties
+    ) {
         this.invokeAdviceHandler = invokeAdviceHandler;
+        this.arthasProperties = arthasProperties;
     }
 
     @Override
@@ -48,7 +54,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
         stack.pushInvokeId(currInvokeId);
         long headInvokeId = headInvokeId();
 
-        invokeAdviceHandler.handler(
+        invokeAdviceHandler.before(
                 InvokeVO.newForBefore(loader, clazz, methodName, methodDesc, target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
     }
@@ -60,7 +66,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        invokeAdviceHandler.handler(
+        invokeAdviceHandler.afterReturning(
                 InvokeVO.newForAfterReturning(loader, clazz, methodName, methodDesc, target, args, returnObject, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
     }
@@ -72,7 +78,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        invokeAdviceHandler.handler(
+        invokeAdviceHandler.afterThrowing(
                 InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodDesc, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
     }

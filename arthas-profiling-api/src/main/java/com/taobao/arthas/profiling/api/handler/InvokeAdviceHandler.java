@@ -5,6 +5,10 @@ import com.taobao.arthas.profiling.api.vo.InvokeVO;
 
 public interface InvokeAdviceHandler extends MatchCandidate {
 
-    void handler(InvokeVO invokeVO);
+    void before(InvokeVO invokeVO);
+
+    void afterReturning(InvokeVO invokeVO);
+
+    void afterThrowing(InvokeVO invokeVO);
 
 }

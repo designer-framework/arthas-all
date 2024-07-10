@@ -2,7 +2,7 @@ package com.taobao.arthas.core.spring;
 
 import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.env.ArthasEnvironment;
-import com.taobao.arthas.core.spring.configuration.InvokeBeanDefinitionRegistryPostProcessor;
+import com.taobao.arthas.core.spring.configuration.ArthasExtensionSpringPostProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,6 +24,10 @@ public class SpringContainer {
 
     private static long startTime = 0L;
 
+    static {
+        springContainer.setClassLoader(SpringContainer.class.getClassLoader());
+    }
+
     /**
      * 启动服务容器
      */
@@ -42,20 +46,9 @@ public class SpringContainer {
 
         //初始化容器
         if (springStarted.compareAndSet(false, true)) {
-
-            try {
-                Class<?> context = Class.forName("org.springframework.context.annotation.AnnotationConfigApplicationContext");
-                Object contextInstance = context.newInstance();
-                springContainer.addBeanFactoryPostProcessor(new InvokeBeanDefinitionRegistryPostProcessor());
-                springContainer.scan("com.taobao.arthas");
-                springContainer.refresh();
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
+            springContainer.addBeanFactoryPostProcessor(new ArthasExtensionSpringPostProcessor());
+            springContainer.scan(configure.getScanPackages().split(","));
+            springContainer.refresh();
 
         }
 

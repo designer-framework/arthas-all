@@ -34,6 +34,9 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (className == null) {
+            return null;
+        }
         //
         ClassNode classNode = new ClassNode(Opcodes.ASM9);
         ClassReader classReader = AsmUtils.toClassNode(classfileBuffer, classNode);
@@ -42,7 +45,9 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
 
         //类不匹配
         MatchCandidate matchCandidate = SpringContainer.getBean(MatchCandidate.class);
-        if (!matchCandidate.isCandidateClass(classNode.name)) {
+
+        String newClassName = StringUtils.normalizeClassName(classNode.name);
+        if (!matchCandidate.isCandidateClass(newClassName)) {
             return null;
         }
 
@@ -54,44 +59,47 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
         DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
         List<InterceptorProcessor> interceptorProcessors = processors.parse(SpringContainer.getBean(SpyInterceptorExtensionApi.class).getClass());
 
-        //匹配上，则进行字节码替换处理
-        for (InterceptorProcessor processor : interceptorProcessors) {
 
-            // 查找 @Instrument 字节码里的 method，如果在原来的有同样的，则处理替换；如果没有，则复制过去
-            for (MethodNode methodNode : classNode.methods) {
+        // 查找 @Instrument 字节码里的 method，如果在原来的有同样的，则处理替换；如果没有，则复制过去
+        for (MethodNode methodNode : classNode.methods) {
 
-                //调用频率最高的判断放前面, 减少匹配次数
-                // 不处理abstract函数
-                if (AsmUtils.isAbstract(methodNode)) {
-                    continue;
-                }
+            //调用频率最高的判断放前面, 减少匹配次数
+            // 不处理abstract函数
+            if (AsmUtils.isAbstract(methodNode)) {
+                continue;
+            }
 
-                // 不处理native
-                if (AsmUtils.isNative(methodNode)) {
-                    continue;
-                }
+            // 不处理native
+            if (AsmUtils.isNative(methodNode)) {
+                continue;
+            }
 
-                // 不处理构造函数
-                if (AsmUtils.isConstructor(methodNode)) {
-                    continue;
-                }
+            // 不处理构造函数
+            if (AsmUtils.isConstructor(methodNode)) {
+                continue;
+            }
 
-                //方法不匹配
-                if (!matchCandidate.isCandidateMethod(classNode.name, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc))) {
-                    return null;
-                }
+            //方法不匹配
+            if (!matchCandidate.isCandidateMethod(newClassName, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc))) {
+                continue;
+            }
 
-                MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
+            MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
+
+            //匹配上，则进行字节码替换处理
+            for (InterceptorProcessor processor : interceptorProcessors) {
+
                 try {
                     processor.process(methodProcessor);
                 } catch (Exception e) {
                     logger.error(
-                            "Class: {}, Method: {}, InterceptorProcessor: {}", classNode.name, methodNode.name, processor.getClass().getName()
+                            "Class: {}, Method: {}, InterceptorProcessor: {}", newClassName, methodNode.name, processor.getClass().getName()
                             , e
                     );
                 }
-
+                
             }
+
 
         }
 

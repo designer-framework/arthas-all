@@ -67,6 +67,8 @@ public class Configure {
      */
     private Boolean localConnectionNonAuth;
 
+    private String scanPackages = "com.taobao.arthas.spring";
+
     /**
      * 反序列化字符串成对象
      *
@@ -84,6 +86,14 @@ public class Configure {
             }
         }
         return configure;
+    }
+
+    public String getScanPackages() {
+        return scanPackages;
+    }
+
+    public void setScanPackages(String scanPackages) {
+        this.scanPackages = scanPackages;
     }
 
     public String getIp() {

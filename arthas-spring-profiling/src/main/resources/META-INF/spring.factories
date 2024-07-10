@@ -1,9 +1,9 @@
-com.taobao.arthas.profiling.api.spy.SpyExtensionApi=\
-com.taobao.arthas.spring.spy.SpringSpyExtensionApiImpl
-#MatchCandidate, 插装匹配逻辑,可以决定哪些方法被插装
-#匹配的方法被调用时, 将触发监听逻辑
-com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler=\
-  com.taobao.arthas.spring.handler.SpringInvokeAdviceHandler
-#监听逻辑
-com.taobao.arthas.profiling.api.advisor.AdviceListener=\
-  com.taobao.arthas.spring.advisor.SpringAdviceListener
+#com.taobao.arthas.profiling.api.spy.SpyExtensionApi=\
+#com.taobao.arthas.spring.spy.SpringSpyExtensionApiImpl
+##MatchCandidate, 插装匹配逻辑,可以决定哪些方法被插装
+##匹配的方法被调用时, 将触发监听逻辑
+#com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler=\
+#  com.taobao.arthas.spring.profiling.bean.SpringBeanCreateAdviceHandler
+##监听逻辑
+#com.taobao.arthas.profiling.api.advisor.AdviceListener=\
+#  com.taobao.arthas.spring.advisor.SpringAdviceListener
