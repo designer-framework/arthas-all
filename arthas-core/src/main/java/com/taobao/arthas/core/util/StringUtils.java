@@ -18,6 +18,7 @@ package com.taobao.arthas.core.util;
 
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
+import com.alibaba.deps.org.objectweb.asm.Type;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -953,6 +954,25 @@ public abstract class StringUtils {
     public static String[] splitMethodInfo(String methodInfo) {
         int index = methodInfo.indexOf('|');
         return new String[]{methodInfo.substring(0, index), methodInfo.substring(index + 1)};
+    }
+
+    /**
+     * 解析入参的JAVA类型
+     *
+     * @param methodDesc
+     * @return
+     */
+    public static String[] getMethodArgumentTypes(String methodDesc) {
+        Type methodType = Type.getMethodType(methodDesc);
+        Type[] argumentTypes = methodType.getArgumentTypes();
+        //方法入参对应的JAVA类型
+        String[] javaArgumentTypes = new String[argumentTypes.length];
+
+        for (int i = 0; i < argumentTypes.length; i++) {
+            javaArgumentTypes[i] = argumentTypes[i].getClassName();
+        }
+
+        return javaArgumentTypes;
     }
 
     // demo/MathGame|primeFactors|(I)Ljava/util/List;|24

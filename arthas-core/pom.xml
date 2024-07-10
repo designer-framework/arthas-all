@@ -127,11 +127,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.taobao.arthas</groupId>
-            <artifactId>arthas-vmtool</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>bytekit-core</artifactId>
         </dependency>
@@ -143,28 +138,6 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>com.taobao.arthas</groupId>
-            <artifactId>arthas-memorycompiler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.taobao.arthas</groupId>
-            <artifactId>arthas-tunnel-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.middleware</groupId>
-            <artifactId>termd-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.middleware</groupId>
-            <artifactId>cli</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.taobao.text</groupId>
-            <artifactId>text-ui</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
@@ -220,27 +193,6 @@
             <artifactId>ognl</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.taobao.arthas</groupId>
-            <artifactId>math-game</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-zip</artifactId>
             <scope>test</scope>
@@ -258,15 +210,12 @@
             <groupId>org.benf</groupId>
             <artifactId>cfr</artifactId>
         </dependency>
-        <!-- for com.sun.tools.attach.VirtualMachine api -->
-        <dependency>
-            <groupId>com.github.olivergondza</groupId>
-            <artifactId>maven-jdk-tools-wrapper</artifactId>
-            <version>0.1</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
 
+        <dependency>
+            <groupId>com.taobao.arthas</groupId>
+            <artifactId>arthas-profiling-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>

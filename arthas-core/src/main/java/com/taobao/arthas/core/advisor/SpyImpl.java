@@ -18,9 +18,9 @@ import java.arthas.SpyAPI.AbstractSpy;
 public class SpyImpl extends AbstractSpy {
     private static final Logger logger = LoggerFactory.getLogger(SpyImpl.class);
 
-    private static boolean skipAdviceListener(AdviceListener adviceListener) {
+    /*private static boolean skipAdviceListener(AdviceListener adviceListener) {
         return false;
-    }
+    }*/
 
     @Override
     public void atEnter(Class<?> clazz, String methodInfo, Object target, Object[] args) {

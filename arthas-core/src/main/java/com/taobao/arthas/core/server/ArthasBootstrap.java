@@ -17,12 +17,13 @@ import com.taobao.arthas.core.advisor.TransformerManager;
 import com.taobao.arthas.core.config.BinderUtils;
 import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.config.FeatureCodec;
-import com.taobao.arthas.core.container.SpringContainer;
 import com.taobao.arthas.core.env.ArthasEnvironment;
 import com.taobao.arthas.core.env.MapPropertySource;
 import com.taobao.arthas.core.env.PropertiesPropertySource;
 import com.taobao.arthas.core.env.PropertySource;
 import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
+import com.taobao.arthas.core.server.instrument.SpringInstrumentTransformer;
+import com.taobao.arthas.core.spring.SpringContainer;
 import com.taobao.arthas.core.util.FileUtils;
 import com.taobao.arthas.core.util.InstrumentationUtils;
 import com.taobao.arthas.core.util.LogUtil;
@@ -196,7 +197,8 @@ public class ArthasBootstrap {
     }
 
     private void enhanceSpringBoot() {
-
+        SpringContainer.run(arthasEnvironment, configure);
+        instrumentation.addTransformer(new SpringInstrumentTransformer(), true);
     }
 
     private void initFastjson() {
@@ -304,8 +306,6 @@ public class ArthasBootstrap {
         configure = new Configure();
 
         BinderUtils.inject(arthasEnvironment, configure);
-
-        SpringContainer.run(arthasEnvironment, configure);
     }
 
     // try to load arthas.properties

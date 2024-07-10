@@ -93,49 +93,12 @@
                             <deb>${project.build.directory}/arthas-${project.version}.deb</deb>
                             <dataSet>
                                 <data>
-                                    <src>${project.build.directory}/arthas-bin</src>
-                                    <type>directory</type>
-
-                                    <mapper>
-                                        <type>perm</type>
-                                        <strip>1</strip>
-                                        <prefix>/usr/share/arthas</prefix>
-                                        <user>root</user>
-                                        <group>root</group>
-                                    </mapper>
-                                </data>
-
-                                <data>
                                     <src>${project.build.directory}/arthas-bin/as.sh</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
                                         <strip>1</strip>
                                         <prefix>/usr/bin</prefix>
-                                        <filemode>755</filemode>
-                                        <user>root</user>
-                                        <group>root</group>
-                                    </mapper>
-                                </data>
-                                <data>
-                                    <src>../arthas-packaging/src/deb/man1/arthas.1</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <strip>1</strip>
-                                        <prefix>/usr/share/man/man1</prefix>
-                                        <filemode>755</filemode>
-                                        <user>root</user>
-                                        <group>root</group>
-                                    </mapper>
-                                </data>
-                                <data>
-                                    <src>../arthas-packaging/src/deb/copyright/copyright.1</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <strip>1</strip>
-                                        <prefix>/usr/share/doc/arthas</prefix>
                                         <filemode>755</filemode>
                                         <user>root</user>
                                         <group>root</group>

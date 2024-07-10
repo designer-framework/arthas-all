@@ -10,9 +10,10 @@ import com.alibaba.deps.org.objectweb.asm.ClassReader;
 import com.alibaba.deps.org.objectweb.asm.Opcodes;
 import com.alibaba.deps.org.objectweb.asm.tree.ClassNode;
 import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
-import com.taobao.arthas.core.container.SpringContainer;
-import com.taobao.arthas.core.container.interceptor.SpyInterceptors;
-import com.taobao.arthas.core.container.matcher.MatchCandidate;
+import com.taobao.arthas.core.spring.SpringContainer;
+import com.taobao.arthas.core.util.StringUtils;
+import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
+import com.taobao.arthas.profiling.api.interceptor.SpyInterceptorExtensionApi;
 
 import java.arthas.SpyAPI;
 import java.lang.instrument.ClassFileTransformer;
@@ -41,7 +42,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
 
         //类不匹配
         MatchCandidate matchCandidate = SpringContainer.getBean(MatchCandidate.class);
-        if (!matchCandidate.isCandidateClass(classNode)) {
+        if (!matchCandidate.isCandidateClass(classNode.name)) {
             return null;
         }
 
@@ -51,7 +52,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
         }
 
         DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-        List<InterceptorProcessor> interceptorProcessors = processors.parse(SpringContainer.getBean(SpyInterceptors.class).getClass());
+        List<InterceptorProcessor> interceptorProcessors = processors.parse(SpringContainer.getBean(SpyInterceptorExtensionApi.class).getClass());
 
         //匹配上，则进行字节码替换处理
         for (InterceptorProcessor processor : interceptorProcessors) {
@@ -76,7 +77,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
                 }
 
                 //方法不匹配
-                if (!matchCandidate.isCandidateMethod(classNode, methodNode)) {
+                if (!matchCandidate.isCandidateMethod(classNode.name, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc))) {
                     return null;
                 }
 

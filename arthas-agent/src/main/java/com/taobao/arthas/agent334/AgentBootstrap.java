@@ -26,6 +26,8 @@ public class AgentBootstrap {
 
     private static final String ARTHAS_CORE_JAR = "arthas-core.jar";
 
+    private static final String ARTHAS_AGENT_JAR = "arthas-agent.jar";
+
     private static final String ARTHAS_BOOTSTRAP = "com.taobao.arthas.core.server.ArthasBootstrap";
 
     private static final String GET_INSTANCE = "getInstance";
@@ -107,20 +109,29 @@ public class AgentBootstrap {
      * @throws Throwable
      */
     private static URL[] getAllJarFileURL(File arthasCoreJarFile) throws Throwable {
-        File file = new File(arthasCoreJarFile.getParentFile(), "plugins");
-        if (file.exists()) {
-            List<URL> jarUrls = new ArrayList<URL>();
-            jarUrls.add(arthasCoreJarFile.toURI().toURL());
+        List<URL> jarUrls = new ArrayList<>();
+        jarUrls.addAll(findJarFileURL(arthasCoreJarFile.getParentFile()));
+        jarUrls.addAll(findJarFileURL(new File(arthasCoreJarFile.getParentFile(), "plugins")));
+        return jarUrls.toArray(new URL[]{});
+    }
+
+    private static List<URL> findJarFileURL(File file) throws Throwable {
+        if (file.exists() && file.isDirectory()) {
+
+            List<URL> jarUrls = new ArrayList<>();
+
             File[] plugins = file.listFiles();
             for (File plugin : plugins) {
                 String jarFileName = plugin.getName();
-                if (jarFileName.endsWith(".jar")) {
+                if (!ARTHAS_AGENT_JAR.equals(jarFileName) && jarFileName.endsWith(".jar")) {
                     jarUrls.add(plugin.toURI().toURL());
                 }
             }
-            return jarUrls.toArray(new URL[]{});
+
+            return jarUrls;
+
         } else {
-            return new URL[]{arthasCoreJarFile.toURI().toURL()};
+            return new ArrayList<>();
         }
     }
 
@@ -172,7 +183,7 @@ public class AgentBootstrap {
                     try {
 
                         File arthasAgentJarFile = new File(getAgentLibPath());
-                        arthasCoreJarFile = new File(arthasAgentJarFile.getParentFile(), ARTHAS_CORE_JAR);
+                        arthasCoreJarFile = new File(arthasAgentJarFile, ARTHAS_CORE_JAR);
                         if (!arthasCoreJarFile.exists()) {
                             ps.println("Can not find arthas-core jar file from agent jar directory: " + arthasAgentJarFile);
                         }
@@ -231,12 +242,12 @@ public class AgentBootstrap {
          */
         Class<?> bootstrapClass = agentLoader.loadClass(ARTHAS_BOOTSTRAP);
         Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE, Instrumentation.class, String.class).invoke(null, inst, args);
-        boolean isBind = (Boolean) bootstrapClass.getMethod("IS_BIND").invoke(bootstrap);
+        /*boolean isBind = (Boolean) bootstrapClass.getMethod("IS_BIND").invoke(bootstrap);
         if (!isBind) {
             String errorMsg = "Arthas server port binding failed! Please check $HOME/logs/arthas/arthas.log for more details.";
             ps.println(errorMsg);
             throw new RuntimeException(errorMsg);
-        }
+        }*/
         ps.println("Arthas server already bind.");
     }
 
@@ -259,7 +270,7 @@ public class AgentBootstrap {
                 continue;
             }
 
-            String value = jvmArg.substring(index + 1);
+            String value = jvmArg.substring(index + 11);
 
             if (value.endsWith("arthas-agent.jar")) {
                 return value.substring(0, value.lastIndexOf(File.separator) + 1);
