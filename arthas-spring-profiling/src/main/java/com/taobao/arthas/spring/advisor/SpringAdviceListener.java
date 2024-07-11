@@ -3,7 +3,6 @@ package com.taobao.arthas.spring.advisor;
 import com.taobao.arthas.profiling.api.enums.InvokeType;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
-import com.taobao.arthas.spring.properties.ArthasProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +25,6 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
 
     @Autowired
     private InvokeAdviceHandler invokeAdviceHandler;
-
-    @Autowired
-    private ArthasProperties arthasProperties;
 
     @Override
     public long id() {

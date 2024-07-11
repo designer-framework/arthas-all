@@ -2,23 +2,24 @@ package com.taobao.arthas.spring.profiling.bean;
 
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
+import com.taobao.arthas.spring.properties.ArthasProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
-public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler, EnvironmentAware {
+public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler {
 
     /**
-     * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
+     * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
     private final String[] methodArgTypes = new String[]{"java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]"};
 
-    private Environment environment;
+    private final Set<String> traceMethods;
 
-    @Value("${spring.listener.method[0]}")
-    private String invokeDetail;
+    public SpringBeanCreateAdviceHandler(ArthasProperties arthasProperties) {
+        this.traceMethods = arthasProperties.traceMethods();
+    }
 
     @Override
     public boolean isCandidateClass(String className) {
@@ -51,11 +52,6 @@ public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler, Envir
 
     @Override
     public void afterThrowing(InvokeVO invokeVO) {
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
 }
