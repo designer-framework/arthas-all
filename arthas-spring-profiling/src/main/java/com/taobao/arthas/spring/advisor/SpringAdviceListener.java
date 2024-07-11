@@ -4,10 +4,8 @@ import com.taobao.arthas.profiling.api.enums.InvokeType;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.properties.ArthasProperties;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -17,7 +15,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * 参见
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
-public class SpringAdviceListener extends SpringAdviceListenerAdapter implements BeanDefinitionRegistryPostProcessor {
+@Component
+public class SpringAdviceListener extends SpringAdviceListenerAdapter {
 
     private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
     /**
@@ -25,17 +24,11 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
      */
     private static final ThreadLocal<InvokeStack> invokeStack = ThreadLocal.withInitial(InvokeStack::new);
 
-    private final InvokeAdviceHandler invokeAdviceHandler;
+    @Autowired
+    private InvokeAdviceHandler invokeAdviceHandler;
 
-    private final ArthasProperties arthasProperties;
-
-    public SpringAdviceListener(
-            InvokeAdviceHandler invokeAdviceHandler
-            , ArthasProperties arthasProperties
-    ) {
-        this.invokeAdviceHandler = invokeAdviceHandler;
-        this.arthasProperties = arthasProperties;
-    }
+    @Autowired
+    private ArthasProperties arthasProperties;
 
     @Override
     public long id() {
@@ -81,14 +74,6 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter implements
         invokeAdviceHandler.afterThrowing(
                 InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
         );
-    }
-
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
     }
 
     static class InvokeStack {

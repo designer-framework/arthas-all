@@ -2,6 +2,8 @@ package com.taobao.arthas.spring.spy;
 
 import com.taobao.arthas.profiling.api.advisor.AdviceListener;
 import com.taobao.arthas.profiling.api.spy.SpyExtensionApi;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -15,19 +17,17 @@ import java.util.List;
  *
  * @author hengyunabc 2020-04-24
  */
+@Component
 public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
-    private final List<AdviceListener> adviceListeners;
-
-    public SpringSpyExtensionApiImpl(List<AdviceListener> adviceListeners) {
-        this.adviceListeners = adviceListeners;
-    }
+    @Autowired
+    private List<AdviceListener> adviceListeners;
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {
         try {
             for (AdviceListener adviceListener : adviceListeners) {
-                adviceListener.before(clazz, methodName, null, target, args);
+                adviceListener.before(clazz, methodName, methodArgumentTypes, target, args);
             }
         } catch (Throwable e) {
             throw new RuntimeException(e);
@@ -38,7 +38,7 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
     public void atExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
         try {
             for (AdviceListener adviceListener : adviceListeners) {
-                adviceListener.afterReturning(clazz, methodName, null, target, args, returnObject);
+                adviceListener.afterReturning(clazz, methodName, methodArgumentTypes, target, args, returnObject);
             }
         } catch (Throwable e) {
             throw new RuntimeException(e);

@@ -5,7 +5,9 @@ import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler, EnvironmentAware {
 
     /**
@@ -17,9 +19,6 @@ public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler, Envir
 
     @Value("${spring.listener.method[0]}")
     private String invokeDetail;
-
-    public SpringBeanCreateAdviceHandler() {
-    }
 
     @Override
     public boolean isCandidateClass(String className) {

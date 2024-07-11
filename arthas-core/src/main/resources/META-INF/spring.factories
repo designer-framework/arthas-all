@@ -1,7 +1,7 @@
-#Spring应用和Agent程序交互的桥梁
-java.arthas.SpyAPI$AbstractSpy=\
-  com.taobao.arthas.core.advisor.ExtensionSpyImpl
-#------
-#期望在哪些调用时机插装
-com.taobao.arthas.profiling.api.interceptor.SpyInterceptorExtensionApi=\
-com.taobao.arthas.core.advisor.DefaultSpyInterceptorExtension
+##Spring应用和Agent程序交互的桥梁
+#java.arthas.SpyAPI$AbstractSpy=\
+#  com.taobao.arthas.core.advisor.ExtensionSpyImpl
+##------
+##期望在哪些调用时机插装
+#com.taobao.arthas.profiling.api.interceptor.SpyInterceptorExtensionApi=\
+#com.taobao.arthas.core.advisor.ExtensionSpyInterceptor

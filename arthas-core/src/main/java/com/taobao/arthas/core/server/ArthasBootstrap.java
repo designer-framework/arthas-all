@@ -22,11 +22,11 @@ import com.taobao.arthas.core.env.MapPropertySource;
 import com.taobao.arthas.core.env.PropertiesPropertySource;
 import com.taobao.arthas.core.env.PropertySource;
 import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
-import com.taobao.arthas.core.server.instrument.SpringInstrumentTransformer;
-import com.taobao.arthas.core.spring.SpringContainer;
+import com.taobao.arthas.core.server.instrument.EnhanceProfilingInstrumentTransformer;
 import com.taobao.arthas.core.util.FileUtils;
 import com.taobao.arthas.core.util.InstrumentationUtils;
 import com.taobao.arthas.core.util.LogUtil;
+import com.taobao.arthas.profiling.api.processor.ProfilingAdaptor;
 
 import java.arthas.SpyAPI;
 import java.io.File;
@@ -104,7 +104,7 @@ public class ArthasBootstrap {
         enhanceClassLoader();
 
         // 4.1 增强Spring
-        enhanceSpringBoot();
+        enhanceProfiling();
 
         // 5. init beans
         initBeans();
@@ -196,9 +196,19 @@ public class ArthasBootstrap {
         return arthasBootstrap;
     }
 
-    private void enhanceSpringBoot() {
-        SpringContainer.run(arthasEnvironment, configure);
-        instrumentation.addTransformer(new SpringInstrumentTransformer(), true);
+    private void enhanceProfiling() {
+        //只允许一个实现
+        ServiceLoader<ProfilingAdaptor> profilingAdaptors = ServiceLoader.load(ProfilingAdaptor.class, EnhanceProfilingInstrumentTransformer.class.getClassLoader());
+
+        for (ProfilingAdaptor profilingAdaptor_ : profilingAdaptors) {
+            /**
+             * 获取Spy实现类
+             */
+            SpyAPI.setSpy(profilingAdaptor_.getSpyAPI());
+            instrumentation.addTransformer(new EnhanceProfilingInstrumentTransformer(profilingAdaptor_), true);
+            break;
+        }
+
     }
 
     private void initFastjson() {

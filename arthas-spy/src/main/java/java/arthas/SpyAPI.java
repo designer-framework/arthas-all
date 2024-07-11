@@ -81,6 +81,19 @@ public class SpyAPI {
         spyInstance.atInvokeException(clazz, invokeInfo, target, throwable);
     }
 
+    //以下三个方法属于拓展方法
+    public static void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
+        spyInstance.atEnter(clazz, methodName, methodDesc, target, args);
+    }
+
+    public static void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
+        spyInstance.atExit(clazz, methodName, methodDesc, target, args, returnObject);
+    }
+
+    public static void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
+        spyInstance.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable);
+    }
+
     public static abstract class AbstractSpy {
 
         public abstract void atEnter(Class<?> clazz, String methodInfo, Object target, Object[] args);
@@ -94,6 +107,17 @@ public class SpyAPI {
         public abstract void atAfterInvoke(Class<?> clazz, String invokeInfo, Object target);
 
         public abstract void atInvokeException(Class<?> clazz, String invokeInfo, Object target, Throwable throwable);
+
+
+        //以下三个方法属于拓展方法
+        public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
+        }
+
+        public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
+        }
+
+        public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
+        }
 
     }
 

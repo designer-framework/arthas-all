@@ -10,33 +10,38 @@ import com.alibaba.deps.org.objectweb.asm.ClassReader;
 import com.alibaba.deps.org.objectweb.asm.Opcodes;
 import com.alibaba.deps.org.objectweb.asm.tree.ClassNode;
 import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
-import com.taobao.arthas.core.spring.SpringContainer;
+import com.taobao.arthas.core.advisor.ExtensionSpyInterceptor;
 import com.taobao.arthas.core.util.StringUtils;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
-import com.taobao.arthas.profiling.api.interceptor.SpyInterceptorExtensionApi;
+import com.taobao.arthas.profiling.api.processor.ProfilingAdaptor;
 
-import java.arthas.SpyAPI;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Collection;
 import java.util.List;
 
-public class SpringInstrumentTransformer implements ClassFileTransformer {
-
-    static {
-        /**
-         * 从容器中获取Spy实现类
-         */
-        SpyAPI.setSpy(SpringContainer.getBean(SpyAPI.AbstractSpy.class));
-    }
+public class EnhanceProfilingInstrumentTransformer implements ClassFileTransformer {
 
     private final Logger logger = Loggers.getLogger(getClass());
+
+    private final ProfilingAdaptor profilingAdaptor;
+
+    public EnhanceProfilingInstrumentTransformer(ProfilingAdaptor profilingAdaptor) {
+        this.profilingAdaptor = profilingAdaptor;
+    }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (className == null) {
             return null;
         }
+
+        //不切arthas包
+        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun")) {
+            return null;
+        }
+
         //
         ClassNode classNode = new ClassNode(Opcodes.ASM9);
         ClassReader classReader = AsmUtils.toClassNode(classfileBuffer, classNode);
@@ -44,10 +49,9 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
         classNode = AsmUtils.removeJSRInstructions(classNode);
 
         //类不匹配
-        MatchCandidate matchCandidate = SpringContainer.getBean(MatchCandidate.class);
-
         String newClassName = StringUtils.normalizeClassName(classNode.name);
-        if (!matchCandidate.isCandidateClass(newClassName)) {
+
+        if (!isCandidateClass(newClassName)) {
             return null;
         }
 
@@ -57,8 +61,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
         }
 
         DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-        List<InterceptorProcessor> interceptorProcessors = processors.parse(SpringContainer.getBean(SpyInterceptorExtensionApi.class).getClass());
-
+        List<InterceptorProcessor> interceptorProcessors = processors.parse(ExtensionSpyInterceptor.class);
 
         // 查找 @Instrument 字节码里的 method，如果在原来的有同样的，则处理替换；如果没有，则复制过去
         for (MethodNode methodNode : classNode.methods) {
@@ -80,7 +83,7 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
             }
 
             //方法不匹配
-            if (!matchCandidate.isCandidateMethod(newClassName, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc))) {
+            if (!isCandidateMethod(newClassName, methodNode)) {
                 continue;
             }
 
@@ -97,13 +100,47 @@ public class SpringInstrumentTransformer implements ClassFileTransformer {
                             , e
                     );
                 }
-                
+
             }
 
 
         }
 
         return AsmUtils.toBytes(classNode, loader, classReader);
+    }
+
+    /**
+     * @param newClassName
+     * @return
+     */
+    private boolean isCandidateClass(String newClassName) {
+        Collection<MatchCandidate> matchCandidates = profilingAdaptor.getMatchCandidates();
+        for (MatchCandidate matchCandidate : matchCandidates) {
+            if (matchCandidate.isCandidateClass(newClassName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param newClassName
+     * @param methodNode
+     * @return
+     */
+    private boolean isCandidateMethod(String newClassName, MethodNode methodNode) {
+
+        String[] methodArgumentTypes = StringUtils.getMethodArgumentTypes(methodNode.desc);
+
+        Collection<MatchCandidate> matchCandidates = profilingAdaptor.getMatchCandidates();
+
+        for (MatchCandidate matchCandidate : matchCandidates) {
+            if (matchCandidate.isCandidateMethod(newClassName, methodNode.name, methodArgumentTypes)) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
 }
