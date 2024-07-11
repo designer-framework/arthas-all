@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -24,7 +25,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
     private static final ThreadLocal<InvokeStack> invokeStack = ThreadLocal.withInitial(InvokeStack::new);
 
     @Autowired
-    private InvokeAdviceHandler invokeAdviceHandler;
+    private List<InvokeAdviceHandler> invokeAdviceHandlers;
 
     @Override
     public long id() {
@@ -43,9 +44,13 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
         stack.pushInvokeId(currInvokeId);
         long headInvokeId = headInvokeId();
 
-        invokeAdviceHandler.before(
-                InvokeVO.newForBefore(loader, clazz, methodName, methodArgumentTypes, target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
-        );
+        invokeAdviceHandlers.forEach(invokeAdviceHandler -> {
+
+            invokeAdviceHandler.before(
+                    InvokeVO.newForBefore(loader, clazz, methodName, methodArgumentTypes, target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
+            );
+
+        });
     }
 
     @Override
@@ -55,9 +60,14 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        invokeAdviceHandler.afterReturning(
-                InvokeVO.newForAfterReturning(loader, clazz, methodName, methodArgumentTypes, target, args, returnObject, InvokeType.ENTER, headInvokeId, currInvokeId)
-        );
+
+        invokeAdviceHandlers.forEach(invokeAdviceHandler -> {
+
+            invokeAdviceHandler.afterReturning(
+                    InvokeVO.newForAfterReturning(loader, clazz, methodName, methodArgumentTypes, target, args, returnObject, InvokeType.ENTER, headInvokeId, currInvokeId)
+            );
+
+        });
     }
 
     @Override
@@ -67,9 +77,13 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        invokeAdviceHandler.afterThrowing(
-                InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
-        );
+        invokeAdviceHandlers.forEach(invokeAdviceHandler -> {
+
+            invokeAdviceHandler.afterThrowing(
+                    InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
+            );
+
+        });
     }
 
     static class InvokeStack {
