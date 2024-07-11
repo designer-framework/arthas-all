@@ -3,6 +3,7 @@ package com.taobao.arthas.spring.profiling.bean;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.properties.ArthasProperties;
+import com.taobao.arthas.spring.vo.TraceMethodProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -15,7 +16,7 @@ public class SpringBeanCreateAdviceHandler implements InvokeAdviceHandler {
      */
     private final String[] methodArgTypes = new String[]{"java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]"};
 
-    private final Set<String> traceMethods;
+    private final Set<TraceMethodProperty> traceMethods;
 
     public SpringBeanCreateAdviceHandler(ArthasProperties arthasProperties) {
         this.traceMethods = arthasProperties.traceMethods();
