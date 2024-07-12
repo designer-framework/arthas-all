@@ -11,4 +11,6 @@ public interface ProfilingAdaptor {
 
     Collection<MatchCandidate> getMatchCandidates();
 
+    void addShutdownHook(Runnable runnable);
+
 }

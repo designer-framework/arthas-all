@@ -205,7 +205,13 @@ public class ArthasBootstrap {
              * 获取Spy实现类
              */
             SpyAPI.setSpy(profilingAdaptor_.getSpyAPI());
-            instrumentation.addTransformer(new EnhanceProfilingInstrumentTransformer(profilingAdaptor_), true);
+            EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(profilingAdaptor_);
+            instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
+
+            profilingAdaptor_.addShutdownHook(() -> {
+                SpyAPI.setNopSpy();
+                instrumentation.removeTransformer(enhanceProfilingInstrumentTransformer);
+            });
             break;
         }
 

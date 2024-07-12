@@ -60,7 +60,6 @@ public class InvokeVO {
         this.invokeId = invokeId;
     }
 
-
     public static InvokeVO newForBefore(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, InvokeType invokeType, long processorId, long invokeId) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, null, //returnObj
                 null, //throwExp
@@ -75,6 +74,10 @@ public class InvokeVO {
     public static InvokeVO newForAfterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Throwable throwExp, InvokeType invokeType, long processorId, long invokeId) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, null, //returnObj
                 throwExp, invokeType, processorId, invokeId);
+    }
+
+    public String[] getMethodArgumentTypes() {
+        return methodArgumentTypes;
     }
 
     public ClassLoader getLoader() {

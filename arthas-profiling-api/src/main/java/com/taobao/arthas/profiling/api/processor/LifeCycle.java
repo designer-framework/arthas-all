@@ -5,7 +5,8 @@ public interface LifeCycle {
     /**
      * 容器启动
      */
-    void start();
+    default void start() {
+    }
 
     /**
      * 容器销毁

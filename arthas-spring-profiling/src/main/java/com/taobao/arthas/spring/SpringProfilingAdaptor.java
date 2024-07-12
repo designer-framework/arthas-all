@@ -7,7 +7,9 @@ import com.taobao.arthas.spring.configuration.ArthasExtensionSpringPostProcessor
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.arthas.SpyAPI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SpringProfilingAdaptor implements ProfilingAdaptor {
@@ -20,6 +22,8 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
 
     private static Collection<MatchCandidate> matchCandidates;
 
+    private static List<Runnable> agentShutdownHooks = new ArrayList<>();
+
     static {
         /**
          *
@@ -29,10 +33,11 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
         if (adaptorStarted.compareAndSet(false, true)) {
 
             springContainer = new AnnotationConfigApplicationContext();
+            springContainer.getEnvironment();
             //指定类加载器
             springContainer.setClassLoader(SpringProfilingAdaptor.class.getClassLoader());
             //支持注解式自动注入
-            springContainer.addBeanFactoryPostProcessor(new ArthasExtensionSpringPostProcessor(springContainer));
+            springContainer.addBeanFactoryPostProcessor(new ArthasExtensionSpringPostProcessor(springContainer, agentShutdownHooks));
             //扫包
             springContainer.scan("com.taobao.arthas.spring");
             springContainer.refresh();
@@ -49,7 +54,6 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
 
     }
 
-
     @Override
     public SpyAPI.AbstractSpy getSpyAPI() {
         return abstractSpy;
@@ -58,6 +62,11 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
     @Override
     public Collection<MatchCandidate> getMatchCandidates() {
         return matchCandidates;
+    }
+
+    @Override
+    public void addShutdownHook(Runnable runnable) {
+        agentShutdownHooks.add(runnable);
     }
 
 }

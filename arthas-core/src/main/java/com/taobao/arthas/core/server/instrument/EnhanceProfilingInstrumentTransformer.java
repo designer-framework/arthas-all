@@ -37,21 +37,13 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
             return null;
         }
 
-        //不切arthas包
+        //不处理java包
         if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun")) {
             return null;
         }
 
-        //
-        ClassNode classNode = new ClassNode(Opcodes.ASM9);
-        ClassReader classReader = AsmUtils.toClassNode(classfileBuffer, classNode);
-        // fix https://github.com/alibaba/one-java-agent/issues/51
-        classNode = AsmUtils.removeJSRInstructions(classNode);
-
-        //类不匹配
-        String newClassName = StringUtils.normalizeClassName(classNode.name);
-
-        if (!isCandidateClass(newClassName)) {
+        //不处理arthas包
+        if (className.startsWith("com/taobao/arthas") || className.startsWith("com/intellij") || className.startsWith("org/jetbrains")) {
             return null;
         }
 
@@ -60,53 +52,73 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
             return null;
         }
 
-        DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-        List<InterceptorProcessor> interceptorProcessors = processors.parse(ExtensionSpyInterceptor.class);
+        ClassNode classNode = new ClassNode(Opcodes.ASM9);
+        ClassReader classReader = AsmUtils.toClassNode(classfileBuffer, classNode);
+        // fix https://github.com/alibaba/one-java-agent/issues/51
+        classNode = AsmUtils.removeJSRInstructions(classNode);
 
-        // 查找 @Instrument 字节码里的 method，如果在原来的有同样的，则处理替换；如果没有，则复制过去
-        for (MethodNode methodNode : classNode.methods) {
+        String newClassName = StringUtils.normalizeClassName(classNode.name);
 
-            //调用频率最高的判断放前面, 减少匹配次数
-            // 不处理abstract函数
-            if (AsmUtils.isAbstract(methodNode)) {
+        Collection<MatchCandidate> matchCandidates = profilingAdaptor.getMatchCandidates();
+        for (MatchCandidate matchCandidate : matchCandidates) {
+
+            //类名不匹配
+            if (!matchCandidate.isCandidateClass(newClassName)) {
                 continue;
             }
 
-            // 不处理native
-            if (AsmUtils.isNative(methodNode)) {
-                continue;
-            }
+            DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
+            List<InterceptorProcessor> interceptorProcessors = processors.parse(ExtensionSpyInterceptor.class);
 
-            // 不处理构造函数
-            if (AsmUtils.isConstructor(methodNode)) {
-                continue;
-            }
+            // 查找 @Instrument 字节码里的 method，如果在原来的有同样的，则处理替换；如果没有，则复制过去
+            for (MethodNode methodNode : classNode.methods) {
 
-            //方法不匹配
-            if (!isCandidateMethod(newClassName, methodNode)) {
-                continue;
-            }
-
-            MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
-
-            //匹配上，则进行字节码替换处理
-            for (InterceptorProcessor processor : interceptorProcessors) {
-
-                try {
-                    processor.process(methodProcessor);
-                } catch (Exception e) {
-                    logger.error(
-                            "Class: {}, Method: {}, InterceptorProcessor: {}", newClassName, methodNode.name, processor.getClass().getName()
-                            , e
-                    );
+                //调用频率最高的判断放前面, 减少匹配次数
+                // 不处理abstract函数
+                if (AsmUtils.isAbstract(methodNode)) {
+                    continue;
                 }
 
-            }
+                // 不处理native
+                if (AsmUtils.isNative(methodNode)) {
+                    continue;
+                }
 
+                // 不处理构造函数
+                if (AsmUtils.isConstructor(methodNode)) {
+                    continue;
+                }
+
+                //方法不匹配则直接匹配下一个方法
+                if (!isCandidateMethod(matchCandidate, newClassName, methodNode)) {
+                    continue;
+                }
+
+                MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
+
+                //匹配成功，则进行字节码替换处理
+                for (InterceptorProcessor processor : interceptorProcessors) {
+
+                    try {
+                        processor.process(methodProcessor);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Class: {}, Method: {}, InterceptorProcessor: {}", newClassName, methodNode.name, processor.getClass().getName()
+                                , e
+                        );
+                    }
+
+                }
+
+                //只需要增强一次
+                return AsmUtils.toBytes(classNode, loader, classReader);
+
+            }
 
         }
 
-        return AsmUtils.toBytes(classNode, loader, classReader);
+        //无需增强
+        return null;
     }
 
     /**
@@ -128,19 +140,8 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
      * @param methodNode
      * @return
      */
-    private boolean isCandidateMethod(String newClassName, MethodNode methodNode) {
-
-        String[] methodArgumentTypes = StringUtils.getMethodArgumentTypes(methodNode.desc);
-
-        Collection<MatchCandidate> matchCandidates = profilingAdaptor.getMatchCandidates();
-
-        for (MatchCandidate matchCandidate : matchCandidates) {
-            if (matchCandidate.isCandidateMethod(newClassName, methodNode.name, methodArgumentTypes)) {
-                return true;
-            }
-        }
-        return false;
-
+    private boolean isCandidateMethod(MatchCandidate matchCandidate, String newClassName, MethodNode methodNode) {
+        return matchCandidate.isCandidateMethod(newClassName, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc));
     }
 
 }

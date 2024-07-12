@@ -1,6 +1,6 @@
 package com.taobao.arthas.spring.properties;
 
-import com.taobao.arthas.spring.vo.TraceMethodProperty;
+import com.taobao.arthas.spring.vo.TraceMethodInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -24,13 +24,13 @@ public class ArthasProperties {
     @Value("${spring.invoke.trace.methods}")
     private String methods;
 
-    public Set<TraceMethodProperty> traceMethods() {
+    public Set<TraceMethodInfo> traceMethods() {
         if (!StringUtils.hasText(methods)) {
             return Collections.emptySet();
         } else {
             String[] invokeTracesArr = methods.split(delimiter);
 
-            Set<TraceMethodProperty> traceMethodProperties = new HashSet<>();
+            Set<TraceMethodInfo> traceMethodProperties = new HashSet<>();
             for (String invokeTrace : invokeTracesArr) {
                 traceMethodProperties.add(getTraceMethodProperty(invokeTrace));
             }
@@ -38,7 +38,7 @@ public class ArthasProperties {
         }
     }
 
-    private TraceMethodProperty getTraceMethodProperty(String invokeTrace) {
+    private TraceMethodInfo getTraceMethodProperty(String invokeTrace) {
 
         String[] splitProperty = invokeTrace.split("#")[1].split("\\(");
 
@@ -55,7 +55,7 @@ public class ArthasProperties {
             }
         }
 
-        return new TraceMethodProperty(
+        return new TraceMethodInfo(
                 invokeTrace.split("#")[0], splitProperty[0]
                 , Arrays.stream(methodArgumentsArray).toArray(String[]::new)
         );
