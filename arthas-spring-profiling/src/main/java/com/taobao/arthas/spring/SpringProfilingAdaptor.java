@@ -1,8 +1,8 @@
 package com.taobao.arthas.spring;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
-import com.taobao.arthas.profiling.api.processor.LifeCycle;
 import com.taobao.arthas.profiling.api.processor.ProfilingAdaptor;
+import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.spring.configuration.ArthasExtensionSpringPostProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -48,7 +48,7 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
             abstractSpy = springContainer.getBean(SpyAPI.AbstractSpy.class);
 
             //发布初始化事件
-            springContainer.getBeansOfType(LifeCycle.class).values().forEach(LifeCycle::start);
+            springContainer.getBeansOfType(ProfilingLifeCycle.class).values().forEach(ProfilingLifeCycle::start);
 
         }
 

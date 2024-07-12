@@ -66,4 +66,5 @@
             <directory>../lib</directory>
         </fileSet>
     </fileSets>
+
 </assembly>

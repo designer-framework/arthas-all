@@ -1,11 +1,11 @@
 package com.taobao.arthas.spring.properties;
 
+import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.spring.vo.TraceMethodInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,35 +32,12 @@ public class ArthasProperties {
 
             Set<TraceMethodInfo> traceMethodProperties = new HashSet<>();
             for (String invokeTrace : invokeTracesArr) {
-                traceMethodProperties.add(getTraceMethodProperty(invokeTrace));
+                traceMethodProperties.add(FullyQualifiedClassUtils.toTraceMethodInfo(invokeTrace));
             }
             return traceMethodProperties;
         }
     }
 
-    private TraceMethodInfo getTraceMethodProperty(String invokeTrace) {
-
-        String[] splitProperty = invokeTrace.split("#")[1].split("\\(");
-
-        String methodArguments = splitProperty[1];
-
-        String[] methodArgumentsArray = methodArguments.split(",");
-
-        for (int i = 0; i < methodArgumentsArray.length; i++) {
-            String trimmed = methodArgumentsArray[i].trim();
-            if (i == methodArgumentsArray.length - 1) {
-                methodArgumentsArray[i] = trimmed.substring(0, trimmed.length() - 1);
-            } else {
-                methodArgumentsArray[i] = trimmed;
-            }
-        }
-
-        return new TraceMethodInfo(
-                invokeTrace.split("#")[0], splitProperty[0]
-                , Arrays.stream(methodArgumentsArray).toArray(String[]::new)
-        );
-
-    }
 
     public String getDelimiter() {
         return delimiter;

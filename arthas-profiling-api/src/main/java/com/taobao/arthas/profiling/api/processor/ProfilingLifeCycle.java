@@ -1,15 +1,15 @@
 package com.taobao.arthas.profiling.api.processor;
 
-public interface LifeCycle {
+public interface ProfilingLifeCycle {
 
     /**
-     * 容器启动
+     * 开始分析
      */
     default void start() {
     }
 
     /**
-     * 容器销毁
+     * 分析完毕
      */
     void stop();
 

@@ -209,7 +209,7 @@ public class ArthasBootstrap {
             instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
 
             profilingAdaptor_.addShutdownHook(() -> {
-                SpyAPI.setNopSpy();
+                SpyAPI.destroy();
                 instrumentation.removeTransformer(enhanceProfilingInstrumentTransformer);
             });
             break;

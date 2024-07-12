@@ -65,10 +65,10 @@
                                     <pattern>ch.qos.logback</pattern>
                                     <shadedPattern>${arthas.deps.package}.ch.qos.logback</shadedPattern>
                                 </relocation>
-                                <relocation>
+                                <!--<relocation>
                                     <pattern>io.netty</pattern>
                                     <shadedPattern>${arthas.deps.package}.io.netty</shadedPattern>
-                                </relocation>
+                                </relocation>-->
                                 <relocation>
                                     <pattern>com.alibaba.fastjson</pattern>
                                     <shadedPattern>${arthas.deps.package}.com.alibaba.fastjson</shadedPattern>
@@ -225,6 +225,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>5.2.15.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
         </dependency>
     </dependencies>
 
