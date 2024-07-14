@@ -1,8 +1,8 @@
-package com.taobao.arthas.spring.server;
+package com.taobao.arthas.spring.web;
 
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
-import com.taobao.arthas.spring.events.BeanCreatedEvent;
-import com.taobao.arthas.spring.report.BeanCreateReporter;
+import com.taobao.arthas.spring.listener.Reporter;
+import com.taobao.arthas.spring.vo.ReportVO;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class SpringProfilingReporterServer implements ProfilingLifeCycle {
@@ -24,7 +25,7 @@ public class SpringProfilingReporterServer implements ProfilingLifeCycle {
     private int port;
 
     @Autowired
-    private BeanCreateReporter beanCreateReporter;
+    private List<Reporter> reporters;
 
     /**
      * 异步启动性能分析报表Web服务端
@@ -35,9 +36,10 @@ public class SpringProfilingReporterServer implements ProfilingLifeCycle {
                 .start();
     }
 
-    public void start(int port) {
+    private void start(int port) {
 
         try {
+            //
             ServerBootstrap bootstrap = new ServerBootstrap();
             EventLoopGroup boss = new NioEventLoopGroup();
             EventLoopGroup work = new NioEventLoopGroup();
@@ -48,12 +50,17 @@ public class SpringProfilingReporterServer implements ProfilingLifeCycle {
 
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
 
-            List<BeanCreatedEvent> beanCreatedEvents = beanCreateReporter.getBeanCreatedEvents();
+            List<ReportVO> reportsVO = reporters.stream().map(Reporter::getReportVO).collect(Collectors.toList());
+
             System.out.println(" Profiling reporter server start up on port : http://127.0.0.1:" + port);
 
             f.channel().closeFuture().sync();
+
+
         } catch (InterruptedException e) {
+
             throw new RuntimeException(e);
+
         }
 
     }

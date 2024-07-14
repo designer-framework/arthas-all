@@ -1,8 +1,6 @@
 package com.taobao.arthas.spring.events;
 
-import org.springframework.context.ApplicationEvent;
-
-public class BeanCreatedEvent extends ApplicationEvent {
+public class BeanCreatedEvent extends BeanCreationEvent {
 
     public BeanCreatedEvent(Object source) {
         super(source);

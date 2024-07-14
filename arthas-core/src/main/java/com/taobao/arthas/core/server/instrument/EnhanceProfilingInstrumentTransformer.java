@@ -38,7 +38,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
         }
 
         //不处理java包
-        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun")) {
+        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("jdk")) {
             return null;
         }
 
@@ -90,7 +90,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 }
 
                 //方法不匹配则直接匹配下一个方法
-                if (!isCandidateMethod(matchCandidate, newClassName, methodNode)) {
+                if (!matchCandidate.isCandidateMethod(newClassName, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc))) {
                     continue;
                 }
 
@@ -119,29 +119,6 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
         //无需增强
         return null;
-    }
-
-    /**
-     * @param newClassName
-     * @return
-     */
-    private boolean isCandidateClass(String newClassName) {
-        Collection<MatchCandidate> matchCandidates = profilingAdaptor.getMatchCandidates();
-        for (MatchCandidate matchCandidate : matchCandidates) {
-            if (matchCandidate.isCandidateClass(newClassName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param newClassName
-     * @param methodNode
-     * @return
-     */
-    private boolean isCandidateMethod(MatchCandidate matchCandidate, String newClassName, MethodNode methodNode) {
-        return matchCandidate.isCandidateMethod(newClassName, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc));
     }
 
 }

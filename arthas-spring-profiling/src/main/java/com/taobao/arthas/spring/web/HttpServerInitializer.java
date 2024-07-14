@@ -1,4 +1,4 @@
-package com.taobao.arthas.spring.server;
+package com.taobao.arthas.spring.web;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -6,7 +6,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
-
+/**
+ *
+ */
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override

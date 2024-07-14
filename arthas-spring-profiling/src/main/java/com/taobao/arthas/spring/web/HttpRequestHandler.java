@@ -1,4 +1,4 @@
-package com.taobao.arthas.spring.server;
+package com.taobao.arthas.spring.web;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;

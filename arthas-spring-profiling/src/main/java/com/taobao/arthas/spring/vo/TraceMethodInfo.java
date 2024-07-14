@@ -14,11 +14,11 @@ public class TraceMethodInfo {
         this.className = className;
         this.methodName = methodName;
         this.methodArgumentTypes = methodArgumentTypes;
-        this.methodArgumentLength = methodArgumentTypes.length;
+        methodArgumentLength = methodArgumentTypes.length;
     }
 
     public boolean isCandidateClass(String className) {
-        return this.className.startsWith(className);
+        return this.className.startsWith(className) || "*".equals(this.className);
     }
 
     public boolean isCandidateMethod(String methodName, String[] methodArgumentTypes) {

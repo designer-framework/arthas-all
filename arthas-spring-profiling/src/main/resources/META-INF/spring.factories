@@ -6,4 +6,4 @@
 #  com.taobao.arthas.spring.profiling.SpringBeanCreateAdviceHandler
 ##监听逻辑
 #com.taobao.arthas.profiling.api.advisor.AdviceListener=\
-#  com.taobao.arthas.spring.advisor.SpringAdviceListener
+#  com.taobao.arthas.spring.advisor.SpringAgentInvokeAdviceListener

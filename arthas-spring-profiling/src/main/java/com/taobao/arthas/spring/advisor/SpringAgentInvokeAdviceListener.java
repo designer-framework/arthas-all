@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
 @Component
-public class SpringAdviceListener extends SpringAdviceListenerAdapter {
+public class SpringAgentInvokeAdviceListener extends SpringAdviceListenerAdapter {
 
     private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
     /**
@@ -64,7 +64,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
         invokeAdviceHandlers.forEach(invokeAdviceHandler -> {
 
             invokeAdviceHandler.afterReturning(
-                    InvokeVO.newForAfterReturning(loader, clazz, methodName, methodArgumentTypes, target, args, returnObject, InvokeType.ENTER, headInvokeId, currInvokeId)
+                    InvokeVO.newForAfterReturning(loader, clazz, methodName, methodArgumentTypes, target, args, returnObject, InvokeType.EXIT, headInvokeId, currInvokeId)
             );
 
         });
@@ -80,7 +80,7 @@ public class SpringAdviceListener extends SpringAdviceListenerAdapter {
         invokeAdviceHandlers.forEach(invokeAdviceHandler -> {
 
             invokeAdviceHandler.afterThrowing(
-                    InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
+                    InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.EXCEPTION, headInvokeId, currInvokeId)
             );
 
         });

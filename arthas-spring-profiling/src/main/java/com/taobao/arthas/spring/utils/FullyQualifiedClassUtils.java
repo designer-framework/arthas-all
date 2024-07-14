@@ -17,23 +17,21 @@ public class FullyQualifiedClassUtils {
      * @return
      */
     private static TraceMethodInfo getTraceMethodInfo(String fullyQualifiedMethodName) {
-        String[] splitProperty = fullyQualifiedMethodName.split("#")[1].split("\\(");
+        String[] class_method_arguments = fullyQualifiedMethodName.split("#")[1].split("\\(");
 
-        String methodArguments = splitProperty[1];
+        String methodArguments = class_method_arguments[1].replace(")", "");
 
         String[] methodArgumentsArray = methodArguments.split(",");
+        if (methodArguments.isEmpty()) {
+            methodArgumentsArray = new String[0];
+        }
 
         for (int i = 0; i < methodArgumentsArray.length; i++) {
-            String trimmed = methodArgumentsArray[i].trim();
-            if (i == methodArgumentsArray.length - 1) {
-                methodArgumentsArray[i] = trimmed.substring(0, trimmed.length() - 1);
-            } else {
-                methodArgumentsArray[i] = trimmed;
-            }
+            methodArgumentsArray[i] = methodArgumentsArray[i].trim();
         }
 
         return new TraceMethodInfo(
-                fullyQualifiedMethodName.split("#")[0], splitProperty[0]
+                fullyQualifiedMethodName.split("#")[0], class_method_arguments[0]
                 , Arrays.stream(methodArgumentsArray).toArray(String[]::new)
         );
 
