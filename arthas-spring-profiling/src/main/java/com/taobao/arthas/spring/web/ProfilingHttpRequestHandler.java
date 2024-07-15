@@ -1,5 +1,7 @@
 package com.taobao.arthas.spring.web;
 
+import com.alibaba.fastjson.JSON;
+import com.taobao.arthas.spring.listener.Reporter;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -7,12 +9,18 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 
-public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private final List<Reporter> reporters;
+
+    public ProfilingHttpRequestHandler(List<Reporter> reporters) {
+        this.reporters = reporters;
+    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -25,23 +33,19 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         }
 
+
         // 获取请求的uri
         String uri = req.uri();
         if (uri.equals("/")) {
 
-            Map<String, String> hashMap = new HashMap<>();
-            hashMap.put("method", req.method().name());
-            hashMap.put("uri", uri);
-            String msg = "<html>" +
-                    "<head><title>test</title></head>" +
-                    "<body>你请求uri为：" + uri + "</body>" +
-                    "</html>";
-
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1,
                     HttpResponseStatus.OK,
-                    Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8));
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+                    Unpooled.copiedBuffer(
+                            JSON.toJSONString(reporters.stream().map(Reporter::getReportVO).collect(Collectors.toList()))
+                            , CharsetUtil.UTF_8)
+            );
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 
         } else {
@@ -49,9 +53,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1,
                     HttpResponseStatus.OK,
-                    Unpooled.copiedBuffer("Empty", CharsetUtil.UTF_8)
+                    Unpooled.copiedBuffer("{}", CharsetUtil.UTF_8)
             );
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 
         }

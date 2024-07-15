@@ -1,9 +1,6 @@
 package com.taobao.arthas.spring.listener.impl;
 
-import com.taobao.arthas.spring.events.BeanCreatedEvent;
-import com.taobao.arthas.spring.events.BeanCreatingEvent;
-import com.taobao.arthas.spring.events.BeanCreationEvent;
-import com.taobao.arthas.spring.events.InstantiateSingletonOverEvent;
+import com.taobao.arthas.spring.events.*;
 import com.taobao.arthas.spring.listener.BeanCreateReporter;
 import com.taobao.arthas.spring.vo.BeanCreateVO;
 import com.taobao.arthas.spring.vo.ReportVO;
@@ -68,6 +65,16 @@ public class CreateBeanReporterImpl implements BeanCreateReporter<Collection<Bea
                 beanCreates.get(beanCreates.size() - 1).setSmartInitializingLoadMillis(instantiateSingletonOverEvent.getCostTime());
             }
 
+        } else if (event instanceof BeanAopProxyCreatedEvent) {
+
+            BeanAopProxyCreatedEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedEvent) event;
+
+            //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
+            List<BeanCreateVO> beanCreates = beanCreateMap.get(beanAopProxyCreatedEvent.getBeanName());
+            if (beanCreates != null && !beanCreates.isEmpty()) {
+                beanCreates.get(beanCreates.size() - 1).setAopProxyLoadMillis(beanAopProxyCreatedEvent.getCostTime());
+            }
+
         }
 
     }
@@ -75,17 +82,7 @@ public class CreateBeanReporterImpl implements BeanCreateReporter<Collection<Bea
 
     @Override
     public ReportVO getReportVO() {
-        return new ReportVO() {
-            @Override
-            public String getTagKey() {
-                return "CreatedBeans";
-            }
-
-            @Override
-            public Object getValue() {
-                return beanCreateMap.toSingleValueMap().values();
-            }
-        };
+        return new ReportVO("CreatedBeans", beanCreateMap.toSingleValueMap().values());
     }
 
     @Override

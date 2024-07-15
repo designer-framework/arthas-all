@@ -5,11 +5,10 @@ import com.taobao.arthas.profiling.api.processor.ProfilingAdaptor;
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.spring.configuration.ArthasExtensionSpringPostProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.MapPropertySource;
 
 import java.arthas.SpyAPI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SpringProfilingAdaptor implements ProfilingAdaptor {
@@ -33,13 +32,18 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
         if (adaptorStarted.compareAndSet(false, true)) {
 
             springContainer = new AnnotationConfigApplicationContext();
-            springContainer.getEnvironment();
+
+            Map<String, Object> jmxMapPropertySource = new HashMap<>();
+            jmxMapPropertySource.put("spring.liveBeansView.mbeanDomain", "arthas-profiling");
+            springContainer.getEnvironment().getPropertySources()
+                    .addFirst(new MapPropertySource("ArthasProfilingJmxPropertySource", jmxMapPropertySource));
+
             //指定类加载器
             springContainer.setClassLoader(SpringProfilingAdaptor.class.getClassLoader());
             //支持注解式自动注入
             springContainer.addBeanFactoryPostProcessor(new ArthasExtensionSpringPostProcessor(springContainer, agentShutdownHooks));
             //扫包
-            springContainer.scan("com.taobao.arthas.spring");
+            springContainer.scan("com.taobao.arthas");
             springContainer.refresh();
 
             //提供给core包, 用于判断哪些类需要增强

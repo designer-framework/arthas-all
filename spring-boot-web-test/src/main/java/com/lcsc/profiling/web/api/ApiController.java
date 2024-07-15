@@ -1,5 +1,7 @@
 package com.lcsc.profiling.web.api;
 
+import com.lcsc.profiling.web.anotattion.Test;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,12 +16,11 @@ public class ApiController implements SmartInitializingSingleton {
     }
 
     @Override
+    @SneakyThrows
+    @Test
     public void afterSingletonsInstantiated() {
-        try {
-            System.out.println(214);
-            Thread.sleep(1232);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println(123);
+        Thread.sleep(123);
     }
+
 }

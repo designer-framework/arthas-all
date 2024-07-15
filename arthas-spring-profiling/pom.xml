@@ -74,6 +74,11 @@
             <version>5.3.18</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

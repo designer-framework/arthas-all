@@ -53,6 +53,11 @@ public class BeanCreateVO implements Serializable {
     private long smartInitializingLoadMillis;
 
     /**
+     * 创建代理Bean耗时
+     */
+    private long aopProxyLoadMillis;
+
+    /**
      * 随着当前bean的初始化而加载的子bean
      */
     private List<BeanCreateVO> dependBeans;
@@ -115,6 +120,14 @@ public class BeanCreateVO implements Serializable {
 
     public void setSmartInitializingLoadMillis(long smartInitializingLoadMillis) {
         this.smartInitializingLoadMillis = smartInitializingLoadMillis;
+    }
+
+    public long getAopProxyLoadMillis() {
+        return aopProxyLoadMillis;
+    }
+
+    public void setAopProxyLoadMillis(long aopProxyLoadMillis) {
+        this.aopProxyLoadMillis = aopProxyLoadMillis;
     }
 
 }
