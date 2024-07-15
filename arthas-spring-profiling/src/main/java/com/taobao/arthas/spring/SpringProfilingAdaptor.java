@@ -14,14 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SpringProfilingAdaptor implements ProfilingAdaptor {
 
     private static final AtomicBoolean adaptorStarted = new AtomicBoolean();
-
-    private static AnnotationConfigApplicationContext springContainer;
-
+    private static final List<Runnable> agentShutdownHooks = new ArrayList<>();
     private static SpyAPI.AbstractSpy abstractSpy;
-
     private static Collection<MatchCandidate> matchCandidates;
-
-    private static List<Runnable> agentShutdownHooks = new ArrayList<>();
 
     static {
         /**
@@ -31,7 +26,7 @@ public class SpringProfilingAdaptor implements ProfilingAdaptor {
          */
         if (adaptorStarted.compareAndSet(false, true)) {
 
-            springContainer = new AnnotationConfigApplicationContext();
+            AnnotationConfigApplicationContext springContainer = new AnnotationConfigApplicationContext();
 
             Map<String, Object> jmxMapPropertySource = new HashMap<>();
             jmxMapPropertySource.put("spring.liveBeansView.mbeanDomain", "arthas-profiling");

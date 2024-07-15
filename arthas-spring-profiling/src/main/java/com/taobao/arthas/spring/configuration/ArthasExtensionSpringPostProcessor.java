@@ -10,7 +10,6 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,10 +21,10 @@ public class ArthasExtensionSpringPostProcessor implements BeanDefinitionRegistr
 
     private final AnnotationConfigApplicationContext annotationConfigApplicationContext;
 
-    private final List<Runnable> agentShutdownHooks = new ArrayList<>();
+    private final List<Runnable> agentShutdownHooks;
 
     public ArthasExtensionSpringPostProcessor(AnnotationConfigApplicationContext annotationConfigApplicationContext, List<Runnable> agentShutdownHooks) {
-        this.agentShutdownHooks.addAll(agentShutdownHooks);
+        this.agentShutdownHooks = agentShutdownHooks;
         this.annotationConfigApplicationContext = annotationConfigApplicationContext;
     }
 
