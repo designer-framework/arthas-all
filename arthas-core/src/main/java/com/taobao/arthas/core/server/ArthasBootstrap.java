@@ -26,7 +26,7 @@ import com.taobao.arthas.core.server.instrument.EnhanceProfilingInstrumentTransf
 import com.taobao.arthas.core.util.FileUtils;
 import com.taobao.arthas.core.util.InstrumentationUtils;
 import com.taobao.arthas.core.util.LogUtil;
-import com.taobao.arthas.profiling.api.processor.ProfilingAdaptor;
+import com.taobao.arthas.spring.SpringProfilingContainer;
 
 import java.arthas.SpyAPI;
 import java.io.File;
@@ -125,7 +125,7 @@ public class ArthasBootstrap {
         Runtime.getRuntime().addShutdownHook(shutdown);
     }
 
-    private static String arthasHome() {
+    public static String arthasHome() {
         if (ARTHAS_HOME != null) {
             return ARTHAS_HOME;
         }
@@ -197,23 +197,18 @@ public class ArthasBootstrap {
     }
 
     private void enhanceProfiling() {
-        //只允许一个实现
-        ServiceLoader<ProfilingAdaptor> profilingAdaptors = ServiceLoader.load(ProfilingAdaptor.class, EnhanceProfilingInstrumentTransformer.class.getClassLoader());
+        SpringProfilingContainer springProfilingContainer = SpringProfilingContainer.instance();
+        /**
+         * 获取Spy实现类
+         */
+        SpyAPI.setSpy(springProfilingContainer.getSpyAPI());
+        EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(springProfilingContainer.getMatchCandidates());
+        instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
 
-        for (ProfilingAdaptor profilingAdaptor_ : profilingAdaptors) {
-            /**
-             * 获取Spy实现类
-             */
-            SpyAPI.setSpy(profilingAdaptor_.getSpyAPI());
-            EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(profilingAdaptor_);
-            instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
-
-            profilingAdaptor_.addShutdownHook(() -> {
-                SpyAPI.destroy();
-                instrumentation.removeTransformer(enhanceProfilingInstrumentTransformer);
-            });
-            break;
-        }
+        springProfilingContainer.addShutdownHook(() -> {
+            SpyAPI.destroy();
+            instrumentation.removeTransformer(enhanceProfilingInstrumentTransformer);
+        });
 
     }
 

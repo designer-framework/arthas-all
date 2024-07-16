@@ -31,9 +31,6 @@ public class Configure {
     private String tunnelServer;
     private String agentId;
 
-    private String username;
-    private String password;
-
     /**
      * @see com.taobao.arthas.common.ArthasConstants#ARTHAS_OUTPUT
      */
@@ -66,35 +63,6 @@ public class Configure {
      * 本地连接不需要鉴权，即使配置了password。arthas.properties 里默认为true
      */
     private Boolean localConnectionNonAuth;
-
-    private String scanPackages = "com.taobao.arthas.spring";
-
-    /**
-     * 反序列化字符串成对象
-     *
-     * @param toString 序列化字符串
-     * @return 反序列化的对象
-     */
-    public static Configure toConfigure(String toString) throws IllegalAccessException {
-        Configure configure = new Configure();
-        Map<String, String> map = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(toString);
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            Field field = ArthasReflectUtils.getField(Configure.class, entry.getKey());
-            if (null != field && !isStatic(field.getModifiers())) {
-                ArthasReflectUtils.set(field, ArthasReflectUtils.valueOf(field.getType(), entry.getValue()), configure);
-            }
-        }
-        return configure;
-    }
-
-    public String getScanPackages() {
-        return scanPackages;
-    }
-
-    public void setScanPackages(String scanPackages) {
-        this.scanPackages = scanPackages;
-    }
 
     public String getIp() {
         return ip;
@@ -190,22 +158,6 @@ public class Configure {
 
     public void setOutputPath(String outputPath) {
         this.outputPath = outputPath;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getDisabledCommands() {

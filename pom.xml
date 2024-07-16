@@ -25,7 +25,6 @@
         <module>arthas-core</module>
 
         <module>arthas-profiling-api</module>
-        <module>arthas-spring-profiling</module>
 
         <module>arthas-agent</module>
         <module>arthas-packaging</module>

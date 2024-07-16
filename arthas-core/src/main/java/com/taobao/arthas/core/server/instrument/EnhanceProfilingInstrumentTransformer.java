@@ -13,22 +13,20 @@ import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
 import com.taobao.arthas.core.advisor.ExtensionSpyInterceptor;
 import com.taobao.arthas.core.util.StringUtils;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
-import com.taobao.arthas.profiling.api.processor.ProfilingAdaptor;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Collection;
 import java.util.List;
 
 public class EnhanceProfilingInstrumentTransformer implements ClassFileTransformer {
 
     private final Logger logger = Loggers.getLogger(getClass());
 
-    private final ProfilingAdaptor profilingAdaptor;
+    private final List<MatchCandidate> matchCandidates;
 
-    public EnhanceProfilingInstrumentTransformer(ProfilingAdaptor profilingAdaptor) {
-        this.profilingAdaptor = profilingAdaptor;
+    public EnhanceProfilingInstrumentTransformer(List<MatchCandidate> matchCandidates) {
+        this.matchCandidates = matchCandidates;
     }
 
     @Override
@@ -59,7 +57,6 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
         String newClassName = StringUtils.normalizeClassName(classNode.name);
 
-        Collection<MatchCandidate> matchCandidates = profilingAdaptor.getMatchCandidates();
         for (MatchCandidate matchCandidate : matchCandidates) {
 
             //类名不匹配

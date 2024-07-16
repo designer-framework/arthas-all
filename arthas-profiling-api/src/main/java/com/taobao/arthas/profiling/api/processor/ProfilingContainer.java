@@ -3,13 +3,13 @@ package com.taobao.arthas.profiling.api.processor;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 
 import java.arthas.SpyAPI;
-import java.util.Collection;
+import java.util.List;
 
-public interface ProfilingAdaptor {
+public interface ProfilingContainer {
 
     SpyAPI.AbstractSpy getSpyAPI();
 
-    Collection<MatchCandidate> getMatchCandidates();
+    List<MatchCandidate> getMatchCandidates();
 
     void addShutdownHook(Runnable runnable);
 

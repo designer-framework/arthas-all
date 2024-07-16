@@ -4,21 +4,23 @@ import java.security.AccessControlException;
 import java.util.Map;
 
 /**
- * 
  * @author hengyunabc 2019-12-27
- *
  */
 public class ArthasEnvironment implements Environment {
-    /** System environment property source name: {@value}. */
+    /**
+     * System environment property source name: {@value}.
+     */
     public static final String SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME = "systemEnvironment";
 
-    /** JVM system properties property source name: {@value}. */
+    /**
+     * JVM system properties property source name: {@value}.
+     */
     public static final String SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME = "systemProperties";
 
     private final MutablePropertySources propertySources = new MutablePropertySources();
 
     private final ConfigurablePropertyResolver propertyResolver = new PropertySourcesPropertyResolver(
-            this.propertySources);
+            propertySources);
 
     public ArthasEnvironment() {
         propertySources.addLast(
@@ -31,17 +33,17 @@ public class ArthasEnvironment implements Environment {
      * Add the given property source object with highest precedence.
      */
     public void addFirst(PropertySource<?> propertySource) {
-        this.propertySources.addFirst(propertySource);
+        propertySources.addFirst(propertySource);
     }
 
     /**
      * Add the given property source object with lowest precedence.
      */
     public void addLast(PropertySource<?> propertySource) {
-        this.propertySources.addLast(propertySource);
+        propertySources.addLast(propertySource);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Map<String, Object> getSystemProperties() {
         try {
             return (Map) System.getProperties();
@@ -59,7 +61,7 @@ public class ArthasEnvironment implements Environment {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Map<String, Object> getSystemEnvironment() {
         try {
             return (Map) System.getenv();
@@ -83,47 +85,51 @@ public class ArthasEnvironment implements Environment {
 
     @Override
     public boolean containsProperty(String key) {
-        return this.propertyResolver.containsProperty(key);
+        return propertyResolver.containsProperty(key);
     }
 
     @Override
     public String getProperty(String key) {
-        return this.propertyResolver.getProperty(key);
+        return propertyResolver.getProperty(key);
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        return this.propertyResolver.getProperty(key, defaultValue);
+        return propertyResolver.getProperty(key, defaultValue);
     }
 
     @Override
     public <T> T getProperty(String key, Class<T> targetType) {
-        return this.propertyResolver.getProperty(key, targetType);
+        return propertyResolver.getProperty(key, targetType);
     }
 
     @Override
     public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
-        return this.propertyResolver.getProperty(key, targetType, defaultValue);
+        return propertyResolver.getProperty(key, targetType, defaultValue);
     }
 
     @Override
     public String getRequiredProperty(String key) throws IllegalStateException {
-        return this.propertyResolver.getRequiredProperty(key);
+        return propertyResolver.getRequiredProperty(key);
     }
 
     @Override
     public <T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException {
-        return this.propertyResolver.getRequiredProperty(key, targetType);
+        return propertyResolver.getRequiredProperty(key, targetType);
     }
 
     @Override
     public String resolvePlaceholders(String text) {
-        return this.propertyResolver.resolvePlaceholders(text);
+        return propertyResolver.resolvePlaceholders(text);
     }
 
     @Override
     public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
-        return this.propertyResolver.resolveRequiredPlaceholders(text);
+        return propertyResolver.resolveRequiredPlaceholders(text);
+    }
+
+    public MutablePropertySources getPropertySources() {
+        return propertySources;
     }
 
 }
