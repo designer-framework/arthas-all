@@ -1,6 +1,7 @@
 package com.taobao.arthas.spring;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.LiveBeansView;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
@@ -27,10 +28,10 @@ public class SpringProfilingAnnotationConfigApplicationContext extends Annotatio
     private void postProcessorEnvironment() {
         //注入环境变量
         Map<String, Object> jmxMapPropertySource = new HashMap<>();
-        jmxMapPropertySource.put("spring.liveBeansView.mbeanDomain", "arthas-profiling");
+        jmxMapPropertySource.put(LiveBeansView.MBEAN_DOMAIN_PROPERTY_NAME, "arthas-profiling");
         ConfigurableEnvironment environment = getEnvironment();
         environment.getPropertySources()
-                .addLast(new MapPropertySource("ArthasProfilingJmxPropertySource", jmxMapPropertySource));
+                .addFirst(new MapPropertySource("ArthasProfilingJmxPropertySource", jmxMapPropertySource));
     }
 
 }
