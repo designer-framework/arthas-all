@@ -5,7 +5,8 @@ import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.ApplicationProfilingOverEvent;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
@@ -15,21 +16,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringContainerLifeCycleAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, Ordered {
 
-    private final TraceMethodInfo traceMethodInfo = FullyQualifiedClassUtils.toTraceMethodInfo(
-            "org.springframework.boot.SpringApplication" +
-                    "#run(java.lang.Class, java.lang.String[])"
-    );
+    @Autowired
+    protected ApplicationEventPublisher eventPublisher;
 
     private long startTime = 0L;
 
-    @Override
-    public boolean isCandidateClass(String className) {
-        return traceMethodInfo.isCandidateClass(className);
-    }
-
-    @Override
-    public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return traceMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+    public SpringContainerLifeCycleAdviceHandler() {
+        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+                "org.springframework.boot.SpringApplication" +
+                        "#run(java.lang.Class, java.lang.String[])"
+        ));
     }
 
     /**

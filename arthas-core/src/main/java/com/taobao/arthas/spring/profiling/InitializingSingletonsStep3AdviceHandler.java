@@ -5,8 +5,8 @@ import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.InstantiateSingletonOverEvent;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.Stack;
@@ -16,21 +16,16 @@ class InitializingSingletonsStep3AdviceHandler extends AbstractInvokeAdviceHandl
 
     private final ThreadLocal<Stack<InstantiateSingletonOverEvent>> stackThreadLocal = ThreadLocal.withInitial(Stack::new);
 
-    private final TraceMethodInfo traceMethodInfo = FullyQualifiedClassUtils.toTraceMethodInfo(
-            "*#afterSingletonsInstantiated()"
-    );
+    @Autowired
+    protected ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private InitializingSingletonsStep2AdviceHandler initializingSingletonsStep2AdviceHandler;
 
-    @Override
-    public boolean isCandidateClass(String className) {
-        return traceMethodInfo.isCandidateClass(className);
-    }
-
-    @Override
-    public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return traceMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+    public InitializingSingletonsStep3AdviceHandler() {
+        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+                "*#afterSingletonsInstantiated()"
+        ));
     }
 
     @Override

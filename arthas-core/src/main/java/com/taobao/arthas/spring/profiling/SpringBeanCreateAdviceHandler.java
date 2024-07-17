@@ -10,7 +10,6 @@ import com.taobao.arthas.spring.listener.BeanCreateReporter;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.spring.vo.BeanCreateVO;
 import com.taobao.arthas.spring.vo.ReportVO;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,26 +22,18 @@ import java.util.Stack;
 @Component
 public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, ApplicationListener<BeanCreationEvent>, BeanCreateReporter<Collection<BeanCreateVO>> {
 
-    /**
-     * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
-     */
-    private final TraceMethodInfo traceMethodInfo = FullyQualifiedClassUtils.toTraceMethodInfo(
-            "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory" +
-                    "#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])"
-    );
-
     private final ThreadLocal<Stack<BeanCreateVO>> createBeanStack = ThreadLocal.withInitial(Stack::new);
 
     private final MultiValueMap<String, BeanCreateVO> createdMap = new LinkedMultiValueMap<>();
 
-    @Override
-    public boolean isCandidateClass(String className) {
-        return traceMethodInfo.isCandidateClass(className);
-    }
-
-    @Override
-    public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return traceMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+    /**
+     * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
+     */
+    public SpringBeanCreateAdviceHandler() {
+        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+                "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory" +
+                        "#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])"
+        ));
     }
 
     /**

@@ -4,7 +4,6 @@ import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,18 +14,13 @@ public class InitializingSingletonsStep1AdviceHandler extends AbstractInvokeAdvi
     /**
      * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
-    private final TraceMethodInfo traceMethodInfo = FullyQualifiedClassUtils.toTraceMethodInfo(
-            "org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()"
-    );
-
-    @Override
-    public boolean isCandidateClass(String className) {
-        return traceMethodInfo.isCandidateClass(className);
-    }
-
-    @Override
-    public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return traceMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+    public InitializingSingletonsStep1AdviceHandler() {
+        super(
+                FullyQualifiedClassUtils.toTraceMethodInfo(
+                        "org.springframework.beans.factory.support.DefaultListableBeanFactory" +
+                                "#preInstantiateSingletons()"
+                )
+        );
     }
 
     /**

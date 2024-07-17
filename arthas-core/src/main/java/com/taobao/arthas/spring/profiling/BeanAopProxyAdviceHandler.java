@@ -5,7 +5,8 @@ import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.Stack;
@@ -15,22 +16,19 @@ public class BeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler imple
 
     private static final ThreadLocal<Stack<AopInfo>> STACK_THREAD_LOCAL = ThreadLocal.withInitial(Stack::new);
 
+    @Autowired
+    protected ApplicationEventPublisher eventPublisher;
+
     /**
      * org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)
      */
-    private final TraceMethodInfo traceMethodInfo = FullyQualifiedClassUtils.toTraceMethodInfo(
-            "org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator" +
-                    "#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)"
-    );
-
-    @Override
-    public boolean isCandidateClass(String className) {
-        return traceMethodInfo.isCandidateClass(className);
-    }
-
-    @Override
-    public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return traceMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+    public BeanAopProxyAdviceHandler() {
+        super(
+                FullyQualifiedClassUtils.toTraceMethodInfo(
+                        "org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator" +
+                                "#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)"
+                )
+        );
     }
 
     /**
@@ -66,7 +64,7 @@ public class BeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler imple
 
         public AopInfo(String beanName) {
             this.beanName = beanName;
-            this.startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
         }
 
     }

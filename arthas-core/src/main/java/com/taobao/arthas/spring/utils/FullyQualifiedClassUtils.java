@@ -17,22 +17,24 @@ public class FullyQualifiedClassUtils {
      * @return
      */
     private static TraceMethodInfo getTraceMethodInfo(String fullyQualifiedMethodName) {
-        String[] class_method_arguments = fullyQualifiedMethodName.split("#")[1].split("\\(");
-
-        String methodArguments = class_method_arguments[1].replace(")", "");
-
-        String[] methodArgumentsArray = methodArguments.split(",");
-        if (methodArguments.isEmpty()) {
-            methodArgumentsArray = new String[0];
+        //类命
+        String className = fullyQualifiedMethodName.split("#")[0].trim();
+        //方法名
+        String[] method_arguments = fullyQualifiedMethodName.split("#")[1].split("\\(");
+        String methodName = method_arguments[0].trim();
+        //入参类型
+        String methodArgumentsStr = method_arguments[1].replace(")", "");
+        String[] methodArguments = methodArgumentsStr.split(",");
+        if (methodArgumentsStr.isEmpty()) {
+            methodArguments = new String[0];
         }
-
-        for (int i = 0; i < methodArgumentsArray.length; i++) {
-            methodArgumentsArray[i] = methodArgumentsArray[i].trim();
+        for (int i = 0; i < methodArguments.length; i++) {
+            methodArguments[i] = methodArguments[i].trim();
         }
 
         return new TraceMethodInfo(
-                fullyQualifiedMethodName.split("#")[0], class_method_arguments[0]
-                , Arrays.stream(methodArgumentsArray).toArray(String[]::new)
+                fullyQualifiedMethodName
+                , className, methodName, Arrays.stream(methodArguments).toArray(String[]::new)
         );
 
     }

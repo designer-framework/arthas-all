@@ -1,6 +1,7 @@
 package com.taobao.arthas.spring.configuration;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
+import com.taobao.arthas.spring.profiling.SpringMethodInvokeAdviceHandler;
 import com.taobao.arthas.spring.properties.ArthasProperties;
 import com.taobao.arthas.spring.vo.TraceMethodInfo;
 import org.springframework.beans.BeansException;
@@ -9,18 +10,16 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
-import java.util.Set;
-
 /**
  * @description:
  * @author: Designer
  * @date : 2024-07-08 01:49
  */
-public class ArthasExtensionPropertiesPostProcessor implements BeanDefinitionRegistryPostProcessor {
+public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionRegistryPostProcessor {
 
-    private ArthasProperties arthasProperties;
+    private final ArthasProperties arthasProperties;
 
-    public ArthasExtensionPropertiesPostProcessor(ArthasProperties arthasProperties) {
+    public ArthasExtensionMethodInvokePostProcessor(ArthasProperties arthasProperties) {
         this.arthasProperties = arthasProperties;
     }
 
@@ -32,16 +31,22 @@ public class ArthasExtensionPropertiesPostProcessor implements BeanDefinitionReg
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+
         //将配置绑定到对象上
-
-
-        Set<TraceMethodInfo> traceMethodInfos = arthasProperties.traceMethods();
-        for (TraceMethodInfo traceMethodInfo : traceMethodInfos) {
+        for (TraceMethodInfo traceMethodInfo : arthasProperties.traceMethods()) {
 
             //注入到容器中
-            BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(ArthasProperties.class, () -> arthasProperties);
-            registry.registerBeanDefinition(ArthasProperties.class.getName(), beanDefinitionBuilder.getBeanDefinition());
+            BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
+                    .genericBeanDefinition(SpringMethodInvokeAdviceHandler.class);
+            methodInvokeAdviceHandlerBuilder.addConstructorArgValue(traceMethodInfo);
+            //
+            registry.registerBeanDefinition(
+                    SpringMethodInvokeAdviceHandler.class.getSimpleName() + "." + traceMethodInfo.getFullyQualifiedMethodName()
+                    , methodInvokeAdviceHandlerBuilder.getBeanDefinition()
+            );
+
         }
+
     }
 
     @Override

@@ -21,7 +21,7 @@ public class InvokeVO {
     private final String[] methodArgumentTypes;
 
     //将调用链路相关的id直接放到当前类
-    private final long processorId;
+    private final long headInvokeId;
 
     private final long invokeId;
 
@@ -46,7 +46,7 @@ public class InvokeVO {
             Object returnObj,
             Throwable throwExp,
             InvokeType invokeType,
-            long processorId, long invokeId) {
+            long headInvokeId, long invokeId) {
         this.loader = loader;
         this.clazz = clazz;
         this.methodName = methodName;
@@ -56,24 +56,24 @@ public class InvokeVO {
         this.returnObj = returnObj;
         this.throwExp = throwExp;
         this.invokeType = invokeType;
-        this.processorId = processorId;
+        this.headInvokeId = headInvokeId;
         this.invokeId = invokeId;
     }
 
-    public static InvokeVO newForBefore(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, InvokeType invokeType, long processorId, long invokeId) {
+    public static InvokeVO newForBefore(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, InvokeType invokeType, long headInvokeId, long invokeId) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, null, //returnObj
                 null, //throwExp
-                invokeType, processorId, invokeId);
+                invokeType, headInvokeId, invokeId);
     }
 
-    public static InvokeVO newForAfterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Object returnObj, InvokeType invokeType, long processorId, long invokeId) {
+    public static InvokeVO newForAfterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Object returnObj, InvokeType invokeType, long headInvokeId, long invokeId) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, returnObj, null, //throwExp
-                invokeType, processorId, invokeId);
+                invokeType, headInvokeId, invokeId);
     }
 
-    public static InvokeVO newForAfterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Throwable throwExp, InvokeType invokeType, long processorId, long invokeId) {
+    public static InvokeVO newForAfterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Throwable throwExp, InvokeType invokeType, long headInvokeId, long invokeId) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, null, //returnObj
-                throwExp, invokeType, processorId, invokeId);
+                throwExp, invokeType, headInvokeId, invokeId);
     }
 
     public String[] getMethodArgumentTypes() {
@@ -116,8 +116,8 @@ public class InvokeVO {
         return methodArgumentTypes;
     }
 
-    public long getProcessorId() {
-        return processorId;
+    public long getHeadInvokeId() {
+        return headInvokeId;
     }
 
     public long getInvokeId() {

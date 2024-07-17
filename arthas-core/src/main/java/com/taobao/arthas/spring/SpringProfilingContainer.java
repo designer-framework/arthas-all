@@ -5,7 +5,7 @@ import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.processor.ProfilingContainer;
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.spring.configuration.ArthasExtensionAnnotationConfigProcessor;
-import com.taobao.arthas.spring.configuration.ArthasExtensionPropertiesPostProcessor;
+import com.taobao.arthas.spring.configuration.ArthasExtensionMethodInvokePostProcessor;
 import com.taobao.arthas.spring.configuration.ArthasExtensionShutdownHookPostProcessor;
 import com.taobao.arthas.spring.properties.ArthasProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public class SpringProfilingContainer implements ProfilingContainer {
         //
         ArthasProperties arthasProperties = new ArthasProperties();
         BinderUtils.inject(arthasEnvironment, arthasProperties);
-        springContainer.addBeanFactoryPostProcessor(new ArthasExtensionPropertiesPostProcessor(arthasProperties));
+        springContainer.addBeanFactoryPostProcessor(new ArthasExtensionMethodInvokePostProcessor(arthasProperties));
         //支持注解式自动注入
         springContainer.addBeanFactoryPostProcessor(new ArthasExtensionAnnotationConfigProcessor());
         //shutdown钩子
