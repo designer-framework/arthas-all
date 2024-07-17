@@ -30,7 +30,7 @@ public class SpringProfilingAnnotationConfigApplicationContext extends Annotatio
         jmxMapPropertySource.put("spring.liveBeansView.mbeanDomain", "arthas-profiling");
         ConfigurableEnvironment environment = getEnvironment();
         environment.getPropertySources()
-                .addFirst(new MapPropertySource("ArthasProfilingJmxPropertySource", jmxMapPropertySource));
+                .addLast(new MapPropertySource("ArthasProfilingJmxPropertySource", jmxMapPropertySource));
     }
 
 }

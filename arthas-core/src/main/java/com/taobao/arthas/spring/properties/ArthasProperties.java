@@ -51,4 +51,5 @@ public class ArthasProperties {
     public void setMethods(String methods) {
         this.methods = methods;
     }
+
 }
