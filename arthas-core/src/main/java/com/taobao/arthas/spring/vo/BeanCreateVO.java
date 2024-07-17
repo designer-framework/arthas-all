@@ -114,7 +114,7 @@ public class BeanCreateVO implements Serializable {
         return actualLoadMillis;
     }
 
-    public long getSmartInitializingLoadMillis() {
+    public Long getSmartInitializingLoadMillis() {
         return smartInitializingLoadMillis;
     }
 
@@ -122,7 +122,7 @@ public class BeanCreateVO implements Serializable {
         this.smartInitializingLoadMillis = smartInitializingLoadMillis;
     }
 
-    public long getAopProxyLoadMillis() {
+    public Long getAopProxyLoadMillis() {
         return aopProxyLoadMillis;
     }
 
