@@ -1,14 +1,12 @@
 package com.taobao.arthas.core.config;
 
+import org.springframework.core.env.Environment;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.taobao.arthas.core.env.Environment;
-
 /**
- * 
  * @author hengyunabc 2020-01-10
- *
  */
 public class BinderUtils {
 
@@ -52,7 +50,7 @@ public class BinderUtils {
                     if (environment.containsProperty(configKey)) {
                         Object reslovedValue = environment.getProperty(prefix + '.' + field, parameterTypes[0]);
                         if (reslovedValue != null) {
-                            method.invoke(instance, new Object[] { reslovedValue });
+                            method.invoke(instance, new Object[]{reslovedValue});
                         }
                     }
                 }

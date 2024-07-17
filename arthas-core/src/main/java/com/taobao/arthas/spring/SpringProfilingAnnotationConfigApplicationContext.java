@@ -1,14 +1,10 @@
 package com.taobao.arthas.spring;
 
-import com.taobao.arthas.spring.configuration.ArthasExtensionSpringPostProcessor;
-import com.taobao.arthas.spring.utils.AgentHomeUtil;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.PropertiesPropertySource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,20 +14,13 @@ import java.util.Map;
  */
 public class SpringProfilingAnnotationConfigApplicationContext extends AnnotationConfigApplicationContext {
 
-    private final List<Runnable> agentShutdownHooks;
-
-    public SpringProfilingAnnotationConfigApplicationContext(List<Runnable> agentShutdownHooks) {
-        super();
-        //指定类加载器
-        setClassLoader(SpringProfilingAnnotationConfigApplicationContext.class.getClassLoader());
-        this.agentShutdownHooks = agentShutdownHooks;
+    public SpringProfilingAnnotationConfigApplicationContext(ConfigurableEnvironment configurableEnvironment) {
+        setEnvironment(configurableEnvironment);
     }
 
     @Override
     protected void prepareRefresh() {
         postProcessorEnvironment();
-        //支持注解式自动注入
-        addBeanFactoryPostProcessor(new ArthasExtensionSpringPostProcessor(this, agentShutdownHooks));
         super.prepareRefresh();
     }
 
@@ -42,9 +31,6 @@ public class SpringProfilingAnnotationConfigApplicationContext extends Annotatio
         ConfigurableEnvironment environment = getEnvironment();
         environment.getPropertySources()
                 .addFirst(new MapPropertySource("ArthasProfilingJmxPropertySource", jmxMapPropertySource));
-        //注入环境变量
-        environment.getPropertySources()
-                .addFirst(new PropertiesPropertySource("SpringContainerPropertySource", AgentHomeUtil.loadProperties("arthas.properties")));
     }
 
 }

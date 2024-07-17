@@ -1,10 +1,14 @@
 package com.taobao.arthas.spring;
 
+import com.taobao.arthas.core.config.BinderUtils;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.processor.ProfilingContainer;
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
+import com.taobao.arthas.spring.configuration.ArthasExtensionSpringPostProcessor;
+import com.taobao.arthas.spring.properties.ArthasProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.arthas.SpyAPI;
@@ -15,18 +19,6 @@ import java.util.List;
 public class SpringProfilingContainer implements ProfilingContainer {
 
     private static final List<Runnable> agentShutdownHooks = new ArrayList<>();
-
-    private static final AnnotationConfigApplicationContext springContainer;
-
-    static {
-        //
-        springContainer = new SpringProfilingAnnotationConfigApplicationContext(agentShutdownHooks);
-        springContainer.scan("com.taobao.arthas");
-        springContainer.refresh();
-
-        //发布初始化事件
-        springContainer.getBeansOfType(ProfilingLifeCycle.class).values().forEach(ProfilingLifeCycle::start);
-    }
 
     /**
      * 增强的类被调用时会触发埋点 --> 会调用AbstractSpy
@@ -42,7 +34,30 @@ public class SpringProfilingContainer implements ProfilingContainer {
     private SpringProfilingContainer() {
     }
 
-    public static SpringProfilingContainer instance() {
+    /**
+     * 环境变量透传到性能分析容器中
+     *
+     * @param standardEnvironment
+     * @return
+     */
+    public static SpringProfilingContainer instance(StandardEnvironment standardEnvironment) {
+        //继承环境变量
+        AnnotationConfigApplicationContext springContainer = new SpringProfilingAnnotationConfigApplicationContext(standardEnvironment);
+        //指定类加载器
+        springContainer.setClassLoader(SpringProfilingAnnotationConfigApplicationContext.class.getClassLoader());
+        //指定扫包范围
+        springContainer.scan("com.taobao.arthas");
+        ArthasProperties arthasProperties = new ArthasProperties();
+        BinderUtils.inject(standardEnvironment, arthasProperties);
+
+        //支持注解式自动注入
+        springContainer.addBeanFactoryPostProcessor(new ArthasExtensionSpringPostProcessor(springContainer, agentShutdownHooks));
+
+        springContainer.refresh();
+
+        //调用start
+        springContainer.getBeansOfType(ProfilingLifeCycle.class).values().forEach(ProfilingLifeCycle::start);
+
         return springContainer.getBean(SpringProfilingContainer.class);
     }
 

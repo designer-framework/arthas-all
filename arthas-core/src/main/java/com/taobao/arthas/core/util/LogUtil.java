@@ -1,8 +1,5 @@
 package com.taobao.arthas.core.util;
 
-import java.io.File;
-import java.util.Iterator;
-
 import com.alibaba.arthas.deps.ch.qos.logback.classic.LoggerContext;
 import com.alibaba.arthas.deps.ch.qos.logback.classic.joran.JoranConfigurator;
 import com.alibaba.arthas.deps.ch.qos.logback.classic.spi.ILoggingEvent;
@@ -11,12 +8,13 @@ import com.alibaba.arthas.deps.ch.qos.logback.core.rolling.RollingFileAppender;
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.common.AnsiLog;
-import com.taobao.arthas.core.env.ArthasEnvironment;
+import org.springframework.core.env.StandardEnvironment;
+
+import java.io.File;
+import java.util.Iterator;
 
 /**
- * 
  * @author hengyunabc
- *
  */
 public class LogUtil {
 
@@ -43,15 +41,15 @@ public class LogUtil {
      * <pre>
      * 1. 尝试从 arthas.logging.config 这个配置里加载 logback.xml
      * 2. 尝试从 arthas.home 下面找 logback.xml
-     * 
+     *
      * 可以用 arthas.logging.file.name 指定具体arthas.log的名字
      * 可以用 arthas.logging.file.path 指定具体arthas.log的目录
-     * 
+     *
      * </pre>
-     * 
+     *
      * @param env
      */
-    public static LoggerContext initLogger(ArthasEnvironment env) {
+    public static LoggerContext initLogger(StandardEnvironment env) {
         String loggingConfig = env.resolvePlaceholders(LOGGING_CONFIG);
         if (loggingConfig == null || loggingConfig.trim().isEmpty()) {
             return null;

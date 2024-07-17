@@ -1,9 +1,8 @@
 package com.taobao.arthas.spring.properties;
 
+import com.taobao.arthas.core.config.Config;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.spring.vo.TraceMethodInfo;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
@@ -15,13 +14,11 @@ import java.util.Set;
  * @author: Designer
  * @date : 2024-07-10 22:25
  */
-@Component
+@Config(prefix = "spring.profiling.invoke.trace")
 public class ArthasProperties {
 
-    @Value("${spring.invoke.trace.delimiter}")
     private String delimiter;
 
-    @Value("${spring.invoke.trace.methods}")
     private String methods;
 
     public Set<TraceMethodInfo> traceMethods() {

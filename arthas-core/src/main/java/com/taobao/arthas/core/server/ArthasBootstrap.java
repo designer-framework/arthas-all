@@ -17,16 +17,16 @@ import com.taobao.arthas.core.advisor.TransformerManager;
 import com.taobao.arthas.core.config.BinderUtils;
 import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.config.FeatureCodec;
-import com.taobao.arthas.core.env.ArthasEnvironment;
-import com.taobao.arthas.core.env.MapPropertySource;
-import com.taobao.arthas.core.env.PropertiesPropertySource;
-import com.taobao.arthas.core.env.PropertySource;
 import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.server.instrument.EnhanceProfilingInstrumentTransformer;
 import com.taobao.arthas.core.util.FileUtils;
 import com.taobao.arthas.core.util.InstrumentationUtils;
 import com.taobao.arthas.core.util.LogUtil;
 import com.taobao.arthas.spring.SpringProfilingContainer;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.StandardEnvironment;
 
 import java.arthas.SpyAPI;
 import java.io.File;
@@ -64,7 +64,7 @@ public class ArthasBootstrap {
 
     private final TransformerManager transformerManager;
 
-    private ArthasEnvironment arthasEnvironment;
+    private StandardEnvironment arthasEnvironment;
 
     private Configure configure;
 
@@ -143,7 +143,7 @@ public class ArthasBootstrap {
         return ARTHAS_HOME;
     }
 
-    static String reslove(ArthasEnvironment arthasEnvironment, String key, String defaultValue) {
+    static String reslove(StandardEnvironment arthasEnvironment, String key, String defaultValue) {
         String value = arthasEnvironment.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -197,7 +197,7 @@ public class ArthasBootstrap {
     }
 
     private void enhanceProfiling() {
-        SpringProfilingContainer springProfilingContainer = SpringProfilingContainer.instance();
+        SpringProfilingContainer springProfilingContainer = SpringProfilingContainer.instance(arthasEnvironment);
         /**
          * 获取Spy实现类
          */
@@ -287,7 +287,7 @@ public class ArthasBootstrap {
 
     private void initArthasEnvironment(Map<String, String> argsMap) throws IOException {
         if (arthasEnvironment == null) {
-            arthasEnvironment = new ArthasEnvironment();
+            arthasEnvironment = new StandardEnvironment();
         }
 
         /**
@@ -299,18 +299,18 @@ public class ArthasBootstrap {
          */
         Map<String, Object> copyMap;
         if (argsMap != null) {
-            copyMap = new HashMap<String, Object>(argsMap);
+            copyMap = new HashMap<>(argsMap);
             // 添加 arthas.home
             if (!copyMap.containsKey(ARTHAS_HOME_PROPERTY)) {
                 copyMap.put(ARTHAS_HOME_PROPERTY, arthasHome());
             }
         } else {
-            copyMap = new HashMap<String, Object>(1);
+            copyMap = new HashMap<>(1);
             copyMap.put(ARTHAS_HOME_PROPERTY, arthasHome());
         }
 
-        MapPropertySource mapPropertySource = new MapPropertySource("args", copyMap);
-        arthasEnvironment.addFirst(mapPropertySource);
+        MapPropertySource mapPropertySource = new MapPropertySource("ArthasArgsMapPropertySource", copyMap);
+        arthasEnvironment.getPropertySources().addFirst(mapPropertySource);
 
         tryToLoadArthasProperties();
 
@@ -347,9 +347,9 @@ public class ArthasBootstrap {
 
                 PropertySource<?> propertySource = new PropertiesPropertySource(location, properties);
                 if (overrideAll) {
-                    arthasEnvironment.addFirst(propertySource);
+                    arthasEnvironment.getPropertySources().addFirst(propertySource);
                 } else {
-                    arthasEnvironment.addLast(propertySource);
+                    arthasEnvironment.getPropertySources().addLast(propertySource);
                 }
             }
         }

@@ -22,14 +22,12 @@ import static java.lang.reflect.Modifier.isStatic;
 public class Configure {
 
     private String ip;
-    private Integer telnetPort;
-    private Integer httpPort;
-    private Long javaPid;
-    private String arthasCore;
-    private String arthasAgent;
 
-    private String tunnelServer;
-    private String agentId;
+    private Integer httpPort;
+
+    private String arthasCore;
+
+    private String arthasAgent;
 
     /**
      * @see com.taobao.arthas.common.ArthasConstants#ARTHAS_OUTPUT
@@ -49,20 +47,11 @@ public class Configure {
      * </pre>
      */
     private String appName;
+
     /**
      * report executed command
      */
     private String statUrl;
-
-    /**
-     * disabled commands
-     */
-    private String disabledCommands;
-
-    /**
-     * 本地连接不需要鉴权，即使配置了password。arthas.properties 里默认为true
-     */
-    private Boolean localConnectionNonAuth;
 
     public String getIp() {
         return ip;
@@ -72,28 +61,12 @@ public class Configure {
         this.ip = ip;
     }
 
-    public Integer getTelnetPort() {
-        return telnetPort;
-    }
-
-    public void setTelnetPort(int telnetPort) {
-        this.telnetPort = telnetPort;
-    }
-
     public Integer getHttpPort() {
         return httpPort;
     }
 
     public void setHttpPort(int httpPort) {
         this.httpPort = httpPort;
-    }
-
-    public long getJavaPid() {
-        return javaPid;
-    }
-
-    public void setJavaPid(long javaPid) {
-        this.javaPid = javaPid;
     }
 
     public String getArthasAgent() {
@@ -110,22 +83,6 @@ public class Configure {
 
     public void setArthasCore(String arthasCore) {
         this.arthasCore = arthasCore;
-    }
-
-    public String getTunnelServer() {
-        return tunnelServer;
-    }
-
-    public void setTunnelServer(String tunnelServer) {
-        this.tunnelServer = tunnelServer;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
     }
 
     public String getStatUrl() {
@@ -158,22 +115,6 @@ public class Configure {
 
     public void setOutputPath(String outputPath) {
         this.outputPath = outputPath;
-    }
-
-    public String getDisabledCommands() {
-        return disabledCommands;
-    }
-
-    public void setDisabledCommands(String disabledCommands) {
-        this.disabledCommands = disabledCommands;
-    }
-
-    public boolean isLocalConnectionNonAuth() {
-        return localConnectionNonAuth != null && localConnectionNonAuth;
-    }
-
-    public void setLocalConnectionNonAuth(boolean localConnectionNonAuth) {
-        this.localConnectionNonAuth = localConnectionNonAuth;
     }
 
     /**
