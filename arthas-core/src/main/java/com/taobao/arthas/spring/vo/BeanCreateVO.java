@@ -1,5 +1,7 @@
 package com.taobao.arthas.spring.vo;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.List;
  * @author: Designer
  * @date : 2024-07-12 01:10
  */
+@Data
 public class BeanCreateVO implements Serializable {
 
     /**
@@ -70,57 +73,9 @@ public class BeanCreateVO implements Serializable {
         actualLoadMillis = loadMillis - childrenDuration;
     }
 
-    public List<BeanCreateVO> getDependBeans() {
-        return dependBeans;
-    }
-
     public void addDependBean(BeanCreateVO dependBean) {
         dependBean.parentId = id;
         dependBeans.add(dependBean);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public long getParentId() {
-        return parentId;
-    }
-
-    public long getStartMillis() {
-        return startMillis;
-    }
-
-    public long getEndMillis() {
-        return endMillis;
-    }
-
-    public long getLoadMillis() {
-        return loadMillis;
-    }
-
-    public long getActualLoadMillis() {
-        return actualLoadMillis;
-    }
-
-    public Long getSmartInitializingLoadMillis() {
-        return smartInitializingLoadMillis;
-    }
-
-    public void setSmartInitializingLoadMillis(Long smartInitializingLoadMillis) {
-        this.smartInitializingLoadMillis = smartInitializingLoadMillis;
-    }
-
-    public Long getAopProxyLoadMillis() {
-        return aopProxyLoadMillis;
-    }
-
-    public void setAopProxyLoadMillis(Long aopProxyLoadMillis) {
-        this.aopProxyLoadMillis = aopProxyLoadMillis;
     }
 
 }

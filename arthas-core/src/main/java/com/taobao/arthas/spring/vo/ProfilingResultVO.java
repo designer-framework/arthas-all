@@ -4,18 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Component
 public class ProfilingResultVO {
 
-    @Getter
-    private final List<BeanCreateVO> createdBeans = new LinkedList<>();
+    private final Map<String, BeanCreateVO> createdBeansMap = new LinkedHashMap<>();
 
     private final List<MethodInvokeVO> methodInvokes = new LinkedList<>();
 
@@ -26,8 +23,16 @@ public class ProfilingResultVO {
     @Getter
     private long startUpTime;
 
+    public void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer) {
+        consumer.accept(createdBeansMap.get(beanName));
+    }
+
     public void addCreatedBean(BeanCreateVO beanCreateVO) {
-        createdBeans.add(beanCreateVO);
+        createdBeansMap.put(beanCreateVO.getName(), beanCreateVO);
+    }
+
+    public List<BeanCreateVO> getCreatedBeans() {
+        return new ArrayList<>(createdBeansMap.values());
     }
 
     public void addMethodInvoke(MethodInvokeVO methodInvokeVO) {

@@ -1,10 +1,13 @@
 package com.taobao.arthas.spring.events;
 
+import lombok.Data;
+
 /**
  * @description:
  * @author: Designer
  * @date : 2024-07-14 12:28
  */
+@Data
 public class InstantiateSingletonOverEvent extends BeanCreationEvent {
 
     private final long startTime;
@@ -19,18 +22,6 @@ public class InstantiateSingletonOverEvent extends BeanCreationEvent {
         super(source);
         this.beanName = beanName;
         startTime = System.currentTimeMillis();
-    }
-
-    public String getBeanName() {
-        return beanName;
-    }
-
-    public long getCostTime() {
-        return costTime;
-    }
-
-    public long getStartTime() {
-        return startTime;
     }
 
     public InstantiateSingletonOverEvent instantiated() {

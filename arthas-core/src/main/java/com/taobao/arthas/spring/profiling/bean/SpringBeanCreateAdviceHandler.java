@@ -13,18 +13,13 @@ import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import java.util.List;
 import java.util.Stack;
 
 @Component
 public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, ApplicationListener<BeanCreationEvent> {
 
     private final ThreadLocal<Stack<BeanCreateVO>> createBeanStack = ThreadLocal.withInitial(Stack::new);
-
-    private final MultiValueMap<String, BeanCreateVO> createdMap = new LinkedMultiValueMap<>();
 
     @Autowired
     private ProfilingResultVO profilingResultVO;
@@ -47,8 +42,6 @@ public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler i
     @Override
     public void atBefore(InvokeVO invokeVO) {
         BeanCreateVO creatingBean = new BeanCreateVO(invokeVO.getInvokeId(), String.valueOf(invokeVO.getParams()[0]));
-
-        createdMap.add(creatingBean.getName(), creatingBean);
 
         profilingResultVO.addCreatedBean(creatingBean);
 
@@ -93,20 +86,22 @@ public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler i
             InstantiateSingletonOverEvent instantiateSingletonOverEvent = (InstantiateSingletonOverEvent) beanCreationEvent;
 
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
-            List<BeanCreateVO> beanCreates = createdMap.get(instantiateSingletonOverEvent.getBeanName());
-            if (beanCreates != null && !beanCreates.isEmpty()) {
-                beanCreates.get(beanCreates.size() - 1).setSmartInitializingLoadMillis(instantiateSingletonOverEvent.getCostTime());
-            }
+            profilingResultVO.fillBeanCreate(instantiateSingletonOverEvent.getBeanName(), beanCreateVO -> {
+
+                beanCreateVO.setSmartInitializingLoadMillis(instantiateSingletonOverEvent.getCostTime());
+
+            });
 
         } else if (beanCreationEvent instanceof BeanAopProxyCreatedEvent) {
 
             BeanAopProxyCreatedEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedEvent) beanCreationEvent;
 
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
-            List<BeanCreateVO> beanCreates = createdMap.get(beanAopProxyCreatedEvent.getBeanName());
-            if (beanCreates != null && !beanCreates.isEmpty()) {
-                beanCreates.get(beanCreates.size() - 1).setAopProxyLoadMillis(beanAopProxyCreatedEvent.getCostTime());
-            }
+            profilingResultVO.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
+
+                beanCreateVO.setAopProxyLoadMillis(beanAopProxyCreatedEvent.getCostTime());
+
+            });
 
         }
 
