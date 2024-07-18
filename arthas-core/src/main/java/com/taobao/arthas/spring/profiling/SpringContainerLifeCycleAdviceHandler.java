@@ -2,13 +2,15 @@ package com.taobao.arthas.spring.profiling;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
+import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
-import com.taobao.arthas.spring.events.ApplicationProfilingOverEvent;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
+import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Spring项目启动耗时分析
@@ -17,12 +19,15 @@ import org.springframework.stereotype.Component;
 public class SpringContainerLifeCycleAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, Ordered {
 
     @Autowired
-    protected ApplicationEventPublisher eventPublisher;
+    private List<ProfilingLifeCycle> profilingLifeCycles;
+
+    @Autowired
+    private ProfilingResultVO profilingResultVO;
 
     private long startTime = 0L;
 
     public SpringContainerLifeCycleAdviceHandler() {
-        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+        super(FullyQualifiedClassUtils.parserClassMethodInfo(
                 "org.springframework.boot.SpringApplication" +
                         "#run(java.lang.Class, java.lang.String[])"
         ));
@@ -46,9 +51,10 @@ public class SpringContainerLifeCycleAdviceHandler extends AbstractInvokeAdviceH
     @Override
     public void atExit(InvokeVO invokeVO) {
         //启动耗时
+        profilingResultVO.setStartUpTime(System.currentTimeMillis() - startTime);
+        //分析完毕, 释放资源
+        profilingLifeCycles.forEach(ProfilingLifeCycle::stop);
 
-        //项目启动完成
-        eventPublisher.publishEvent(new ApplicationProfilingOverEvent(this, startTime));
     }
 
     @Override

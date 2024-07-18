@@ -1,9 +1,10 @@
-package com.taobao.arthas.spring.profiling;
+package com.taobao.arthas.spring.profiling.bean;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.InstantiateSingletonOverEvent;
+import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,7 +24,7 @@ class InitializingSingletonsStep3AdviceHandler extends AbstractInvokeAdviceHandl
     private InitializingSingletonsStep2AdviceHandler initializingSingletonsStep2AdviceHandler;
 
     public InitializingSingletonsStep3AdviceHandler() {
-        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+        super(FullyQualifiedClassUtils.parserClassMethodInfo(
                 "*#afterSingletonsInstantiated()"
         ));
     }
@@ -45,8 +46,6 @@ class InitializingSingletonsStep3AdviceHandler extends AbstractInvokeAdviceHandl
 
     /**
      * 创建Bean成功, 出栈
-     *
-     * @param invokeVO {@link com.taobao.arthas.spring.listener.BeanCreateReporter}
      */
     @Override
     protected void atExit(InvokeVO invokeVO) {

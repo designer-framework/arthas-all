@@ -2,7 +2,7 @@ package com.taobao.arthas.spring.properties;
 
 import com.taobao.arthas.core.config.Config;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
+import com.taobao.arthas.spring.vo.ClassMethodInfo;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
@@ -21,15 +21,15 @@ public class ArthasProperties {
 
     private String methods;
 
-    public Set<TraceMethodInfo> traceMethods() {
+    public Set<ClassMethodInfo> traceMethods() {
         if (!StringUtils.hasText(methods)) {
             return Collections.emptySet();
         } else {
             String[] invokeTracesArr = methods.split(delimiter);
 
-            Set<TraceMethodInfo> traceMethodProperties = new HashSet<>();
+            Set<ClassMethodInfo> traceMethodProperties = new HashSet<>();
             for (String invokeTrace : invokeTracesArr) {
-                traceMethodProperties.add(FullyQualifiedClassUtils.toTraceMethodInfo(invokeTrace));
+                traceMethodProperties.add(FullyQualifiedClassUtils.parserClassMethodInfo(invokeTrace));
             }
             return traceMethodProperties;
         }

@@ -578,7 +578,7 @@ public abstract class StringUtils {
     }
 
     public static Properties splitArrayElementsIntoProperties(String[] array, String delimiter, String charsToDelete) {
-        if (ObjectUtils.isEmpty(array)) {
+        if (array == null || array.length == 0) {
             return null;
         } else {
             Properties result = new Properties();

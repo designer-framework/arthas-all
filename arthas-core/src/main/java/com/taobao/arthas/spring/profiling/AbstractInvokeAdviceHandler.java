@@ -3,26 +3,26 @@ package com.taobao.arthas.spring.profiling;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
+import com.taobao.arthas.spring.vo.ClassMethodInfo;
 import lombok.Getter;
 
 @Getter
 public abstract class AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
 
-    private final TraceMethodInfo traceMethodInfo;
+    private final ClassMethodInfo classMethodInfo;
 
-    public AbstractInvokeAdviceHandler(TraceMethodInfo traceMethodInfo) {
-        this.traceMethodInfo = traceMethodInfo;
+    public AbstractInvokeAdviceHandler(ClassMethodInfo classMethodInfo) {
+        this.classMethodInfo = classMethodInfo;
     }
 
     @Override
     public boolean isCandidateClass(String className) {
-        return traceMethodInfo.isCandidateClass(className);
+        return classMethodInfo.isCandidateClass(className);
     }
 
     @Override
     public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return traceMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+        return classMethodInfo.isCandidateMethod(methodName, methodArgTypes);
     }
 
     public boolean isReady() {

@@ -3,7 +3,7 @@ package com.taobao.arthas.spring.vo;
 import lombok.Data;
 
 @Data
-public class TraceMethodInfo {
+public class ClassMethodInfo {
 
     public final String className;
     public final String methodName;
@@ -11,7 +11,7 @@ public class TraceMethodInfo {
     private final String fullyQualifiedMethodName;
     private final int methodArgumentLength;
 
-    public TraceMethodInfo(String fullyQualifiedMethodName, String className, String methodName, String[] methodArgumentTypes) {
+    public ClassMethodInfo(String fullyQualifiedMethodName, String className, String methodName, String[] methodArgumentTypes) {
         this.fullyQualifiedMethodName = fullyQualifiedMethodName;
         this.className = className;
         this.methodName = methodName;

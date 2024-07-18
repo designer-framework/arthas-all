@@ -1,8 +1,9 @@
-package com.taobao.arthas.spring.profiling;
+package com.taobao.arthas.spring.profiling.bean;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
+import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ class InitializingSingletonsStep2AdviceHandler extends AbstractInvokeAdviceHandl
      * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
     public InitializingSingletonsStep2AdviceHandler() {
-        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+        super(FullyQualifiedClassUtils.parserClassMethodInfo(
                 "org.springframework.beans.factory.support.DefaultSingletonBeanRegistry" +
                         "#getSingleton(java.lang.String)"
         ));

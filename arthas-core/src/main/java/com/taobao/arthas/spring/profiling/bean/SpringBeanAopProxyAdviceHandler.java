@@ -1,9 +1,10 @@
-package com.taobao.arthas.spring.profiling;
+package com.taobao.arthas.spring.profiling.bean;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.BeanAopProxyCreatedEvent;
+import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-public class BeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
+public class SpringBeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
 
     private static final ThreadLocal<Stack<AopInfo>> STACK_THREAD_LOCAL = ThreadLocal.withInitial(Stack::new);
 
@@ -22,9 +23,9 @@ public class BeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler imple
     /**
      * org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)
      */
-    public BeanAopProxyAdviceHandler() {
+    public SpringBeanAopProxyAdviceHandler() {
         super(
-                FullyQualifiedClassUtils.toTraceMethodInfo(
+                FullyQualifiedClassUtils.parserClassMethodInfo(
                         "org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator" +
                                 "#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)"
                 )
@@ -42,11 +43,6 @@ public class BeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler imple
         STACK_THREAD_LOCAL.get().push(new AopInfo(String.valueOf(invokeVO.getParams()[1])));
     }
 
-    /**
-     * 创建Bean成功, 出栈
-     *
-     * @param invokeVO {@link com.taobao.arthas.spring.listener.BeanCreateReporter}
-     */
     @Override
     protected void atExit(InvokeVO invokeVO) {
         //发布Bean创建成功事件

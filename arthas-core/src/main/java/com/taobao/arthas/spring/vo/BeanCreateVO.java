@@ -22,45 +22,38 @@ public class BeanCreateVO implements Serializable {
     private final String name;
 
     /**
+     * 随着当前bean的初始化而加载的子bean
+     */
+    private final List<BeanCreateVO> dependBeans;
+
+    /**
      * parentId
      */
     private long parentId;
-
     /**
      * 创建时间
      */
     private long startMillis;
-
     /**
      * 创建完成时间
      */
     private long endMillis;
-
     /**
      * 加载耗时
      */
     private long loadMillis;
-
-
     /**
      * 实际加载耗时(减去依赖Bean的耗时)
      */
     private long actualLoadMillis;
-
     /**
      * 加载耗时
      */
     private Long smartInitializingLoadMillis;
-
     /**
      * 创建代理Bean耗时
      */
     private Long aopProxyLoadMillis;
-
-    /**
-     * 随着当前bean的初始化而加载的子bean
-     */
-    private List<BeanCreateVO> dependBeans;
 
     public BeanCreateVO(long id, String name) {
         this.id = id;

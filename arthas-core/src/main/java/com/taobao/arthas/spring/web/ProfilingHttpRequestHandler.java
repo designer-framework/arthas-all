@@ -1,7 +1,7 @@
 package com.taobao.arthas.spring.web;
 
 import com.alibaba.fastjson.JSON;
-import com.taobao.arthas.spring.listener.Reporter;
+import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,17 +9,14 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 
 public class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    private final List<Reporter> reporters;
+    private final ProfilingResultVO profilingResultVO;
 
-    public ProfilingHttpRequestHandler(List<Reporter> reporters) {
-        this.reporters = reporters;
+    public ProfilingHttpRequestHandler(ProfilingResultVO profilingResultVO) {
+        this.profilingResultVO = profilingResultVO;
     }
 
     @Override
@@ -41,9 +38,7 @@ public class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<Ful
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1,
                     HttpResponseStatus.OK,
-                    Unpooled.copiedBuffer(
-                            JSON.toJSONString(reporters.stream().map(Reporter::getReportVO).collect(Collectors.toList()))
-                            , CharsetUtil.UTF_8)
+                    Unpooled.copiedBuffer(JSON.toJSONString(profilingResultVO), CharsetUtil.UTF_8)
             );
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);

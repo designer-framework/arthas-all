@@ -1,22 +1,21 @@
 package com.taobao.arthas.spring.utils;
 
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
+import com.taobao.arthas.spring.vo.ClassMethodInfo;
 
 import java.util.Arrays;
 
 public class FullyQualifiedClassUtils {
 
-    public static TraceMethodInfo toTraceMethodInfo(String fullyQualifiedMethodName) {
-        return getTraceMethodInfo(fullyQualifiedMethodName);
+    public static ClassMethodInfo parserClassMethodInfo(String fullyQualifiedMethodName) {
+        return getClassMethodInfo(fullyQualifiedMethodName);
     }
 
     /**
-     * com.taobao.arthas.spring.utils.FullyQualifiedClassUtils#getTraceMethodInfo(java.lang.String)
-     *
      * @param fullyQualifiedMethodName
      * @return
+     * @see com.taobao.arthas.spring.utils.FullyQualifiedClassUtils#getClassMethodInfo(java.lang.String)
      */
-    private static TraceMethodInfo getTraceMethodInfo(String fullyQualifiedMethodName) {
+    private static ClassMethodInfo getClassMethodInfo(String fullyQualifiedMethodName) {
         //类命
         String className = fullyQualifiedMethodName.split("#")[0].trim();
         //方法名
@@ -32,7 +31,7 @@ public class FullyQualifiedClassUtils {
             methodArguments[i] = methodArguments[i].trim();
         }
 
-        return new TraceMethodInfo(
+        return new ClassMethodInfo(
                 fullyQualifiedMethodName
                 , className, methodName, Arrays.stream(methodArguments).toArray(String[]::new)
         );

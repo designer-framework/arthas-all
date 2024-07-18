@@ -1,4 +1,4 @@
-package com.taobao.arthas.spring.profiling;
+package com.taobao.arthas.spring.profiling.bean;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
@@ -6,31 +6,34 @@ import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.spring.events.BeanCreationEvent;
 import com.taobao.arthas.spring.events.InstantiateSingletonOverEvent;
-import com.taobao.arthas.spring.listener.BeanCreateReporter;
+import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.spring.vo.BeanCreateVO;
-import com.taobao.arthas.spring.vo.ReportVO;
+import com.taobao.arthas.spring.vo.ProfilingResultVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 
 @Component
-public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, ApplicationListener<BeanCreationEvent>, BeanCreateReporter<Collection<BeanCreateVO>> {
+public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, ApplicationListener<BeanCreationEvent> {
 
     private final ThreadLocal<Stack<BeanCreateVO>> createBeanStack = ThreadLocal.withInitial(Stack::new);
 
     private final MultiValueMap<String, BeanCreateVO> createdMap = new LinkedMultiValueMap<>();
 
+    @Autowired
+    private ProfilingResultVO profilingResultVO;
+
     /**
      * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
     public SpringBeanCreateAdviceHandler() {
-        super(FullyQualifiedClassUtils.toTraceMethodInfo(
+        super(FullyQualifiedClassUtils.parserClassMethodInfo(
                 "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory" +
                         "#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])"
         ));
@@ -46,6 +49,8 @@ public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler i
         BeanCreateVO creatingBean = new BeanCreateVO(invokeVO.getInvokeId(), String.valueOf(invokeVO.getParams()[0]));
 
         createdMap.add(creatingBean.getName(), creatingBean);
+
+        profilingResultVO.addCreatedBean(creatingBean);
 
         //子Bean
         if (!createBeanStack.get().isEmpty()) {
@@ -66,8 +71,6 @@ public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler i
 
     /**
      * 创建Bean成功, 出栈
-     *
-     * @param invokeVO {@link com.taobao.arthas.spring.listener.BeanCreateReporter}
      */
     @Override
     protected void atExit(InvokeVO invokeVO) {
@@ -107,16 +110,6 @@ public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler i
 
         }
 
-    }
-
-    @Override
-    public ReportVO getReportVO() {
-        return new ReportVO("CreatedBeans", createdMap.toSingleValueMap().values());
-    }
-
-    @Override
-    public void release() {
-        createBeanStack.remove();
     }
 
 }

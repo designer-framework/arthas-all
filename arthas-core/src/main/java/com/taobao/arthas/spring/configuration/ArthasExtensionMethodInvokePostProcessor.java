@@ -1,9 +1,9 @@
 package com.taobao.arthas.spring.configuration;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
-import com.taobao.arthas.spring.profiling.SpringMethodInvokeAdviceHandler;
+import com.taobao.arthas.spring.profiling.invoke.SpringMethodInvokeAdviceHandler;
 import com.taobao.arthas.spring.properties.ArthasProperties;
-import com.taobao.arthas.spring.vo.TraceMethodInfo;
+import com.taobao.arthas.spring.vo.ClassMethodInfo;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -33,15 +33,15 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         //将配置绑定到对象上
-        for (TraceMethodInfo traceMethodInfo : arthasProperties.traceMethods()) {
+        for (ClassMethodInfo classMethodInfo : arthasProperties.traceMethods()) {
 
             //注入到容器中
             BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
                     .genericBeanDefinition(SpringMethodInvokeAdviceHandler.class);
-            methodInvokeAdviceHandlerBuilder.addConstructorArgValue(traceMethodInfo);
+            methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodInfo);
             //
             registry.registerBeanDefinition(
-                    SpringMethodInvokeAdviceHandler.class.getSimpleName() + "." + traceMethodInfo.getFullyQualifiedMethodName()
+                    SpringMethodInvokeAdviceHandler.class.getSimpleName() + "." + classMethodInfo.getFullyQualifiedMethodName()
                     , methodInvokeAdviceHandlerBuilder.getBeanDefinition()
             );
 
