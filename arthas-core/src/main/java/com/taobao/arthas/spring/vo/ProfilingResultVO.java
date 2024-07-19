@@ -1,5 +1,6 @@
 package com.taobao.arthas.spring.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,6 @@ public class ProfilingResultVO {
     private final Map<String, Integer> invokeTraceMap = new ConcurrentHashMap<>();
 
     @Setter
-    @Getter
     private long startUpTime;
 
     public void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer) {
@@ -43,11 +43,17 @@ public class ProfilingResultVO {
         invokeTraceMap.put(invokeTrace, invokeTraceMap.getOrDefault(invokeTrace, 0) + 1);
     }
 
-    public List<MethodInvokeMetrics> getMethodInvokeMetrics() {
+    @JSONField(name = "beanInitResultList")
+    public Collection<BeanCreateVO> getBeanInitResultList() {
+        return createdBeansMap.values();
+    }
+
+    @JSONField(name = "methodInvokeDetailList")
+    public List<MethodInvokeMetrics> getMethodInvokeDetailList() {
 
         List<MethodInvokeMetrics> metricsList = new ArrayList<>();
 
-        Map<String, List<MethodInvokeVO>> methodInvokesMap = methodInvokes.stream().collect(Collectors.groupingBy(MethodInvokeVO::getFullyQualifiedMethodName));
+        Map<String, List<MethodInvokeVO>> methodInvokesMap = methodInvokes.stream().collect(Collectors.groupingBy(MethodInvokeVO::getMethodQualifier));
 
         for (Map.Entry<String, List<MethodInvokeVO>> methodInvokesEntry : methodInvokesMap.entrySet()) {
 

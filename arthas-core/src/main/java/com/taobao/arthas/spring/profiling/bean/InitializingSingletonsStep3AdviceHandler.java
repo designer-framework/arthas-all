@@ -6,6 +6,7 @@ import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.InstantiateSingletonOverEvent;
 import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-class InitializingSingletonsStep3AdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
+class InitializingSingletonsStep3AdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, DisposableBean {
 
     private final ThreadLocal<Stack<InstantiateSingletonOverEvent>> stackThreadLocal = ThreadLocal.withInitial(Stack::new);
 
@@ -61,4 +62,9 @@ class InitializingSingletonsStep3AdviceHandler extends AbstractInvokeAdviceHandl
         }
     }
 
+    @Override
+    public void destroy() throws Exception {
+        stackThreadLocal.remove();
+    }
+    
 }

@@ -1,8 +1,10 @@
 package com.taobao.arthas.spring.profiling.stacktrace;
 
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
+import com.taobao.arthas.spring.constants.ProfilingLifeCycleOrdered;
 import com.taobao.arthas.spring.properties.ArthasThreadProfilingProperties;
 import com.taobao.arthas.spring.vo.ProfilingResultVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ThreadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 /**
  * 火焰图
  **/
+@Slf4j
 @Component
 public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
 
@@ -112,6 +115,11 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
 
     }
 
+    @Override
+    public int getOrder() {
+        return ProfilingLifeCycleOrdered.STOP_STACK_TRACE_PROFILER;
+    }
+
     private synchronized void addStackTraceElements(StackTraceElement[] elements) {
         stackTraceQueue.add(elements);
     }
@@ -133,11 +141,6 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
                         }
                     });
         }));
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
     }
 
 }

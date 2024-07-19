@@ -10,6 +10,7 @@ import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.spring.vo.BeanCreateVO;
 import com.taobao.arthas.spring.vo.ProfilingResultVO;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, ApplicationListener<BeanCreationEvent> {
+public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, ApplicationListener<BeanCreationEvent>, DisposableBean {
 
     private final ThreadLocal<Stack<BeanCreateVO>> createBeanStack = ThreadLocal.withInitial(Stack::new);
 
@@ -105,6 +106,11 @@ public class SpringBeanCreateAdviceHandler extends AbstractInvokeAdviceHandler i
 
         }
 
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        createBeanStack.remove();
     }
 
 }

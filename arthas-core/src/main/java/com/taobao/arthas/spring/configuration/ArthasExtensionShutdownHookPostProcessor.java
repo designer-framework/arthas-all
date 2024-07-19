@@ -1,15 +1,15 @@
 package com.taobao.arthas.spring.configuration;
 
-import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
+import com.taobao.arthas.spring.constants.ProfilingLifeCycleOrdered;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import java.util.List;
+import org.springframework.core.Ordered;
 
 /**
  * @description:
@@ -20,42 +20,37 @@ public class ArthasExtensionShutdownHookPostProcessor implements BeanDefinitionR
 
     private final AnnotationConfigApplicationContext annotationConfigApplicationContext;
 
-    private final List<Runnable> agentShutdownHooks;
-
-    public ArthasExtensionShutdownHookPostProcessor(AnnotationConfigApplicationContext annotationConfigApplicationContext, List<Runnable> agentShutdownHooks) {
-        this.agentShutdownHooks = agentShutdownHooks;
+    public ArthasExtensionShutdownHookPostProcessor(AnnotationConfigApplicationContext annotationConfigApplicationContext) {
         this.annotationConfigApplicationContext = annotationConfigApplicationContext;
     }
 
-    /**
-     * @param registry the bean definition registry used by the application context
-     * @throws BeansException
-     * @see MatchCandidate
-     * @see com.taobao.arthas.core.spring.handler.InvokeAdviceHandler
-     */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         //
-        BeanDefinitionBuilder shutdownContainerHookBuild = BeanDefinitionBuilder.genericBeanDefinition(ProfilingLifeCycle.class, () -> new ProfilingLifeCycle() {
-            @Override
-            public void stop() {
-                annotationConfigApplicationContext.close();
-            }
-        });
+        BeanDefinitionBuilder shutdownContainerHookBuild = BeanDefinitionBuilder
+                .genericBeanDefinition(ProfilingLifeCycle.class, () -> new ShutdownContainer(annotationConfigApplicationContext));
         registry.registerBeanDefinition("arthas.extension.shutdown." + ProfilingLifeCycle.class.getName(), shutdownContainerHookBuild.getBeanDefinition());
-
-        //
-        BeanDefinitionBuilder shutdownAgentHookBuilder = BeanDefinitionBuilder.genericBeanDefinition(ProfilingLifeCycle.class, () -> new ProfilingLifeCycle() {
-            @Override
-            public void stop() {
-                agentShutdownHooks.forEach(Runnable::run);
-            }
-        });
-        registry.registerBeanDefinition("arthas.agent.shutdown." + ProfilingLifeCycle.class.getName(), shutdownAgentHookBuilder.getBeanDefinition());
     }
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    }
+
+    @AllArgsConstructor
+    private static class ShutdownContainer implements ProfilingLifeCycle, Ordered {
+
+        private final AnnotationConfigApplicationContext annotationConfigApplicationContext;
+
+        @Override
+        public void stop() {
+            annotationConfigApplicationContext.close();
+        }
+
+        @Override
+        public int getOrder() {
+            return ProfilingLifeCycleOrdered.STOP_CONTAINER;
+        }
+
     }
 
 }

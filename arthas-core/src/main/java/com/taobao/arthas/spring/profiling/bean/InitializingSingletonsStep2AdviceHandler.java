@@ -5,13 +5,14 @@ import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Stack;
 
 @Component
-class InitializingSingletonsStep2AdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
+class InitializingSingletonsStep2AdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, DisposableBean {
 
     private static final ThreadLocal<Stack<String>> INSTANTIATE_SINGLETON_CACHE = ThreadLocal.withInitial(Stack::new);
 
@@ -51,4 +52,9 @@ class InitializingSingletonsStep2AdviceHandler extends AbstractInvokeAdviceHandl
     protected void atExit(InvokeVO invokeVO) {
     }
 
+    @Override
+    public void destroy() throws Exception {
+        INSTANTIATE_SINGLETON_CACHE.remove();
+    }
+    
 }

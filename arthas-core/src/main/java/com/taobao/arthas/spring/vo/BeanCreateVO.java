@@ -27,7 +27,7 @@ public class BeanCreateVO implements Serializable {
     /**
      * 随着当前bean的初始化而加载的子bean
      */
-    private final List<BeanCreateVO> dependBeans;
+    private final List<BeanCreateVO> children;
 
     /**
      * parentId
@@ -44,7 +44,7 @@ public class BeanCreateVO implements Serializable {
     /**
      * 加载耗时
      */
-    private long loadMillis;
+    private long duration;
     /**
      * 实际加载耗时(减去依赖Bean的耗时)
      */
@@ -62,20 +62,20 @@ public class BeanCreateVO implements Serializable {
         this.id = id;
         this.name = name;
         startMillis = System.currentTimeMillis();
-        dependBeans = new ArrayList<>();
+        children = new ArrayList<>();
     }
 
 
     public void calcBeanLoadTime() {
         endMillis = System.currentTimeMillis();
-        loadMillis = endMillis - startMillis;
-        long childrenDuration = dependBeans.stream().mapToLong(BeanCreateVO::getLoadMillis).sum();
-        actualLoadMillis = loadMillis - childrenDuration;
+        duration = endMillis - startMillis;
+        long childrenDuration = children.stream().mapToLong(BeanCreateVO::getDuration).sum();
+        actualLoadMillis = duration - childrenDuration;
     }
 
     public void addDependBean(BeanCreateVO dependBean) {
         dependBean.parentId = id;
-        dependBeans.add(dependBean);
+        children.add(dependBean);
     }
 
 }

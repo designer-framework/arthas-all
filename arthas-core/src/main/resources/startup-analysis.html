@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
     <title>Spring Boot Startup Analysis Report</title>
 
     <!-- enables tailwindcss @apply -->
@@ -17,14 +18,17 @@
             padding-top: 0;
             padding-bottom: 0;
         }
+
         summary {
             cursor: pointer;
         }
+
         summary::-webkit-details-marker {
             display: block;
             margin-left: auto;
             margin-right: auto;
         }
+
         .VirtualizedTraceView--rowsWrapper, .VirtualizedTraceView--row {
             width: 100%;
         }
@@ -34,24 +38,29 @@
             flex: 0 1 auto;
             flex-direction: row;
         }
+
         .ub-relative {
             position: relative;
         }
+
         .span-name-column {
             position: relative;
             white-space: nowrap;
             z-index: 1;
         }
+
         .span-name-wrapper {
             background: #f8f8f8;
             line-height: 27px;
             overflow: hidden;
             display: flex;
         }
+
         .SpanTreeOffset {
             color: #000;
             position: relative;
         }
+
         .SpanTreeOffset--indentGuide {
             /* The size of the indentGuide is based off of the iconWrapper */
             padding-right: calc(0.5rem + 12px);
@@ -80,6 +89,7 @@
             top: 0;
             width: 1000px;
         }
+
         .span-name {
             color: #000;
             cursor: pointer;
@@ -91,6 +101,7 @@
             position: relative;
             text-overflow: ellipsis;
         }
+
         .span-name:before {
             content: "  ";
             position: absolute;
@@ -100,10 +111,12 @@
             border-left: 4px solid;
             border-left-color: inherit;
         }
+
         .span-svc-name {
             padding: 0 0.25rem 0 0.5rem;
             font-size: 1.05em;
         }
+
         .SpanBar--wrapper {
             bottom: 0;
             left: 0;
@@ -113,6 +126,7 @@
             width: 90%;
             overflow: visible;
         }
+
         .SpanBar--bar {
             border-radius: 3px;
             min-width: 2px;
@@ -120,18 +134,21 @@
             height: 36%;
             top: 32%;
         }
+
         .SpanBar--label.is-right {
             left: 100%;
         }
+
         .SpanBar--label {
             color: #aaa;
             font-size: 12px;
-            font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
             line-height: 1em;
             white-space: nowrap;
             padding: 0 0.5em;
             position: absolute;
         }
+
         .divider-horizontal {
             display: block;
             clear: both;
@@ -140,6 +157,7 @@
             margin-bottom: 0.25rem;
             background: #ddd;
         }
+
         .divider-vertical {
             position: relative;
             top: -0.06em;
@@ -152,17 +170,28 @@
         }
 
         .github-corner:hover .octo-arm {
-            animation:octocat-wave 560ms ease-in-out
+            animation: octocat-wave 560ms ease-in-out
         }
+
         @keyframes octocat-wave {
-            0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}
-        }
-        @media (max-width:500px) {
-            .github-corner:hover .octo-arm {
-                animation:none
+            0%, 100% {
+                transform: rotate(0)
             }
+            20%, 60% {
+                transform: rotate(-25deg)
+            }
+            40%, 80% {
+                transform: rotate(10deg)
+            }
+        }
+
+        @media (max-width: 500px) {
+            .github-corner:hover .octo-arm {
+                animation: none
+            }
+
             .github-corner .octo-arm {
-                animation:octocat-wave 560ms ease-in-out
+                animation: octocat-wave 560ms ease-in-out
             }
         }
 
@@ -232,12 +261,20 @@
 
 
 <!-- top-right corner GitHub link -->
-<a href="https://github.com/linyimin0812/spring-startup-analyzer" target="_blank" class="github-corner" aria-label="View source on GitHub">
-    <svg width="65" height="65" viewBox="0 0 250 250" style="fill:#FD6C6C; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+<a aria-label="View source on GitHub" class="github-corner"
+   href="https://github.com/linyimin0812/spring-startup-analyzer"
+   target="_blank">
+    <svg aria-hidden="true" height="65"
+         style="fill:#FD6C6C; color:#fff; position: absolute; top: 0; border: 0; right: 0;"
+         viewBox="0 0 250 250" width="65">
         <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
-        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm">
+        <path class="octo-arm"
+              d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;">
         </path>
-        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body">
+        <path class="octo-body"
+              d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor">
         </path>
     </svg>
 </a>
@@ -248,7 +285,7 @@
     const startupVO = /*startupVO:*/{};
     const flameGraphUrl = /*flameGraphUrl*/'';
 
-    let beanInitResultList = JSON.parse(startupVO.beanInitResultList ? startupVO.beanInitResultList : '[]');
+    let beanInitResultList = startupVO.beanInitResultList ? startupVO.beanInitResultList : [];
     beanInitResultList = beanInitResultList.filter(beanInitResult => beanInitResult.parentId === 0);
     beanInitResultList.sort((o1, o2) => o2.duration - o1.duration);
 
@@ -347,26 +384,34 @@
     ]);
 
     const spanTreeOffset = (level) => {
-        const spanTreeOffsets = [h("span", { class: "SpanTreeOffset--indentGuide" })];
+        const spanTreeOffsets = [h("span", {class: "SpanTreeOffset--indentGuide"})];
         for (let i = 0; i < level; i++) {
-            spanTreeOffsets.push(h("span", { class: "SpanTreeOffset--indentGuide" }));
+            spanTreeOffsets.push(h("span", {class: "SpanTreeOffset--indentGuide"}));
         }
 
         return spanTreeOffsets;
     };
 
-    const timeLineZoomIn = (event) => h("span", { class: "SpanTreeOffset--iconWrapper" }, [
-        h("svg", { class: "fill-current text-current inline-block align-middle w-4 h-4 cursor-pointer", viewBox: "0 0 40 40", onclick: [Expand, event]}, [
+    const timeLineZoomIn = (event) => h("span", {class: "SpanTreeOffset--iconWrapper"}, [
+        h("svg", {
+            class: "fill-current text-current inline-block align-middle w-4 h-4 cursor-pointer",
+            viewBox: "0 0 40 40",
+            onclick: [Expand, event]
+        }, [
             h("g", {}, [
-                h("path", { d: "m23.3 20l-13.1-13.6c-0.3-0.3-0.3-0.9 0-1.2l2.4-2.4c0.3-0.3 0.9-0.4 1.2-0.1l16 16.7c0.1 0.1 0.2 0.4 0.2 0.6s-0.1 0.5-0.2 0.6l-16 16.7c-0.3 0.3-0.9 0.3-1.2 0l-2.4-2.5c-0.3-0.3-0.3-0.9 0-1.2z" }),
+                h("path", {d: "m23.3 20l-13.1-13.6c-0.3-0.3-0.3-0.9 0-1.2l2.4-2.4c0.3-0.3 0.9-0.4 1.2-0.1l16 16.7c0.1 0.1 0.2 0.4 0.2 0.6s-0.1 0.5-0.2 0.6l-16 16.7c-0.3 0.3-0.9 0.3-1.2 0l-2.4-2.5c-0.3-0.3-0.3-0.9 0-1.2z"}),
             ]),
         ]),
     ]);
 
-    const timeLineZoomOut = (event) => h("span", { class: "SpanTreeOffset--iconWrapper" }, [
-        h("svg", { class: "fill-current text-current inline-block align-middle w-4 h-4 cursor-pointer", viewBox: "0 0 40 40", onclick: [Expand, event]}, [
+    const timeLineZoomOut = (event) => h("span", {class: "SpanTreeOffset--iconWrapper"}, [
+        h("svg", {
+            class: "fill-current text-current inline-block align-middle w-4 h-4 cursor-pointer",
+            viewBox: "0 0 40 40",
+            onclick: [Expand, event]
+        }, [
             h("g", {}, [
-                h("path", { d: "m31 12.5l1.5 1.6-12.5 13.4-12.5-13.4 1.5-1.6 11 11.7z" }),
+                h("path", {d: "m31 12.5l1.5 1.6-12.5 13.4-12.5-13.4 1.5-1.6 11 11.7z"}),
             ]),
         ]),
     ]);
@@ -409,23 +454,29 @@
         ])
     ]);
 
-    const BeanInitResultTimeLineRow = (event, expandedEventIds, expandDetailIds, minDuration, search, level) => h("div", { class: `VirtualizedTraceView--row ${level < 0 ? 'hidden' : ''} ` }, [
-        h("div", { class: "flex-row span-row hover:bg-blue-200" }, [
-            h("div", { class: "ub-relative span-name-column w-2/5 max-w-2/5" }, [
-                h("div", { class: "span-name-wrapper flex hover:bg-blue-200" }, [
-                    h("span", { class: "SpanTreeOffset is-parent"}, [
+    const BeanInitResultTimeLineRow = (event, expandedEventIds, expandDetailIds, minDuration, search, level) => h("div", {class: `VirtualizedTraceView--row ${level < 0 ? 'hidden' : ''} `}, [
+        h("div", {class: "flex-row span-row hover:bg-blue-200"}, [
+            h("div", {class: "ub-relative span-name-column w-2/5 max-w-2/5"}, [
+                h("div", {class: "span-name-wrapper flex hover:bg-blue-200"}, [
+                    h("span", {class: "SpanTreeOffset is-parent"}, [
                         ...spanTreeOffset(level),
                         ...spanTreeOffsetIcon(event, expandedEventIds, minDuration, search)
                     ]),
-                    h("a", { class: "span-name bl border-teal-500", onclick: [ExpandDetails, event] }, [
-                        h("span", { class: "span-svc-name is-children-collapsed" }, text(event.name)),
+                    h("a", {class: "span-name bl border-teal-500", onclick: [ExpandDetails, event]}, [
+                        h("span", {class: "span-svc-name is-children-collapsed"}, text(event.name)),
                     ]),
                 ]),
             ]),
-            h("div", { class: "ub-relative span-view cursor-pointer flex-grow-0 flex-shrink-0 max-w-3/5 w-3/5", onclick: [ExpandDetails, event] }, [
-                h("div", { class: "SpanBar--wrapper" }, [
-                    h("div", { class: 'SpanBar--bar bg-teal-500', style: {left: `${calculateLeftPercent(event)}`, width: `${calculateWidthPercent(event)}`}}, [
-                        h("div", { class: "SpanBar--label is-right" }, text(event.duration + 'ms')),
+            h("div", {
+                class: "ub-relative span-view cursor-pointer flex-grow-0 flex-shrink-0 max-w-3/5 w-3/5",
+                onclick: [ExpandDetails, event]
+            }, [
+                h("div", {class: "SpanBar--wrapper"}, [
+                    h("div", {
+                        class: 'SpanBar--bar bg-teal-500',
+                        style: {left: `${calculateLeftPercent(event)}`, width: `${calculateWidthPercent(event)}`}
+                    }, [
+                        h("div", {class: "SpanBar--label is-right"}, text(event.duration + 'ms')),
                     ]),
                 ]),
             ]),
@@ -533,7 +584,7 @@
     }
 
     function labelMatches(event, search) {
-        return search === '' || event.name.toLowerCase().includes(search.toLowerCase()) || Object.entries(event.tags).map(([k, v]) => k+v).filter(it => it.toLowerCase().includes(search.toLowerCase())).length > 0;
+        return search === '' || event.name.toLowerCase().includes(search.toLowerCase()) || Object.entries(event.tags).map(([k, v]) => k + v).filter(it => it.toLowerCase().includes(search.toLowerCase())).length > 0;
     }
 
     function childrenMatch(event, minimumDuration, search) {
@@ -560,20 +611,22 @@
     const FilterView = (state) => h("div", {class: "mb-4"}, [
         h("span", {
             class: 'font-medium mr-2 '
-        }, [ text("Minimum duration(ms)")]),
+        }, [text("Minimum duration(ms)")]),
         h("input", {
             type: "text",
             class: 'px-4 w-32 text-left text-gray-800',
             value: state.duration,
-            oninput: (_, { target }) => [OnDurationChange, target]}, []),
+            oninput: (_, {target}) => [OnDurationChange, target]
+        }, []),
         h("span", {
             class: 'font-medium mr-2 ml-4'
-        }, [ text("Search")]),
+        }, [text("Search")]),
         h("input", {
             type: "text",
             class: 'px-4 w-64 text-left text-gray-800',
             value: state.search,
-            oninput: (_, { target }) => [OnSearchChange, target]}, [])
+            oninput: (_, {target}) => [OnSearchChange, target]
+        }, [])
     ]);
 
     // header
@@ -634,7 +687,13 @@
 
     // bean initialization timeline
     app({
-        init: {events: beanInitResultTimeLineList, expandedEventIds: [], expandDetailIds: [], duration: 100, search: ''},
+        init: {
+            events: beanInitResultTimeLineList,
+            expandedEventIds: [],
+            expandDetailIds: [],
+            duration: 100,
+            search: ''
+        },
         view: (state) => h("div", {class: 'border-t border-gray-100'}, [
             h("details", {open: true}, [
                 h("summary", {class: "p-2 w-full bg-gray-300"}, [
@@ -709,7 +768,7 @@
                     h("summary", {class: "p-2 w-full bg-gray-300"}, [
                         h("span", {class: "font-medium ml-2"}, text("Startup Wall Clock Profile")),
                     ]),
-                    h("div", {class: "w-full p-4 bg-gray-400", style: { height: "1000px"},}, [
+                    h("div", {class: "w-full p-4 bg-gray-400", style: {height: "1000px"},}, [
                         h("iframe", {
                             class: "w-full h-full",
                             src: flameGraphUrl,

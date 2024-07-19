@@ -5,10 +5,11 @@ import com.taobao.arthas.profiling.api.handler.InvokeAdviceHandler;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InitializingSingletonsStep1AdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
+public class InitializingSingletonsStep1AdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, DisposableBean {
 
     private final ThreadLocal<Boolean> isReady = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
@@ -37,4 +38,9 @@ public class InitializingSingletonsStep1AdviceHandler extends AbstractInvokeAdvi
         isReady.set(Boolean.FALSE);
     }
 
+    @Override
+    public void destroy() throws Exception {
+        isReady.remove();
+    }
+    
 }

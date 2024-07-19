@@ -6,6 +6,7 @@ import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.spring.profiling.AbstractInvokeAdviceHandler;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-public class SpringBeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
+public class SpringBeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate, DisposableBean {
 
     private static final ThreadLocal<Stack<AopInfo>> STACK_THREAD_LOCAL = ThreadLocal.withInitial(Stack::new);
 
@@ -50,6 +51,11 @@ public class SpringBeanAopProxyAdviceHandler extends AbstractInvokeAdviceHandler
         if (!(invokeVO.getReturnObj() == invokeVO.getParams()[0])) {
             eventPublisher.publishEvent(new BeanAopProxyCreatedEvent(this, aopInfo.beanName, aopInfo.startTime));
         }
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        STACK_THREAD_LOCAL.remove();
     }
 
     static class AopInfo {

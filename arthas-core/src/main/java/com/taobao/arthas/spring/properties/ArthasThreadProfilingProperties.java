@@ -27,6 +27,6 @@ public class ArthasThreadProfilingProperties {
      * 采样间隔
      */
     @Value("${spring.profiling.thread.interval}")
-    private long interval = 10;
+    private long interval = 1;
 
 }

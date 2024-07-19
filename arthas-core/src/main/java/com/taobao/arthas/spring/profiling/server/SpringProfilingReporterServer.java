@@ -1,7 +1,7 @@
-package com.taobao.arthas.spring.web;
+package com.taobao.arthas.spring.profiling.server;
 
 import com.alibaba.fastjson.JSON;
-import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
+import com.taobao.arthas.spring.constants.DisposableBeanOrdered;
 import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
@@ -13,6 +13,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
@@ -23,7 +24,7 @@ import java.net.InetSocketAddress;
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 
 @Component
-public class SpringProfilingReporterServer implements ProfilingLifeCycle, Ordered {
+public class SpringProfilingReporterServer implements DisposableBean, Ordered {
 
     @Value("${server.port}")
     private int port;
@@ -35,7 +36,7 @@ public class SpringProfilingReporterServer implements ProfilingLifeCycle, Ordere
      * 异步启动性能分析报表Web服务端
      */
     @Override
-    public void stop() {
+    public void destroy() throws Exception {
         new Thread(() -> start(port)).start();
     }
 
@@ -75,7 +76,7 @@ public class SpringProfilingReporterServer implements ProfilingLifeCycle, Ordere
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
+        return DisposableBeanOrdered.START_REPORTER_SERVER;
     }
 
     class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {

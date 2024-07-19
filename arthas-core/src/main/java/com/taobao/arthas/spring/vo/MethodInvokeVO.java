@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class MethodInvokeVO {
 
-    private final String fullyQualifiedMethodName;
+    private final String methodQualifier;
 
     private final long startMillis;
 
@@ -17,14 +17,14 @@ public class MethodInvokeVO {
 
     private Object[] args;
 
-    public MethodInvokeVO(String fullyQualifiedMethodName, long startMillis, long duration) {
-        this.fullyQualifiedMethodName = fullyQualifiedMethodName;
+    public MethodInvokeVO(String methodQualifier, long startMillis, long duration) {
+        this.methodQualifier = methodQualifier;
         this.startMillis = startMillis;
         this.duration = duration;
     }
 
-    public MethodInvokeVO(String fullyQualifiedMethodName, Object[] args) {
-        this.fullyQualifiedMethodName = fullyQualifiedMethodName;
+    public MethodInvokeVO(String methodQualifier, Object[] args) {
+        this.methodQualifier = methodQualifier;
         startMillis = System.currentTimeMillis();
 
         if (args == null) {
