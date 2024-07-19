@@ -32,20 +32,6 @@ public class WriteStartUpAnalysisHtml implements DisposableBean {
 
     }
 
-    private void writeStartUpAnalysis() {
-
-        profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.startupAnalysis_, content -> {
-
-            content = content.replace("/*startupVO:*/{}", JSON.toJSONString(profilingResultVO));
-
-            content = content.replace("/*flameGraphUrl*/''", "'./" + ProfilingHtmlUtil.flameGraph_ + "'");
-
-            return content;
-
-        });
-
-    }
-
     private void writeFlameGraph() {
 
         //
@@ -54,6 +40,22 @@ public class WriteStartUpAnalysisHtml implements DisposableBean {
         profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.flameGraph_, flameGraphSource -> {
 
             fg.parse(flameGraphSource, AgentHomeUtil.getOutputPath(ProfilingHtmlUtil.flameGraph_), profilingResultVO.getInvokeTraceMap());
+
+        });
+
+    }
+
+    private void writeStartUpAnalysis() {
+
+        profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.startupAnalysis_, content -> {
+
+            //替换性能分析对象占位符
+            content = content.replace("/*startupVO:*/{}", JSON.toJSONString(profilingResultVO));
+
+            //替换火焰图Path占位符
+            content = content.replace("/*flameGraphUrl*/''", "'./" + ProfilingHtmlUtil.flameGraph_ + "'");
+
+            return content;
 
         });
 

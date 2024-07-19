@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.config;
 
 import com.taobao.arthas.core.util.reflect.ArthasReflectUtils;
+import lombok.Data;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import static java.lang.reflect.Modifier.isStatic;
  * @author vlinux
  * @author hengyunabc 2018-11-12
  */
+@Data
 @Config(prefix = "arthas")
 public class Configure {
 
@@ -47,75 +49,6 @@ public class Configure {
      * </pre>
      */
     private String appName;
-
-    /**
-     * report executed command
-     */
-    private String statUrl;
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public Integer getHttpPort() {
-        return httpPort;
-    }
-
-    public void setHttpPort(int httpPort) {
-        this.httpPort = httpPort;
-    }
-
-    public String getArthasAgent() {
-        return arthasAgent;
-    }
-
-    public void setArthasAgent(String arthasAgent) {
-        this.arthasAgent = arthasAgent;
-    }
-
-    public String getArthasCore() {
-        return arthasCore;
-    }
-
-    public void setArthasCore(String arthasCore) {
-        this.arthasCore = arthasCore;
-    }
-
-    public String getStatUrl() {
-        return statUrl;
-    }
-
-    public void setStatUrl(String statUrl) {
-        this.statUrl = statUrl;
-    }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
-
-    public String getEnhanceLoaders() {
-        return enhanceLoaders;
-    }
-
-    public void setEnhanceLoaders(String enhanceLoaders) {
-        this.enhanceLoaders = enhanceLoaders;
-    }
-
-    public String getOutputPath() {
-        return outputPath;
-    }
-
-    public void setOutputPath(String outputPath) {
-        this.outputPath = outputPath;
-    }
 
     /**
      * 序列化成字符串
