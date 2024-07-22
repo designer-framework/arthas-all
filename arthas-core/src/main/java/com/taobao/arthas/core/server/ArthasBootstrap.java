@@ -47,11 +47,7 @@ public class ArthasBootstrap {
 
     private final Instrumentation instrumentation;
 
-    private ConfigurableApplicationContext configurableApplicationContext;
-
     private SpringProfilingContainer springProfilingContainer;
-
-    private ArthasConfigProperties configure;
 
     private InstrumentTransformer classLoaderInstrumentTransformer;
 
@@ -60,35 +56,30 @@ public class ArthasBootstrap {
     private ArthasBootstrap(Instrumentation instrumentation, Map<String, String> args) throws Throwable {
         this.instrumentation = instrumentation;
 
+        transformerManager = new TransformerManager(instrumentation);
+
         initFastjson();
 
         // 1. initSpy()
         initSpy();
 
-        // 1.1 启动性能分析容器
+        // 2. 启动性能分析容器
         initProfilingContainer(args);
 
-        // 2. 加载配置
-        initEnvironment();
-
-        // 3. init logger
-        //
-
-        // 4. 增强ClassLoader
+        // 3. 增强ClassLoader
         enhanceClassLoader();
 
-        // 4.1 增强Spring
-        enhanceProfiling();
+        // 4. 增强待分析的类
+        enhanceProfilingClass();
 
-        shutdown = new Thread("as-shutdown-hooker") {
+        // 5. hooker
+        shutdown = new Thread("spring-profiling-shutdown-hooker") {
 
             @Override
             public void run() {
                 ArthasBootstrap.this.destroy();
             }
         };
-
-        transformerManager = new TransformerManager(instrumentation);
 
         Runtime.getRuntime().addShutdownHook(shutdown);
     }
@@ -128,17 +119,11 @@ public class ArthasBootstrap {
         return arthasBootstrap;
     }
 
-    private void enhanceProfiling() {
+    private void enhanceProfilingClass() {
         //获取Spy实现类
         SpyAPI.setSpy(springProfilingContainer.getSpyAPI());
         EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(springProfilingContainer.getMatchCandidates());
         instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
-        //
-        springProfilingContainer.addShutdownHook(() -> {
-            SpyAPI.destroy();
-            instrumentation.removeTransformer(enhanceProfilingInstrumentTransformer);
-        });
-
     }
 
     private void initFastjson() {
@@ -181,10 +166,12 @@ public class ArthasBootstrap {
     }
 
     private void enhanceClassLoader() throws IOException, UnmodifiableClassException {
+        ArthasConfigProperties configure = springProfilingContainer.getArthasConfigProperties();
         if (configure.getEnhanceLoaders() == null) {
             return;
         }
         Set<String> loaders = new HashSet<>();
+
         for (String enhanceLoader : configure.getEnhanceLoaders()) {
             loaders.add(enhanceLoader.trim());
         }
@@ -210,28 +197,24 @@ public class ArthasBootstrap {
         } else {
 
             for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {
+
                 if (loaders.contains(clazz.getName())) {
                     try {
                         instrumentation.retransformClasses(clazz);
                     } catch (Throwable e) {
-                        String errorMsg = "retransformClasses class error, name: " + clazz.getName();
-                        //logger.error(errorMsg, e);
+                        log.error("retransformClasses class error, name: {}", clazz.getName(), e);
                     }
                 }
+
             }
 
         }
 
     }
 
-    private void initProfilingContainer(Map<String, String> argsMap) throws IOException {
-        configurableApplicationContext = SpringProfilingContainer.instance();
-        log.info("性能分析容器已启动");
+    private void initProfilingContainer(Map<String, String> argsMap) {
+        ConfigurableApplicationContext configurableApplicationContext = SpringProfilingContainer.instance(argsMap);
         springProfilingContainer = configurableApplicationContext.getBean(SpringProfilingContainer.class);
-    }
-
-    private void initEnvironment() {
-        configure = configurableApplicationContext.getBean(ArthasConfigProperties.class);
     }
 
     /**
@@ -255,7 +238,7 @@ public class ArthasBootstrap {
             }
         }
 
-        log.info("as-server destroy completed.");
+        log.info("spring-profiling-server destroy completed.");
     }
 
     /**

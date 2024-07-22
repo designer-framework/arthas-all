@@ -3,18 +3,21 @@ package com.taobao.arthas.spring;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.processor.ProfilingContainer;
 import com.taobao.arthas.spring.constants.DisposableBeanOrdered;
-import com.taobao.main.ProfilingApplication;
+import com.taobao.arthas.spring.properties.ArthasConfigProperties;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import java.arthas.SpyAPI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@Component
+@SpringBootApplication(scanBasePackages = "com.taobao.arthas")
 public class SpringProfilingContainer implements ProfilingContainer, DisposableBean, Ordered {
 
     private static final List<Runnable> agentShutdownHooks = new ArrayList<>();
@@ -23,35 +26,47 @@ public class SpringProfilingContainer implements ProfilingContainer, DisposableB
      * 增强的类被调用时会触发埋点 --> 会调用AbstractSpy
      */
     @Autowired
-    private SpyAPI.AbstractSpy abstractSpy;
+    private SpyAPI.AbstractSpy spyAPI;
+
     /**
      * 用于判断哪些类需要增强
      */
     @Autowired
     private List<MatchCandidate> matchCandidates;
 
-    private SpringProfilingContainer() {
+    /**
+     * 用于判断哪些类需要增强
+     */
+    @Autowired
+    private ArthasConfigProperties arthasConfigProperties;
+
+    public SpringProfilingContainer() {
     }
 
     /**
      * 环境变量透传到性能分析容器中
      *
-     * @param args arthas.properties配置
+     * @param argsMap jvm配置
      * @return
      */
-    public static ConfigurableApplicationContext instance() {
-        //继承arthas.properties的配置
-        return ProfilingApplication.start(new String[0]);
+    public static ConfigurableApplicationContext instance(Map<String, String> argsMap) {
+        return new SpringApplication(
+                new DefaultResourceLoader(SpringProfilingContainer.class.getClassLoader()), SpringProfilingContainer.class
+        ).run();
     }
 
     @Override
     public SpyAPI.AbstractSpy getSpyAPI() {
-        return abstractSpy;
+        return spyAPI;
     }
 
     @Override
     public List<MatchCandidate> getMatchCandidates() {
         return matchCandidates;
+    }
+
+    public ArthasConfigProperties getArthasConfigProperties() {
+        return arthasConfigProperties;
     }
 
     @Override
