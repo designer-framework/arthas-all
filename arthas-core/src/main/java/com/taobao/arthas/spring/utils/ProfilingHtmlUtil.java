@@ -22,13 +22,13 @@ import java.util.function.Function;
 @Component
 public class ProfilingHtmlUtil {
 
-    public static final String tailwindJs_ = "tailwind.js";
+    public static final String tailwindJs_ = "/tailwind.js";
 
-    public static final String startupAnalysis_ = "startup-analysis.html";
+    public static final String startupAnalysis_ = "/startup-analysis.html";
 
-    public static final String hyperappJs_ = "hyperapp.js";
+    public static final String hyperappJs_ = "/hyperapp.js";
 
-    public static final String flameGraph_ = "flame-graph.html";
+    public static final String flameGraph_ = "/flame-graph.html";
 
     @Value("classpath:" + tailwindJs_)
     private Resource tailwindJs;
@@ -82,6 +82,13 @@ public class ProfilingHtmlUtil {
     @SneakyThrows
     public void writeHtml(String fileName, Function<String, String> replaceFun) {
         FileUtils.write(AgentHomeUtil.getOutputFile(fileName), replaceFun.apply(getHtml(fileName)), StandardCharsets.UTF_8);
+    }
+
+    @SneakyThrows
+    public void writeResultHtml(String fileName, Consumer<String> startupAnalysisResult) {
+        try (InputStream inputStream = FileUtils.openInputStream(AgentHomeUtil.getOutputFile(fileName))) {
+            startupAnalysisResult.accept(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
+        }
     }
 
     private String getHtml(String fileName) {

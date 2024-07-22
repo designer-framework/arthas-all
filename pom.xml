@@ -30,6 +30,8 @@
 
         <module>arthas-agent</module>
         <module>arthas-packaging</module>
+
+        <module>spring-boot-web-test</module>
     </modules>
 
     <properties>

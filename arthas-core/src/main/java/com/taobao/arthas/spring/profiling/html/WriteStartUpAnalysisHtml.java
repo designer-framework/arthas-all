@@ -53,7 +53,7 @@ public class WriteStartUpAnalysisHtml implements DisposableBean {
             content = content.replace("/*startupVO:*/{}", JSON.toJSONString(profilingResultVO));
 
             //替换火焰图Path占位符
-            content = content.replace("/*flameGraphUrl*/''", "'./" + ProfilingHtmlUtil.flameGraph_ + "'");
+            content = content.replace("/*flameGraphUrl*/''", "'." + ProfilingHtmlUtil.flameGraph_ + "'");
 
             return content;
 
