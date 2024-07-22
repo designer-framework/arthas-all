@@ -6,14 +6,14 @@
 package com.taobao.arthas.spring.properties;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class ServerProperties {
+@ConfigurationProperties(prefix = "server")
+public class ArthasServerProperties {
 
-    @Value("${server.port}")
     private Integer port;
 
 }

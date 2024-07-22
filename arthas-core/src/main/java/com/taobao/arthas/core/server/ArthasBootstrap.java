@@ -1,8 +1,5 @@
 package com.taobao.arthas.core.server;
 
-import com.alibaba.arthas.deps.ch.qos.logback.classic.LoggerContext;
-import com.alibaba.arthas.deps.org.slf4j.Logger;
-import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.alibaba.bytekit.asm.instrument.InstrumentConfig;
 import com.alibaba.bytekit.asm.instrument.InstrumentParseResult;
 import com.alibaba.bytekit.asm.instrument.InstrumentTransformer;
@@ -11,17 +8,14 @@ import com.alibaba.bytekit.utils.AsmUtils;
 import com.alibaba.bytekit.utils.IOUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.taobao.arthas.common.ArthasConstants;
 import com.taobao.arthas.core.advisor.TransformerManager;
 import com.taobao.arthas.core.config.FeatureCodec;
 import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.server.instrument.EnhanceProfilingInstrumentTransformer;
-import com.taobao.arthas.core.util.LogUtil;
 import com.taobao.arthas.spring.SpringProfilingContainer;
 import com.taobao.arthas.spring.properties.ArthasConfigProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.StandardEnvironment;
 
 import java.arthas.SpyAPI;
 import java.io.File;
@@ -42,23 +36,16 @@ import java.util.jar.JarFile;
  * @author vlinux on 15/5/2.
  * @author hengyunabc
  */
+@Slf4j
 public class ArthasBootstrap {
-
-    public static final String CONFIG_NAME_PROPERTY = "arthas.config.name";
-
-    public static final String CONFIG_LOCATION_PROPERTY = "arthas.config.location";
-
-    public static final String CONFIG_OVERRIDE_ALL = "arthas.config.overrideAll";
 
     private static final String ARTHAS_SPY_JAR = "arthas-spy.jar";
 
     private static ArthasBootstrap arthasBootstrap;
 
-    private static LoggerContext loggerContext;
-
     private final TransformerManager transformerManager;
 
-    private ConfigurableEnvironment arthasEnvironment;
+    private final Instrumentation instrumentation;
 
     private ConfigurableApplicationContext configurableApplicationContext;
 
@@ -66,15 +53,9 @@ public class ArthasBootstrap {
 
     private ArthasConfigProperties configure;
 
-    private Instrumentation instrumentation;
-
     private InstrumentTransformer classLoaderInstrumentTransformer;
 
     private Thread shutdown;
-
-    private File outputPath;
-
-    //private ResultViewResolver resultViewResolver;
 
     private ArthasBootstrap(Instrumentation instrumentation, Map<String, String> args) throws Throwable {
         this.instrumentation = instrumentation;
@@ -84,22 +65,14 @@ public class ArthasBootstrap {
         // 1. initSpy()
         initSpy();
 
-        // 1.1 启动容器
-        initArthasSpringProfilingContainer(args);
+        // 1.1 启动性能分析容器
+        initProfilingContainer(args);
 
-        // 2. ArthasEnvironment
-        initArthasEnvironment();
-
-        String outputPathStr = configure.getOutputPath();
-        if (outputPathStr == null) {
-            outputPathStr = ArthasConstants.ARTHAS_OUTPUT;
-        }
-        outputPath = new File(outputPathStr);
-
-        outputPath.mkdirs();
+        // 2. 加载配置
+        initEnvironment();
 
         // 3. init logger
-        loggerContext = LogUtil.initLogger(arthasEnvironment);
+        //
 
         // 4. 增强ClassLoader
         enhanceClassLoader();
@@ -118,14 +91,6 @@ public class ArthasBootstrap {
         transformerManager = new TransformerManager(instrumentation);
 
         Runtime.getRuntime().addShutdownHook(shutdown);
-    }
-
-    static String reslove(StandardEnvironment arthasEnvironment, String key, String defaultValue) {
-        String value = arthasEnvironment.getProperty(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        return arthasEnvironment.resolvePlaceholders(value);
     }
 
     /**
@@ -163,24 +128,12 @@ public class ArthasBootstrap {
         return arthasBootstrap;
     }
 
-    /**
-     * @return ArthasServer单例
-     */
-    public static ArthasBootstrap getInstance() {
-        if (arthasBootstrap == null) {
-            throw new IllegalStateException("ArthasBootstrap must be initialized before!");
-        }
-        return arthasBootstrap;
-    }
-
     private void enhanceProfiling() {
-        /**
-         * 获取Spy实现类
-         */
+        //获取Spy实现类
         SpyAPI.setSpy(springProfilingContainer.getSpyAPI());
         EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(springProfilingContainer.getMatchCandidates());
         instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
-
+        //
         springProfilingContainer.addShutdownHook(() -> {
             SpyAPI.destroy();
             instrumentation.removeTransformer(enhanceProfilingInstrumentTransformer);
@@ -227,7 +180,7 @@ public class ArthasBootstrap {
         }
     }
 
-    void enhanceClassLoader() throws IOException, UnmodifiableClassException {
+    private void enhanceClassLoader() throws IOException, UnmodifiableClassException {
         if (configure.getEnhanceLoaders() == null) {
             return;
         }
@@ -256,7 +209,6 @@ public class ArthasBootstrap {
 
         } else {
 
-
             for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {
                 if (loaders.contains(clazz.getName())) {
                     try {
@@ -269,27 +221,24 @@ public class ArthasBootstrap {
             }
 
         }
+
     }
 
-    private void initArthasSpringProfilingContainer(Map<String, String> argsMap) throws IOException {
+    private void initProfilingContainer(Map<String, String> argsMap) throws IOException {
         configurableApplicationContext = SpringProfilingContainer.instance();
+        log.info("性能分析容器已启动");
         springProfilingContainer = configurableApplicationContext.getBean(SpringProfilingContainer.class);
     }
 
-    private void initArthasEnvironment() throws IOException {
-        if (arthasEnvironment == null) {
-            //
-            arthasEnvironment = configurableApplicationContext.getEnvironment();
-
-            //
-            configure = configurableApplicationContext.getBean(ArthasConfigProperties.class);
-        }
+    private void initEnvironment() {
+        configure = configurableApplicationContext.getBean(ArthasConfigProperties.class);
     }
 
     /**
      * call reset() before destroy()
      */
     public void destroy() {
+
         if (transformerManager != null) {
             transformerManager.destroy();
         }
@@ -305,10 +254,8 @@ public class ArthasBootstrap {
                 // ignore
             }
         }
-        logger().info("as-server destroy completed.");
-        if (loggerContext != null) {
-            loggerContext.stop();
-        }
+
+        log.info("as-server destroy completed.");
     }
 
     /**
@@ -329,18 +276,6 @@ public class ArthasBootstrap {
         } catch (Throwable e) {
             // ignore
         }
-    }
-
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
-
-    public TransformerManager getTransformerManager() {
-        return transformerManager;
-    }
-
-    private Logger logger() {
-        return LoggerFactory.getLogger(getClass());
     }
 
 }

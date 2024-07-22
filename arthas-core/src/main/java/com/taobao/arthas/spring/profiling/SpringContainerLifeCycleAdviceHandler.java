@@ -49,7 +49,8 @@ public class SpringContainerLifeCycleAdviceHandler extends AbstractInvokeAdviceH
      * 项目启动完成, 发布分析完成事件
      *
      * @param invokeVO
-     * @see com.taobao.arthas.spring.configuration.ArthasExtensionShutdownHookPostProcessor.ShutdownContainer
+     * @see com.taobao.arthas.spring.profiling.stacktrace.SpringStacktraceProfiler
+     * @see com.taobao.arthas.spring.profiling.hook.ArthasExtensionShutdownHookPostProcessor
      */
     @Override
     public void atExit(InvokeVO invokeVO) {

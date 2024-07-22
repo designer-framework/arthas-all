@@ -28,13 +28,13 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
      * @param registry the bean definition registry used by the application context
      * @throws BeansException
      * @see MatchCandidate
-     * @see com.taobao.arthas.core.spring.handler.InvokeAdviceHandler
+     * @see com.taobao.arthas.spring.profiling.invoke.SpringMethodInvokeAdviceHandler
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         Binder.get(environment)
-                .bind("spring.profiling.invoke.trace", ArthasTraceProperties.class)
+                .bind("spring.profiling.trace", ArthasTraceProperties.class)
                 .ifBound(arthasTraceProperties -> {
 
                     //将配置绑定到对象上

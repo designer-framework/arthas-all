@@ -4,4 +4,4 @@ org.springframework.boot.env.EnvironmentPostProcessor=\
 #
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.taobao.arthas.spring.configuration.ArthasExtensionMethodInvokePostProcessor,\
-  com.taobao.arthas.spring.configuration.ArthasExtensionShutdownHookPostProcessor
+  com.taobao.arthas.spring.profiling.hook.ArthasExtensionShutdownHookPostProcessor

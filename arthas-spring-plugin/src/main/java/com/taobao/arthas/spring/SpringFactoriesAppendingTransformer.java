@@ -20,7 +20,7 @@ public class SpringFactoriesAppendingTransformer implements ReproducibleResource
 
     private final List<Properties> properties = new ArrayList<>();
 
-    private String resource;
+    private final String resource = "META-INF/spring.factories";
 
     private String alreadyMergedKey;
 
@@ -31,10 +31,6 @@ public class SpringFactoriesAppendingTransformer implements ReproducibleResource
     private boolean reverseOrder;
 
     private long time = Long.MIN_VALUE;
-
-    public SpringFactoriesAppendingTransformer() {
-        // no-op
-    }
 
     private static Properties mergeProperties(List<Properties> sortedProperties) {
         Properties mergedProperties = new SortedProperties();
@@ -113,10 +109,6 @@ public class SpringFactoriesAppendingTransformer implements ReproducibleResource
 
     public void setReverseOrder(boolean reverseOrder) {
         this.reverseOrder = reverseOrder;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
     }
 
     public void setOrdinalKey(String ordinalKey) {

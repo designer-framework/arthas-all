@@ -3,9 +3,9 @@ server:
   port: 9999
 
 #方法调用统计
-arthas:
-
 spring:
+  application:
+    name: 'spring-boot-profiling'
   profiling:
     outputPath: arthas-output
     enhanceLoaders: java.lang.ClassLoader
@@ -18,7 +18,7 @@ spring:
     trace:
       methods:
         - org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
-        - org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)'
+        - org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)
+
 logging:
-  file:
-    path:
+  config: 'classpath:logback.xml'

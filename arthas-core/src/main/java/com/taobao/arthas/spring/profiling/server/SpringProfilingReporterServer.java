@@ -1,8 +1,8 @@
 package com.taobao.arthas.spring.profiling.server;
 
 import com.taobao.arthas.spring.constants.DisposableBeanOrdered;
+import com.taobao.arthas.spring.properties.ArthasServerProperties;
 import com.taobao.arthas.spring.utils.ProfilingHtmlUtil;
-import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -15,7 +15,6 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
@@ -26,11 +25,8 @@ import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 @Component
 public class SpringProfilingReporterServer implements DisposableBean, Ordered {
 
-    @Value("${server.port}")
-    private int port;
-
     @Autowired
-    private ProfilingResultVO profilingResultVO;
+    private ArthasServerProperties arthasServerProperties;
 
     @Autowired
     private ProfilingHtmlUtil profilingHtmlUtil;
@@ -40,7 +36,8 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
      */
     @Override
     public void destroy() throws Exception {
-        new Thread(() -> start(port)).start();
+        new Thread(() -> start(arthasServerProperties.getPort()))
+                .start();
     }
 
     private void start(int port) {
@@ -61,11 +58,12 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
                             pipeline.addLast("HttpObjectAggregator", new HttpObjectAggregator(512 * 1024));
                             pipeline.addLast("HttpRequestHandler", new ProfilingHttpRequestHandler());
                         }
+
                     });
             //io.netty.handler.codec.DefaultHeaders.ValueValidator
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
 
-            System.out.println(" Profiling reporter server start up on port : http://127.0.0.1:" + port);
+            System.err.println(" Profiling reporter server start up on port : http://127.0.0.1:" + port);
 
             f.channel().closeFuture().sync();
 

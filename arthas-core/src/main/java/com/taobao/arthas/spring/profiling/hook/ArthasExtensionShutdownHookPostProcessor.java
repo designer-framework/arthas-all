@@ -1,4 +1,4 @@
-package com.taobao.arthas.spring.configuration;
+package com.taobao.arthas.spring.profiling.hook;
 
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.spring.constants.ProfilingLifeCycleOrdered;
@@ -13,9 +13,9 @@ import org.springframework.core.Ordered;
  * @author: Designer
  * @date : 2024-07-08 01:49
  */
+@Setter
 public class ArthasExtensionShutdownHookPostProcessor implements ApplicationContextAware, ProfilingLifeCycle, Ordered {
 
-    @Setter
     private ApplicationContext applicationContext;
 
     @Override
