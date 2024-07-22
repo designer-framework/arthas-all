@@ -20,6 +20,8 @@
     <url>https://github.com/alibaba/arthas</url>
 
     <modules>
+        <module>arthas-spring-plugin</module>
+
         <module>arthas-common</module>
         <module>arthas-spy</module>
         <module>arthas-core</module>
@@ -35,12 +37,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <spring-boot3.version>3.1.7</spring-boot3.version>
+        <!--<spring-boot.version>2.7.18</spring-boot.version>-->
+        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <maven-invoker-plugin.version>3.0.0</maven-invoker-plugin.version>
         <project.build.outputTimestamp>2020-09-27T15:10:43Z</project.build.outputTimestamp>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-        <netty.version>4.1.92.Final</netty.version>
     </properties>
 
     <dependencyManagement>
@@ -104,32 +105,6 @@
                 <groupId>ognl</groupId>
                 <artifactId>ognl</artifactId>
                 <version>3.1.19</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-buffer</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-transport</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http</artifactId>
-                <version>${netty.version}</version>
             </dependency>
 
             <dependency>

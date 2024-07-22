@@ -11,21 +11,16 @@ import com.alibaba.bytekit.utils.AsmUtils;
 import com.alibaba.bytekit.utils.IOUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.taobao.arthas.common.AnsiLog;
 import com.taobao.arthas.common.ArthasConstants;
 import com.taobao.arthas.core.advisor.TransformerManager;
-import com.taobao.arthas.core.config.BinderUtils;
-import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.config.FeatureCodec;
 import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.server.instrument.EnhanceProfilingInstrumentTransformer;
-import com.taobao.arthas.core.util.FileUtils;
-import com.taobao.arthas.core.util.InstrumentationUtils;
 import com.taobao.arthas.core.util.LogUtil;
 import com.taobao.arthas.spring.SpringProfilingContainer;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.PropertySource;
+import com.taobao.arthas.spring.properties.ArthasConfigProperties;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.StandardEnvironment;
 
 import java.arthas.SpyAPI;
@@ -35,8 +30,11 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Method;
 import java.security.CodeSource;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.jar.JarFile;
 
 
@@ -46,8 +44,6 @@ import java.util.jar.JarFile;
  */
 public class ArthasBootstrap {
 
-    public static final String ARTHAS_HOME_PROPERTY = "arthas.home";
-
     public static final String CONFIG_NAME_PROPERTY = "arthas.config.name";
 
     public static final String CONFIG_LOCATION_PROPERTY = "arthas.config.location";
@@ -56,17 +52,19 @@ public class ArthasBootstrap {
 
     private static final String ARTHAS_SPY_JAR = "arthas-spy.jar";
 
-    private static String ARTHAS_HOME = null;
-
     private static ArthasBootstrap arthasBootstrap;
 
     private static LoggerContext loggerContext;
 
     private final TransformerManager transformerManager;
 
-    private StandardEnvironment arthasEnvironment;
+    private ConfigurableEnvironment arthasEnvironment;
 
-    private Configure configure;
+    private ConfigurableApplicationContext configurableApplicationContext;
+
+    private SpringProfilingContainer springProfilingContainer;
+
+    private ArthasConfigProperties configure;
 
     private Instrumentation instrumentation;
 
@@ -86,8 +84,11 @@ public class ArthasBootstrap {
         // 1. initSpy()
         initSpy();
 
+        // 1.1 启动容器
+        initArthasSpringProfilingContainer(args);
+
         // 2. ArthasEnvironment
-        initArthasEnvironment(args);
+        initArthasEnvironment();
 
         String outputPathStr = configure.getOutputPath();
         if (outputPathStr == null) {
@@ -106,12 +107,6 @@ public class ArthasBootstrap {
         // 4.1 增强Spring
         enhanceProfiling();
 
-        // 5. init beans
-        initBeans();
-
-        // 6. start agent server
-        bind(configure);
-
         shutdown = new Thread("as-shutdown-hooker") {
 
             @Override
@@ -123,24 +118,6 @@ public class ArthasBootstrap {
         transformerManager = new TransformerManager(instrumentation);
 
         Runtime.getRuntime().addShutdownHook(shutdown);
-    }
-
-    public static String arthasHome() {
-        if (ARTHAS_HOME != null) {
-            return ARTHAS_HOME;
-        }
-        CodeSource codeSource = ArthasBootstrap.class.getProtectionDomain().getCodeSource();
-        if (codeSource != null) {
-            try {
-                ARTHAS_HOME = new File(codeSource.getLocation().toURI().getSchemeSpecificPart()).getParentFile().getAbsolutePath();
-            } catch (Throwable e) {
-                AnsiLog.error("try to find arthas.home from CodeSource error", e);
-            }
-        }
-        if (ARTHAS_HOME == null) {
-            ARTHAS_HOME = new File("").getAbsolutePath();
-        }
-        return ARTHAS_HOME;
     }
 
     static String reslove(StandardEnvironment arthasEnvironment, String key, String defaultValue) {
@@ -197,7 +174,6 @@ public class ArthasBootstrap {
     }
 
     private void enhanceProfiling() {
-        SpringProfilingContainer springProfilingContainer = SpringProfilingContainer.instance(arthasEnvironment);
         /**
          * 获取Spy实现类
          */
@@ -221,10 +197,6 @@ public class ArthasBootstrap {
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.IgnoreErrorGetter.getMask();
         // #2081
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.WriteNonStringKeyAsString.getMask();
-    }
-
-    private void initBeans() {
-        //TODO
     }
 
     private void initSpy() throws Throwable {
@@ -260,7 +232,7 @@ public class ArthasBootstrap {
             return;
         }
         Set<String> loaders = new HashSet<>();
-        for (String enhanceLoader : configure.getEnhanceLoaders().split(",")) {
+        for (String enhanceLoader : configure.getEnhanceLoaders()) {
             loaders.add(enhanceLoader.trim());
         }
 
@@ -278,91 +250,40 @@ public class ArthasBootstrap {
         instrumentation.addTransformer(classLoaderInstrumentTransformer, true);
 
         if (loaders.size() == 1 && loaders.contains(ClassLoader.class.getName())) {
+
             // 如果只增强 java.lang.ClassLoader，可以减少查找过程
             instrumentation.retransformClasses(ClassLoader.class);
+
         } else {
-            InstrumentationUtils.trigerRetransformClasses(instrumentation, loaders);
+
+
+            for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {
+                if (loaders.contains(clazz.getName())) {
+                    try {
+                        instrumentation.retransformClasses(clazz);
+                    } catch (Throwable e) {
+                        String errorMsg = "retransformClasses class error, name: " + clazz.getName();
+                        //logger.error(errorMsg, e);
+                    }
+                }
+            }
+
         }
     }
 
-    private void initArthasEnvironment(Map<String, String> argsMap) throws IOException {
+    private void initArthasSpringProfilingContainer(Map<String, String> argsMap) throws IOException {
+        configurableApplicationContext = SpringProfilingContainer.instance();
+        springProfilingContainer = configurableApplicationContext.getBean(SpringProfilingContainer.class);
+    }
+
+    private void initArthasEnvironment() throws IOException {
         if (arthasEnvironment == null) {
-            arthasEnvironment = new StandardEnvironment();
+            //
+            arthasEnvironment = configurableApplicationContext.getEnvironment();
+
+            //
+            configure = configurableApplicationContext.getBean(ArthasConfigProperties.class);
         }
-
-        /**
-         * <pre>
-         * 脚本里传过来的配置项，即命令行参数 > System Env > System Properties > arthas.properties
-         * arthas.properties 提供一个配置项，可以反转优先级。 arthas.config.overrideAll=true
-         * https://github.com/alibaba/arthas/issues/986
-         * </pre>
-         */
-        Map<String, Object> copyMap;
-        if (argsMap != null) {
-            copyMap = new HashMap<>(argsMap);
-            // 添加 arthas.home
-            if (!copyMap.containsKey(ARTHAS_HOME_PROPERTY)) {
-                copyMap.put(ARTHAS_HOME_PROPERTY, arthasHome());
-            }
-        } else {
-            copyMap = new HashMap<>(1);
-            copyMap.put(ARTHAS_HOME_PROPERTY, arthasHome());
-        }
-
-        MapPropertySource mapPropertySource = new MapPropertySource("ArthasArgsMapPropertySource", copyMap);
-        arthasEnvironment.getPropertySources().addFirst(mapPropertySource);
-
-        tryToLoadArthasProperties();
-
-        configure = new Configure();
-
-        BinderUtils.inject(arthasEnvironment, configure);
-    }
-
-    // try to load arthas.properties
-    private void tryToLoadArthasProperties() throws IOException {
-        arthasEnvironment.resolvePlaceholders(CONFIG_LOCATION_PROPERTY);
-
-        String location = reslove(arthasEnvironment, CONFIG_LOCATION_PROPERTY, null);
-
-        if (location == null) {
-            location = arthasHome();
-        }
-
-        String configName = reslove(arthasEnvironment, CONFIG_NAME_PROPERTY, "arthas");
-
-        if (location != null) {
-            if (!location.endsWith(".properties")) {
-                location = new File(location, configName + ".properties").getAbsolutePath();
-            }
-            if (new File(location).exists()) {
-                Properties properties = FileUtils.readProperties(location);
-
-                boolean overrideAll = false;
-                if (arthasEnvironment.containsProperty(CONFIG_OVERRIDE_ALL)) {
-                    overrideAll = arthasEnvironment.getRequiredProperty(CONFIG_OVERRIDE_ALL, boolean.class);
-                } else {
-                    overrideAll = Boolean.parseBoolean(properties.getProperty(CONFIG_OVERRIDE_ALL, "false"));
-                }
-
-                PropertySource<?> propertySource = new PropertiesPropertySource(location, properties);
-                if (overrideAll) {
-                    arthasEnvironment.getPropertySources().addFirst(propertySource);
-                } else {
-                    arthasEnvironment.getPropertySources().addLast(propertySource);
-                }
-            }
-        }
-
-    }
-
-    /**
-     * Bootstrap arthas server
-     *
-     * @param configure 配置信息
-     * @throws IOException 服务器启动失败
-     */
-    private void bind(Configure configure) throws Throwable {
     }
 
     /**
@@ -420,14 +341,6 @@ public class ArthasBootstrap {
 
     private Logger logger() {
         return LoggerFactory.getLogger(getClass());
-    }
-
-    public File getOutputPath() {
-        return outputPath;
-    }
-
-    public Configure getConfigure() {
-        return configure;
     }
 
 }

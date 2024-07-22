@@ -28,6 +28,12 @@ import java.net.URL;
 import java.util.*;
 
 public abstract class StringUtils {
+
+    /**
+     * 空字符串
+     */
+    public static final String EMPTY_STRING = "";
+
     /**
      * Represents a failed index search.
      *
@@ -65,7 +71,7 @@ public abstract class StringUtils {
      */
     public static String objectToString(Object obj) {
         if (null == obj) {
-            return Constants.EMPTY_STRING;
+            return EMPTY_STRING;
         }
         try {
             return obj.toString();
@@ -110,7 +116,7 @@ public abstract class StringUtils {
 
     public static String concat(String separator, Class<?>... types) {
         if (types == null || types.length == 0) {
-            return Constants.EMPTY_STRING;
+            return EMPTY_STRING;
         }
 
         StringBuilder builder = new StringBuilder();
@@ -126,7 +132,7 @@ public abstract class StringUtils {
 
     public static String concat(String separator, String... strs) {
         if (strs == null || strs.length == 0) {
-            return Constants.EMPTY_STRING;
+            return EMPTY_STRING;
         }
 
         StringBuilder builder = new StringBuilder();
@@ -435,7 +441,7 @@ public abstract class StringUtils {
             return str;
         }
         if (separator.isEmpty()) {
-            return Constants.EMPTY_STRING;
+            return EMPTY_STRING;
         }
         int pos = str.indexOf(separator);
         if (pos == -1) {
@@ -786,7 +792,7 @@ public abstract class StringUtils {
             return null;
         }
         if (repeat <= 0) {
-            return Constants.EMPTY_STRING;
+            return EMPTY_STRING;
         }
         int inputLength = str.length();
         if (repeat == 1 || inputLength == 0) {

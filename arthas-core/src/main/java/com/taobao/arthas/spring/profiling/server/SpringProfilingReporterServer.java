@@ -59,7 +59,7 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
                             pipeline.addLast("HttpRequestHandler", new ProfilingHttpRequestHandler());
                         }
                     });
-
+            //io.netty.handler.codec.DefaultHeaders.ValueValidator
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
 
             System.out.println(" Profiling reporter server start up on port : http://127.0.0.1:" + port);

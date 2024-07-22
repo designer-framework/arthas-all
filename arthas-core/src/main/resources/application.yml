@@ -1,0 +1,24 @@
+#端口
+server:
+  port: 9999
+
+#方法调用统计
+arthas:
+
+spring:
+  profiling:
+    outputPath: arthas-output
+    enhanceLoaders: java.lang.ClassLoader
+    override-config: true
+    #火焰图数据采集
+    thread:
+      names: main
+      interval: 5
+    #方法调用统计
+    trace:
+      methods:
+        - org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
+        - org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)'
+logging:
+  file:
+    path:

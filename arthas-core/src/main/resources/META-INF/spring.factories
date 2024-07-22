@@ -1,0 +1,7 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.taobao.arthas.spring.configuration.ReplaceIdeaPropertiesEnvironmentPostProcessor,\
+  com.taobao.arthas.spring.configuration.ArthasEnvironmentPostProcessor
+#
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.taobao.arthas.spring.configuration.ArthasExtensionMethodInvokePostProcessor,\
+  com.taobao.arthas.spring.configuration.ArthasExtensionShutdownHookPostProcessor

@@ -1,7 +1,7 @@
 package com.taobao.arthas.spring.properties;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -15,18 +15,17 @@ import java.util.Set;
  */
 @Data
 @Component
-public class ArthasThreadProfilingProperties {
+@ConfigurationProperties(prefix = "spring.profiling.thread")
+public class ThreadProfilingProperties {
 
     /**
      * 被采样线程名
      */
-    @Value("#{'${spring.profiling.thread.names:}'.split(',')}")
-    private Set<String> threadNames = new HashSet<>(Collections.singletonList("main"));
+    private Set<String> names = new HashSet<>(Collections.singletonList("main"));
 
     /**
      * 采样间隔
      */
-    @Value("${spring.profiling.thread.interval}")
     private long interval = 1;
 
 }

@@ -8,7 +8,7 @@ import com.alibaba.arthas.deps.ch.qos.logback.core.rolling.RollingFileAppender;
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.common.AnsiLog;
-import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.io.File;
 import java.util.Iterator;
@@ -18,8 +18,8 @@ import java.util.Iterator;
  */
 public class LogUtil {
 
-    public static final String LOGGING_CONFIG_PROPERTY = "arthas.logging.config";
-    public static final String LOGGING_CONFIG = "${arthas.logging.config:${arthas.home}/logback.xml}";
+    public static final String LOGGING_CONFIG_PROPERTY = "logging.config";
+    public static final String LOGGING_CONFIG = "${logging.config:${arthas.home}/logback.xml}";
 
     /**
      * The name of the property that contains the name of the log file. Names can be
@@ -49,7 +49,7 @@ public class LogUtil {
      *
      * @param env
      */
-    public static LoggerContext initLogger(StandardEnvironment env) {
+    public static LoggerContext initLogger(ConfigurableEnvironment env) {
         String loggingConfig = env.resolvePlaceholders(LOGGING_CONFIG);
         if (loggingConfig == null || loggingConfig.trim().isEmpty()) {
             return null;

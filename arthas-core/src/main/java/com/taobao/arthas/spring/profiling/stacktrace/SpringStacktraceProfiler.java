@@ -2,7 +2,7 @@ package com.taobao.arthas.spring.profiling.stacktrace;
 
 import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.spring.constants.ProfilingLifeCycleOrdered;
-import com.taobao.arthas.spring.properties.ArthasThreadProfilingProperties;
+import com.taobao.arthas.spring.properties.ThreadProfilingProperties;
 import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ThreadUtils;
@@ -45,7 +45,7 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
     private List<Thread> sampledThreads = new ArrayList<>();
 
     @Autowired
-    private ArthasThreadProfilingProperties arthasThreadProfilingProperties;
+    private ThreadProfilingProperties threadProfilingProperties;
 
     @Autowired
     private ProfilingResultVO profilingResultVO;
@@ -62,7 +62,7 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
         SAMPLE_SCHEDULER.scheduleAtFixedRate(() -> {
 
             // refresh per second
-            if (count.get() % (1000 / arthasThreadProfilingProperties.getInterval()) == 0) {
+            if (count.get() % (1000 / threadProfilingProperties.getInterval()) == 0) {
                 sampledThreads = getTargetThreads();
             }
             count.getAndIncrement();
@@ -70,7 +70,7 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
             for (Thread thread : sampledThreads) {
                 addStackTraceElements(thread.getStackTrace());
             }
-        }, 0, arthasThreadProfilingProperties.getInterval(), TimeUnit.MILLISECONDS);
+        }, 0, threadProfilingProperties.getInterval(), TimeUnit.MILLISECONDS);
 
         new Thread(this::collectTrace).start();
     }
@@ -128,11 +128,11 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
 
         return new ArrayList<>(ThreadUtils.findThreads(thread -> {
 
-            if (CollectionUtils.isEmpty(arthasThreadProfilingProperties.getThreadNames())) {
+            if (CollectionUtils.isEmpty(threadProfilingProperties.getNames())) {
                 return true;
             }
 
-            return arthasThreadProfilingProperties.getThreadNames().stream()
+            return threadProfilingProperties.getNames().stream()
                     .anyMatch(name -> {
                         if (name.contains("*")) {
                             return Pattern.compile(name).matcher(thread.getName()).matches();

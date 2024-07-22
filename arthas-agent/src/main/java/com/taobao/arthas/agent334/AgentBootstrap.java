@@ -2,7 +2,6 @@ package com.taobao.arthas.agent334;
 
 import com.taobao.arthas.agent.ArthasClassloader;
 
-import java.arthas.SpyAPI;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -137,21 +136,6 @@ public class AgentBootstrap {
 
     private static synchronized void main(String args, Instrumentation inst) {
         try {
-            // 加载不到会抛异常
-            Class.forName("java.arthas.SpyAPI");
-            // 尝试判断arthas是否已在运行，如果是的话，直接就退出
-            if (SpyAPI.isInited()) {
-
-                ps.println("Arthas server already stared, skip attach.");
-                ps.flush();
-                return;
-
-            }
-        } catch (Throwable e) {
-            // ignore
-        }
-
-        try {
 
             ps.println("Arthas server agent start...");
 
@@ -205,16 +189,17 @@ public class AgentBootstrap {
              */
             ClassLoader agentLoader = getClassLoader(inst, arthasCoreJarFile);
 
-            Thread bindingThread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        bind(inst, agentLoader, agentArgs);
-                    } catch (Throwable throwable) {
-                        throwable.printStackTrace(ps);
-                    }
+            //新开线程, 与原APP应用的类加载器完全隔离
+            Thread bindingThread = new Thread(() -> {
+                try {
+
+                    Thread.currentThread().setContextClassLoader(agentLoader);
+                    bind(inst, agentLoader, agentArgs);
+
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace(ps);
                 }
-            };
+            });
 
             bindingThread.setName("arthas-binding-thread");
             bindingThread.start();
@@ -242,12 +227,7 @@ public class AgentBootstrap {
          */
         Class<?> bootstrapClass = agentLoader.loadClass(ARTHAS_BOOTSTRAP);
         Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE, Instrumentation.class, String.class).invoke(null, inst, args);
-        /*boolean isBind = (Boolean) bootstrapClass.getMethod("IS_BIND").invoke(bootstrap);
-        if (!isBind) {
-            String errorMsg = "Arthas server port binding failed! Please check $HOME/logs/arthas/arthas.log for more details.";
-            ps.println(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }*/
+        
         ps.println("Arthas server already bind.");
     }
 

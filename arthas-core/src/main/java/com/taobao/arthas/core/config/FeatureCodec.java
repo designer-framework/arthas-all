@@ -1,5 +1,7 @@
 package com.taobao.arthas.core.config;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +9,6 @@ import java.util.Stack;
 
 import static com.taobao.arthas.core.util.ArthasCheckUtils.isEquals;
 import static com.taobao.arthas.core.util.ArthasCheckUtils.isIn;
-import static com.taobao.arthas.core.util.StringUtils.isBlank;
 
 /**
  * Feature编解器(线程安全)<br/>
@@ -18,14 +19,16 @@ import static com.taobao.arthas.core.util.StringUtils.isBlank;
 public class FeatureCodec {
     // 对象的编码解码器
     public final static FeatureCodec DEFAULT_COMMANDLINE_CODEC = new FeatureCodec(';', '=');
-
+    /**
+     * 转义前缀符
+     */
+    private static final char ESCAPE_PREFIX_CHAR = '\\';
     /**
      * KV片段分割符<br/>
      * KV片段定义为一个完整的KV对，例如字符串<span>;k1=v1;k2=v2;</span>
      * 其中<b>;</b>即为KV片段分隔符
      */
     private final char kvSegmentSeparator;
-
     /**
      * KV分割符<br/>
      * KV定义为一个KV对区分K和V的分割符号，例如字符串<span>k1=v1</span>
@@ -34,17 +37,12 @@ public class FeatureCodec {
     private final char kvSeparator;
 
     /**
-     * 转义前缀符
-     */
-    private static final char ESCAPE_PREFIX_CHAR = '\\';
-
-    /**
      * 使用指定的KV分割符构造FeatureParser<br/>
      *
      * @param kvSegmentSeparator KV对之间的分隔符
      * @param kvSeparator        K与V之间的分隔符
      */
-    public FeatureCodec(final char kvSegmentSeparator, final char kvSeparator) {
+    public FeatureCodec(char kvSegmentSeparator, char kvSeparator) {
 
         // 分隔符禁止与转义前缀符相等
         if (isIn(ESCAPE_PREFIX_CHAR, kvSegmentSeparator, kvSeparator)) {
@@ -61,9 +59,9 @@ public class FeatureCodec {
      * @param map map集合
      * @return feature字符串
      */
-    public String toString(final Map<String, String> map) {
+    public String toString(Map<String, String> map) {
 
-        final StringBuilder featureSB = new StringBuilder().append(kvSegmentSeparator);
+        StringBuilder featureSB = new StringBuilder().append(kvSegmentSeparator);
 
         if (null == map
                 || map.isEmpty()) {
@@ -91,31 +89,31 @@ public class FeatureCodec {
      * @param featureString the feature string
      * @return the map
      */
-    public Map<String, String> toMap(final String featureString) {
+    public Map<String, String> toMap(String featureString) {
 
-        final Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<String, String>();
 
-        if (isBlank(featureString)) {
+        if (StringUtils.isBlank(featureString)) {
             return map;
         }
 
         for (String kv : escapeSplit(featureString, kvSegmentSeparator)) {
 
-            if (isBlank(kv)) {
+            if (StringUtils.isBlank(kv)) {
                 // 过滤掉为空的字符串片段
                 continue;
             }
 
-            final String[] ar = escapeSplit(kv, kvSeparator);
+            String[] ar = escapeSplit(kv, kvSeparator);
             if (ar.length != 2) {
                 // 过滤掉不符合K:V单目的情况
                 continue;
             }
 
-            final String k = ar[0];
-            final String v = ar[1];
-            if (!isBlank(k)
-                    && !isBlank(v)) {
+            String k = ar[0];
+            String v = ar[1];
+            if (!StringUtils.isBlank(k)
+                    && !StringUtils.isBlank(v)) {
                 map.put(escapeDecode(k), escapeDecode(v));
             }
 
@@ -130,9 +128,9 @@ public class FeatureCodec {
      * @param string 原始字符串
      * @return 转义编码后的字符串
      */
-    private String escapeEncode(final String string) {
-        final StringBuilder returnSB = new StringBuilder();
-        for (final char c : string.toCharArray()) {
+    private String escapeEncode(String string) {
+        StringBuilder returnSB = new StringBuilder();
+        for (char c : string.toCharArray()) {
             if (isIn(c, kvSegmentSeparator, kvSeparator, ESCAPE_PREFIX_CHAR)) {
                 returnSB.append(ESCAPE_PREFIX_CHAR);
             }
@@ -150,17 +148,17 @@ public class FeatureCodec {
      */
     private String escapeDecode(String string) {
 
-        final StringBuilder segmentSB = new StringBuilder();
-        final int stringLength = string.length();
+        StringBuilder segmentSB = new StringBuilder();
+        int stringLength = string.length();
 
         for (int index = 0; index < stringLength; index++) {
 
-            final char c = string.charAt(index);
+            char c = string.charAt(index);
 
             if (isEquals(c, ESCAPE_PREFIX_CHAR)
                     && index < stringLength - 1) {
 
-                final char nextChar = string.charAt(++index);
+                char nextChar = string.charAt(++index);
 
                 // 下一个字符是转义符
                 if (isIn(nextChar, kvSegmentSeparator, kvSeparator, ESCAPE_PREFIX_CHAR)) {
@@ -190,22 +188,22 @@ public class FeatureCodec {
      */
     private String[] escapeSplit(String string, char splitEscapeChar) {
 
-        final ArrayList<String> segmentArrayList = new ArrayList<String>();
-        final Stack<Character> decodeStack = new Stack<Character>();
-        final int stringLength = string.length();
+        ArrayList<String> segmentArrayList = new ArrayList<String>();
+        Stack<Character> decodeStack = new Stack<Character>();
+        int stringLength = string.length();
 
         for (int index = 0; index < stringLength; index++) {
 
             boolean isArchive = false;
 
-            final char c = string.charAt(index);
+            char c = string.charAt(index);
 
             // 匹配到转义前缀符
             if (isEquals(c, ESCAPE_PREFIX_CHAR)) {
 
                 decodeStack.push(c);
                 if (index < stringLength - 1) {
-                    final char nextChar = string.charAt(++index);
+                    char nextChar = string.charAt(++index);
                     decodeStack.push(nextChar);
                 }
 
@@ -223,7 +221,7 @@ public class FeatureCodec {
 
             if (isArchive
                     || index == stringLength - 1) {
-                final StringBuilder segmentSB = new StringBuilder(decodeStack.size());
+                StringBuilder segmentSB = new StringBuilder(decodeStack.size());
                 while (!decodeStack.isEmpty()) {
                     segmentSB.append(decodeStack.pop());
                 }
