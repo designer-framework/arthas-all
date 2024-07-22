@@ -1,7 +1,7 @@
 package com.taobao.arthas.spring.profiling.server;
 
-import com.alibaba.fastjson.JSON;
 import com.taobao.arthas.spring.constants.DisposableBeanOrdered;
+import com.taobao.arthas.spring.utils.ProfilingHtmlUtil;
 import com.taobao.arthas.spring.vo.ProfilingResultVO;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
@@ -31,6 +31,9 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
 
     @Autowired
     private ProfilingResultVO profilingResultVO;
+
+    @Autowired
+    private ProfilingHtmlUtil profilingHtmlUtil;
 
     /**
      * 异步启动性能分析报表Web服务端
@@ -95,25 +98,42 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
 
             // 获取请求的uri
             String uri = req.uri();
-            if (uri.equals("/")) {
+            if ("/".equals(uri) || ProfilingHtmlUtil.startupAnalysis_.equals(uri)) {
 
-                FullHttpResponse response = new DefaultFullHttpResponse(
-                        HttpVersion.HTTP_1_1,
-                        HttpResponseStatus.OK,
-                        Unpooled.copiedBuffer(JSON.toJSONString(profilingResultVO), CharsetUtil.UTF_8)
-                );
-                response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
-                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                profilingHtmlUtil.writeResultHtml(ProfilingHtmlUtil.startupAnalysis_, startupAnalysisResult -> {
+
+                    FullHttpResponse response = new DefaultFullHttpResponse(
+                            HttpVersion.HTTP_1_1, HttpResponseStatus.OK
+                            , Unpooled.copiedBuffer(startupAnalysisResult, CharsetUtil.UTF_8)
+                    );
+                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+
+                });
+
+            } else if (ProfilingHtmlUtil.flameGraph_.equals(uri)) {
+
+                profilingHtmlUtil.writeResultHtml(uri, startupAnalysisResult -> {
+
+                    FullHttpResponse response = new DefaultFullHttpResponse(
+                            HttpVersion.HTTP_1_1, HttpResponseStatus.OK
+                            , Unpooled.copiedBuffer(startupAnalysisResult, CharsetUtil.UTF_8)
+                    );
+                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+
+                });
 
             } else {
 
-                FullHttpResponse response = new DefaultFullHttpResponse(
-                        HttpVersion.HTTP_1_1,
-                        HttpResponseStatus.OK,
-                        Unpooled.copiedBuffer("{}", CharsetUtil.UTF_8)
-                );
-                response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
-                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                profilingHtmlUtil.writeHtml(uri, htmlSourceCode -> {
+
+                    FullHttpResponse response = new DefaultFullHttpResponse(
+                            HttpVersion.HTTP_1_1, HttpResponseStatus.OK
+                            , Unpooled.copiedBuffer(htmlSourceCode, CharsetUtil.UTF_8)
+                    );
+                    response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+
+                });
 
             }
 
