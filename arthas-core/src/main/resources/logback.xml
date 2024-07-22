@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="true">
+<configuration>
 
     <property name="ARTHAS_LOG_PATH" value="${ARTHAS_LOG_PATH:-${user.home}/logs/arthas}"/>
     <property name="ARTHAS_LOG_FILE"

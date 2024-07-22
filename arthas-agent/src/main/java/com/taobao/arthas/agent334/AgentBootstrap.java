@@ -201,7 +201,7 @@ public class AgentBootstrap {
                 }
             });
 
-            bindingThread.setName("arthas-binding-thread");
+            bindingThread.setName("spring-profiling-thread");
             bindingThread.start();
             bindingThread.join();
 
@@ -227,7 +227,7 @@ public class AgentBootstrap {
          */
         Class<?> bootstrapClass = agentLoader.loadClass(ARTHAS_BOOTSTRAP);
         Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE, Instrumentation.class, String.class).invoke(null, inst, args);
-        
+
         ps.println("Arthas server already bind.");
     }
 
