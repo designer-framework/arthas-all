@@ -1,18 +1,16 @@
 package com.taobao.arthas.spring.configuration;
 
-import com.taobao.arthas.common.AnsiLog;
 import com.taobao.arthas.core.server.ArthasBootstrap;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor;
+import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +18,20 @@ import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class ArthasEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
-    private static final String ARTHAS_HOME_PROPERTY = "arthas.home";
+    private static final String PROFILING_JAR_HOME = "spring.profiling.home";
 
-    private static String ARTHAS_HOME = null;
+    /**
+     * 比系统环境变量配置加载更早
+     *
+     * @return
+     */
+    @Override
+    public int getOrder() {
+        return SystemEnvironmentPropertySourceEnvironmentPostProcessor.DEFAULT_ORDER - 1;
+    }
 
     @Override
     @SneakyThrows
@@ -36,53 +43,44 @@ public class ArthasEnvironmentPostProcessor implements EnvironmentPostProcessor,
          * https://github.com/alibaba/arthas/issues/986
          * </pre>
          */
-        loadArthasArgProperties(environment);
         loadArthasConfigurationProperties(environment);
-    }
-
-    private void loadArthasArgProperties(ConfigurableEnvironment environment) {
-
-        Map<String, Object> copyMap = new HashMap<>();
-        copyMap.put(ARTHAS_HOME_PROPERTY, arthasHome());
-
-        MapPropertySource mapPropertySource = new MapPropertySource("ArthasArgsMapPropertySource", copyMap);
-        environment.getPropertySources().addFirst(mapPropertySource);
-
     }
 
     private void loadArthasConfigurationProperties(ConfigurableEnvironment environment) throws IOException {
 
-        String location = new File(arthasHome(), "arthas.properties").getAbsolutePath();
+        Map<String, Object> copyMap = new HashMap<>();
+        copyMap.put(PROFILING_JAR_HOME, profilingJarHome());
+
+        MapPropertySource mapPropertySource = new MapPropertySource("ArthasArgsMapPropertySource", copyMap);
+        environment.getPropertySources().addFirst(mapPropertySource);
+
+        //解析配置文件
+        String location = new File(profilingJarHome(), "application.yml").getAbsolutePath();
 
         if (new File(location).exists()) {
 
-            PropertySource<?> propertySource = new PropertiesPropertySource(
-                    location, PropertiesLoaderUtils.loadProperties(new FileSystemResource(location))
-            );
-            environment.getPropertySources().addFirst(propertySource);
+            new YamlPropertySourceLoader()
+                    .load(location, new FileSystemResource(location))
+                    .forEach(propertySource -> {
+
+                        environment.getPropertySources().addFirst(propertySource);
+
+                    });
 
         }
 
     }
 
-    public String arthasHome() {
+    public String profilingJarHome() {
         CodeSource codeSource = ArthasBootstrap.class.getProtectionDomain().getCodeSource();
         if (codeSource != null) {
             try {
-                ARTHAS_HOME = new File(codeSource.getLocation().toURI().getSchemeSpecificPart()).getParentFile().getAbsolutePath();
+                return new File(codeSource.getLocation().toURI().getSchemeSpecificPart()).getParentFile().getAbsolutePath();
             } catch (Throwable e) {
-                AnsiLog.error("try to find arthas.home from CodeSource error", e);
+                log.error("try to find arthas.home from CodeSource error", e);
             }
         }
-        if (ARTHAS_HOME == null) {
-            ARTHAS_HOME = new File("").getAbsolutePath();
-        }
-        return ARTHAS_HOME;
-    }
-
-    @Override
-    public int getOrder() {
-        return SystemEnvironmentPropertySourceEnvironmentPostProcessor.DEFAULT_ORDER - 1;
+        return "";
     }
 
 }

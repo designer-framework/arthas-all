@@ -202,7 +202,7 @@ public class ArthasBootstrap {
                     try {
                         instrumentation.retransformClasses(clazz);
                     } catch (Throwable e) {
-                        log.error("retransformClasses class error, name: {}", clazz.getName(), e);
+                        //log.error("retransformClasses class error, name: {}", clazz.getName(), e);
                     }
                 }
 
@@ -214,6 +214,7 @@ public class ArthasBootstrap {
 
     private void initProfilingContainer(Map<String, String> argsMap) {
         ConfigurableApplicationContext configurableApplicationContext = SpringProfilingContainer.instance(argsMap);
+        log.error("性能分析容器启动完毕： {}, ClassLoader: {}", configurableApplicationContext.getDisplayName(), configurableApplicationContext.getClassLoader());
         springProfilingContainer = configurableApplicationContext.getBean(SpringProfilingContainer.class);
     }
 
@@ -238,7 +239,7 @@ public class ArthasBootstrap {
             }
         }
 
-        log.info("spring-profiling-server destroy completed.");
+        //log.info("spring-profiling-server destroy completed.");
     }
 
     /**

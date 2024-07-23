@@ -9,7 +9,6 @@ spring:
   profiling:
     outputPath: arthas-output
     enhanceLoaders: java.lang.ClassLoader
-    override-config: true
     #火焰图数据采集
     thread:
       names: main
@@ -22,3 +21,7 @@ spring:
 
 logging:
   config: 'classpath:logback.xml'
+  file:
+    path: ./logs
+  level:
+    root: warn

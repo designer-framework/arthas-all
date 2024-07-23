@@ -4,19 +4,20 @@ import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.processor.ProfilingContainer;
 import com.taobao.arthas.spring.constants.DisposableBeanOrdered;
 import com.taobao.arthas.spring.properties.ArthasConfigProperties;
+import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
-import org.springframework.core.io.DefaultResourceLoader;
 
 import java.arthas.SpyAPI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 @SpringBootApplication(scanBasePackages = "com.taobao.arthas")
 public class SpringProfilingContainer implements ProfilingContainer, DisposableBean, Ordered {
 
@@ -40,9 +41,6 @@ public class SpringProfilingContainer implements ProfilingContainer, DisposableB
     @Autowired
     private ArthasConfigProperties arthasConfigProperties;
 
-    public SpringProfilingContainer() {
-    }
-
     /**
      * 环境变量透传到性能分析容器中
      *
@@ -50,23 +48,7 @@ public class SpringProfilingContainer implements ProfilingContainer, DisposableB
      * @return
      */
     public static ConfigurableApplicationContext instance(Map<String, String> argsMap) {
-        return new SpringApplication(
-                new DefaultResourceLoader(SpringProfilingContainer.class.getClassLoader()), SpringProfilingContainer.class
-        ).run();
-    }
-
-    @Override
-    public SpyAPI.AbstractSpy getSpyAPI() {
-        return spyAPI;
-    }
-
-    @Override
-    public List<MatchCandidate> getMatchCandidates() {
-        return matchCandidates;
-    }
-
-    public ArthasConfigProperties getArthasConfigProperties() {
-        return arthasConfigProperties;
+        return SpringApplication.run(SpringProfilingContainer.class);
     }
 
     @Override

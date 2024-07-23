@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public abstract class AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
 
-    private ClassMethodInfo classMethodInfo;
+    private final ClassMethodInfo classMethodInfo;
 
     public AbstractInvokeAdviceHandler(ClassMethodInfo classMethodInfo) {
         this.classMethodInfo = classMethodInfo;
