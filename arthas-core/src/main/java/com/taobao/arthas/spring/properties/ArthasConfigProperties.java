@@ -4,11 +4,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @description:
@@ -16,7 +11,6 @@ import java.util.Set;
  * @date : 2024-07-10 22:25
  */
 @Data
-@Component
 @ConfigurationProperties(prefix = "spring.profiling")
 public class ArthasConfigProperties {
 
@@ -30,15 +24,13 @@ public class ArthasConfigProperties {
      */
     private String outputPath;
 
-    /**
-     * 哪些类加载器需要增强
-     */
-    private Set<String> enhanceLoaders = new HashSet<>(Collections.singletonList("java.lang.ClassLoader"));
+    @NestedConfigurationProperty
+    private ArthasClassLoaderProperties classLoaders;
 
     @NestedConfigurationProperty
-    private ArthasTraceProperties trace;
+    private ArthasMethodTraceProperties trace;
 
     @NestedConfigurationProperty
-    private ThreadProfilingProperties thread;
+    private ArthasThreadTraceProperties thread;
 
 }

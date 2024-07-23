@@ -3,7 +3,7 @@ package com.taobao.arthas.spring;
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.profiling.api.processor.ProfilingContainer;
 import com.taobao.arthas.spring.constants.DisposableBeanOrdered;
-import com.taobao.arthas.spring.properties.ArthasConfigProperties;
+import com.taobao.arthas.spring.properties.ArthasClassLoaderProperties;
 import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class SpringProfilingContainer implements ProfilingContainer, DisposableB
      * 用于判断哪些类需要增强
      */
     @Autowired
-    private ArthasConfigProperties arthasConfigProperties;
+    private ArthasClassLoaderProperties arthasClassLoaderProperties;
 
     /**
      * 环境变量透传到性能分析容器中

@@ -2,7 +2,7 @@ package com.taobao.arthas.spring.configuration;
 
 import com.taobao.arthas.profiling.api.advisor.MatchCandidate;
 import com.taobao.arthas.spring.profiling.invoke.SpringMethodInvokeAdviceHandler;
-import com.taobao.arthas.spring.properties.ArthasTraceProperties;
+import com.taobao.arthas.spring.properties.ArthasMethodTraceProperties;
 import com.taobao.arthas.spring.vo.ClassMethodInfo;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
@@ -34,13 +34,13 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         Binder.get(environment)
-                .bind("spring.profiling.trace", ArthasTraceProperties.class)
-                .ifBound(arthasTraceProperties -> {
+                //将配置绑定到对象上
+                .bind("spring.profiling.trace", ArthasMethodTraceProperties.class)
+                .ifBound(arthasMethodTraceProperties -> {
 
-                    //将配置绑定到对象上
-                    for (ClassMethodInfo classMethodInfo : arthasTraceProperties.traceMethods()) {
+                    //将性能分析Bean的Definition注入到容器中
+                    for (ClassMethodInfo classMethodInfo : arthasMethodTraceProperties.traceMethods()) {
 
-                        //注入到容器中
                         BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
                                 .genericBeanDefinition(SpringMethodInvokeAdviceHandler.class);
                         methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodInfo);

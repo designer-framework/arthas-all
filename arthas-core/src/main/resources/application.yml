@@ -8,7 +8,9 @@ spring:
     name: 'spring-boot-profiling'
   profiling:
     outputPath: arthas-output
-    enhanceLoaders: java.lang.ClassLoader
+    #类加载器增强
+    class-loaders:
+      enhance-loaders: java.lang.ClassLoader
     #火焰图数据采集
     thread:
       names: main

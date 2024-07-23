@@ -13,7 +13,7 @@ import com.taobao.arthas.core.config.FeatureCodec;
 import com.taobao.arthas.core.server.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.server.instrument.EnhanceProfilingInstrumentTransformer;
 import com.taobao.arthas.spring.SpringProfilingContainer;
-import com.taobao.arthas.spring.properties.ArthasConfigProperties;
+import com.taobao.arthas.spring.properties.ArthasClassLoaderProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -166,13 +166,13 @@ public class ArthasBootstrap {
     }
 
     private void enhanceClassLoader() throws IOException, UnmodifiableClassException {
-        ArthasConfigProperties configure = springProfilingContainer.getArthasConfigProperties();
-        if (configure.getEnhanceLoaders() == null) {
+        ArthasClassLoaderProperties arthasClassLoaderProperties = springProfilingContainer.getArthasClassLoaderProperties();
+        if (arthasClassLoaderProperties.getEnhanceLoaders() == null) {
             return;
         }
         Set<String> loaders = new HashSet<>();
 
-        for (String enhanceLoader : configure.getEnhanceLoaders()) {
+        for (String enhanceLoader : arthasClassLoaderProperties.getEnhanceLoaders()) {
             loaders.add(enhanceLoader.trim());
         }
 

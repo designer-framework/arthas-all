@@ -1,8 +1,6 @@
 package com.taobao.arthas.spring.properties;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,9 +12,7 @@ import java.util.Set;
  * @date : 2024-07-10 22:25
  */
 @Data
-@Component
-@ConfigurationProperties(prefix = "spring.profiling.thread")
-public class ThreadProfilingProperties {
+public class ArthasThreadTraceProperties {
 
     /**
      * 被采样线程名
