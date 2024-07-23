@@ -35,6 +35,11 @@
             <destName>arthas-profiling-api.jar</destName>
         </file>
 
+        <file>
+            <source>../arthas-spring-plugin/target/arthas-spring-plugin.jar</source>
+            <destName>arthas-spring-plugin.jar</destName>
+        </file>
+
     </files>
 
     <fileSets>

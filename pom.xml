@@ -20,16 +20,17 @@
     <url>https://github.com/alibaba/arthas</url>
 
     <modules>
-        <module>arthas-spring-plugin</module>
+        <module>arthas-spring-maven-plugin</module>
 
         <module>arthas-common</module>
         <module>arthas-spy</module>
         <module>arthas-core</module>
 
-        <module>arthas-profiling-api</module>
-
         <module>arthas-agent</module>
         <module>arthas-packaging</module>
+
+        <module>arthas-profiling-api</module>
+        <module>arthas-spring-plugin</module>
 
         <module>spring-boot-web-test</module>
     </modules>

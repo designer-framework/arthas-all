@@ -145,7 +145,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>arthas-spring-plugin</artifactId>
+                        <artifactId>arthas-spring-maven-plugin</artifactId>
                         <version>${maven-shade-plugin.version}</version>
                     </dependency>
                 </dependencies>
