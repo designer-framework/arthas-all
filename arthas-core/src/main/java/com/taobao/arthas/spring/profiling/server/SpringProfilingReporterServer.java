@@ -13,6 +13,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
@@ -22,6 +23,7 @@ import java.net.InetSocketAddress;
 
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 
+@Slf4j
 @Component
 public class SpringProfilingReporterServer implements DisposableBean, Ordered {
 
@@ -63,7 +65,7 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
             //io.netty.handler.codec.DefaultHeaders.ValueValidator
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
 
-            System.err.println(" Profiling reporter server start up on port : http://127.0.0.1:" + port);
+            log.error("点击查看性能分析报告: http://127.0.0.1:{}", port);
 
             f.channel().closeFuture().sync();
 

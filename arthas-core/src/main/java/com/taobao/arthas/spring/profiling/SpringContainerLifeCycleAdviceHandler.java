@@ -6,6 +6,7 @@ import com.taobao.arthas.profiling.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.profiling.api.vo.InvokeVO;
 import com.taobao.arthas.spring.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.spring.vo.ProfilingResultVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.List;
 /**
  * Spring项目启动耗时分析
  */
+@Slf4j
 @Component
 public class SpringContainerLifeCycleAdviceHandler extends AbstractInvokeAdviceHandler implements InvokeAdviceHandler, MatchCandidate {
 
@@ -58,6 +60,7 @@ public class SpringContainerLifeCycleAdviceHandler extends AbstractInvokeAdviceH
         profilingResultVO.setStartUpTime(System.currentTimeMillis() - startTime);
 
         //分析完毕, 通知释放资源,关闭容器,上报分析数据...
+
         profilingLifeCycles.forEach(ProfilingLifeCycle::stop);
 
     }
