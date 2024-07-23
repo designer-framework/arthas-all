@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.security.CodeSource;
-import java.util.Properties;
 
 /**
  * @description:
@@ -18,20 +15,6 @@ import java.util.Properties;
  */
 @Slf4j
 public class AgentHomeUtil {
-
-    @SneakyThrows
-    public static Properties loadProperties(String propertyPath) {
-        Properties properties = new Properties();
-        File file = new File(arthasHome(), propertyPath);
-        if (file.exists()) {
-            try (InputStream in = Files.newInputStream(file.toPath())) {
-                properties.load(in);
-                return properties;
-            }
-        } else {
-            return properties;
-        }
-    }
 
     @SneakyThrows
     public static File getOutputFile(String fileName) {
