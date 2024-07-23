@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.spy;
 
 import com.taobao.arthas.api.advice.Advice;
+import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import java.util.List;
 public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
     @Autowired
-    private List<Advice> advices;
+    private List<PointcutAdvisor> advices;
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {

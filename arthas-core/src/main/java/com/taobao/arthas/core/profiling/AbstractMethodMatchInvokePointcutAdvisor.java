@@ -1,6 +1,6 @@
 package com.taobao.arthas.core.profiling;
 
-import com.taobao.arthas.core.advisor.AbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.vo.ClassMethodInfo;
 import lombok.Getter;
 

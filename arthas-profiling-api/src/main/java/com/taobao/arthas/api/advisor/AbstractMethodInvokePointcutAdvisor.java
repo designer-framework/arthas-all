@@ -1,14 +1,11 @@
-package com.taobao.arthas.core.advisor;
+package com.taobao.arthas.api.advisor;
 
 import com.taobao.arthas.api.advice.Advice;
-import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.enums.InvokeType;
 import com.taobao.arthas.api.interceptor.InvokeInterceptorAdapter;
 import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
 import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.vo.InvokeVO;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -18,8 +15,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * 参见
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
-@Slf4j
-@Setter
 public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, ClassMethodMatchPointcut, Advice {
 
     private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
@@ -49,7 +44,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     @Override
-    public void before(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {
+    public final void before(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {
         InvokeStack stack = invokeStack.get();
 
         long currInvokeId = ID_GENERATOR.addAndGet(1);
@@ -64,12 +59,10 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         }
     }
 
-    protected void atBefore(InvokeVO invokeVO) {
-        log.info("AtBefore:{}", invokeVO);
-    }
+    protected abstract void atBefore(InvokeVO invokeVO);
 
     @Override
-    public void afterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
+    public final void afterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
 
         InvokeStack stack = invokeStack.get();
         long headInvokeId = headInvokeId();
@@ -88,7 +81,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     @Override
-    public void afterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) throws Throwable {
+    public final void afterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) throws Throwable {
 
         InvokeStack stack = invokeStack.get();
         long headInvokeId = headInvokeId();
@@ -106,9 +99,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         atExit(invokeVO);
     }
 
-    protected void atExit(InvokeVO invokeVO) {
-        log.info("AtExit:{}", invokeVO);
-    }
+    protected abstract void atExit(InvokeVO invokeVO);
 
     @Override
     public Pointcut getPointcut() {
