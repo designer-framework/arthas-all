@@ -27,7 +27,7 @@ public class AgentBootstrap {
 
     private static final String ARTHAS_AGENT_JAR = "arthas-agent.jar";
 
-    private static final String ARTHAS_BOOTSTRAP = "com.taobao.arthas.core.server.ArthasBootstrap";
+    private static final String ARTHAS_BOOTSTRAP = "com.taobao.arthas.core.ArthasBootstrap";
 
     private static final String GET_INSTANCE = "getInstance";
 
