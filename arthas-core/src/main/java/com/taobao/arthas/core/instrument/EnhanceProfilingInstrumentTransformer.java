@@ -37,16 +37,21 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
         }
 
         //不处理java包
-        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("jdk")) {
+        if (className.startsWith("java") || className.startsWith("javax") || className.startsWith("sun") || className.startsWith("com.sun") || className.startsWith("jdk")) {
             return null;
         }
 
         //不处理arthas包
-        if (className.startsWith("com/taobao/arthas") || className.startsWith("com/intellij") || className.startsWith("org/jetbrains")) {
+        if (className.startsWith("com/taobao/arthas")) {
             return null;
         }
 
-        // 不处理cglib
+        //不处理IDEA包
+        if (className.startsWith("com/intellij") || className.startsWith("org/jetbrains")) {
+            return null;
+        }
+
+        // 不处理cglib类
         if (AsmUtils.isEnhancerByCGLIB(className)) {
             return null;
         }
