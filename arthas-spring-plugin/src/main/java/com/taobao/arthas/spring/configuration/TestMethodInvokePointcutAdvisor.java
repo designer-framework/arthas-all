@@ -5,11 +5,9 @@ import com.taobao.arthas.api.handler.MethodInvokeListener;
 import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
 import com.taobao.arthas.api.vo.InvokeVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
-public class TestListenerMethod extends AbstractMethodInvokePointcutAdvisor implements MethodInvokeListener, ClassMethodMatchPointcut {
+public class TestMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements MethodInvokeListener, ClassMethodMatchPointcut {
 
     @Override
     public boolean isCandidateClass(String className) {
@@ -23,7 +21,7 @@ public class TestListenerMethod extends AbstractMethodInvokePointcutAdvisor impl
 
     @Override
     protected void atBefore(InvokeVO invokeVO) {
-        
+
     }
 
     @Override

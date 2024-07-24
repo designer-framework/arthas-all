@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.taobao.arthas.spring.configuration.TestMethodInvokePointcutAdvisor
