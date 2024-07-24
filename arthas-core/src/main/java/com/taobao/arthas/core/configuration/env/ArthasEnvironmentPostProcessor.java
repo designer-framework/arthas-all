@@ -1,4 +1,4 @@
-package com.taobao.arthas.core.configuration;
+package com.taobao.arthas.core.configuration.env;
 
 import com.taobao.arthas.core.ArthasBootstrap;
 import lombok.SneakyThrows;

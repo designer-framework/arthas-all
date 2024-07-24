@@ -18,9 +18,9 @@ import org.springframework.core.env.Environment;
  * @author: Designer
  * @date : 2024-07-08 01:49
  */
+@Setter
 public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
 
-    @Setter
     private Environment environment;
 
     /**
@@ -38,14 +38,15 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
                 .ifBound(arthasMethodTraceProperties -> {
 
                     //将性能分析Bean的Definition注入到容器中
-                    for (String fullyQualifiedMethodName : arthasMethodTraceProperties.getMethods()) {
+                    for (ArthasMethodTraceProperties.ClassMethodDesc classMethodDesc : arthasMethodTraceProperties.getMethods()) {
 
                         BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
                                 .genericBeanDefinition(SimpleMethodInvokePointcutAdvisor.class);
-                        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(fullyQualifiedMethodName);
+                        methodInvokeAdviceHandlerBuilder.addPropertyValue("classMethodInfo", classMethodDesc.getMethodInfo());
+                        methodInvokeAdviceHandlerBuilder.addPropertyValue("canRetransform", classMethodDesc.getCanRetransform());
                         //
                         registry.registerBeanDefinition(
-                                SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + fullyQualifiedMethodName
+                                SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + classMethodDesc
                                 , methodInvokeAdviceHandlerBuilder.getBeanDefinition()
                         );
 

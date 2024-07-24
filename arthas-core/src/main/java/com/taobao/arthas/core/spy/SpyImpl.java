@@ -17,7 +17,7 @@ import java.arthas.SpyAPI.AbstractSpy;
  * @author hengyunabc 2020-04-24
  */
 @Component
-public class DefaultSpyImpl extends AbstractSpy {
+public class SpyImpl extends AbstractSpy {
 
     @Autowired
     private SpyExtensionApi spyExtensionApi;

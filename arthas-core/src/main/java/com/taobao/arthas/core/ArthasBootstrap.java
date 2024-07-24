@@ -8,6 +8,8 @@ import com.alibaba.bytekit.utils.AsmUtils;
 import com.alibaba.bytekit.utils.IOUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.taobao.arthas.api.advisor.PointcutAdvisor;
+import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.core.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.instrument.EnhanceProfilingInstrumentTransformer;
 import com.taobao.arthas.core.properties.ArthasClassLoaderProperties;
@@ -30,6 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 
 /**
@@ -70,7 +73,7 @@ public class ArthasBootstrap {
         enhanceClassLoader();
 
         // 5. 增强待分析的类
-        enhanceProfilingClass();
+        enhanceNormalClass();
 
         // 6. hooker
         shutdown = new Thread("spring-profiling-shutdown-hooker") {
@@ -119,17 +122,19 @@ public class ArthasBootstrap {
         return arthasBootstrap;
     }
 
-    private void enhanceProfilingClass() {
+    private void enhanceNormalClass() {
         //获取Spy实现类
         SpyAPI.setSpy(springProfilingContainer.getSpyAPI());
 
         EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(springProfilingContainer.getPointcutAdvisor());
         instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
 
-        /*InstrumentationUtils.trigerRetransformClasses(
+        //
+        InstrumentationUtils.trigerRetransformClasses(
                 instrumentation
-                , springProfilingContainer.getPointcutAdvisor().stream().map(PointcutAdvisor::getPointcut).collect(Collectors.toList())
-        );*/
+                , springProfilingContainer.getPointcutAdvisor().stream()
+                        .map(PointcutAdvisor::getPointcut).filter(Pointcut::getCanRetransform).collect(Collectors.toList())
+        );
     }
 
     private void initFastjson() {

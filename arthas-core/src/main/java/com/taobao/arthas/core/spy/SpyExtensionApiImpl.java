@@ -27,14 +27,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Slf4j
 @Component
-public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
-
-    private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
+public class SpyExtensionApiImpl implements SpyExtensionApi {
 
     /**
      * 调用链
      */
     private static final ThreadLocal<InvokeStack> invokeStack = ThreadLocal.withInitial(InvokeStack::new);
+
+    private final AtomicLong ID_GENERATOR = new AtomicLong(0);
 
     @Autowired
     private List<PointcutAdvisor> pointcutAdvisors;

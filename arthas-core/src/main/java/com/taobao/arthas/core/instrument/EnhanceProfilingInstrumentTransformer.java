@@ -17,18 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class EnhanceProfilingInstrumentTransformer implements ClassFileTransformer {
 
-    //private static final Object cached = new Object();
+    private static final Object cached = new Object();
 
     private final List<PointcutAdvisor> pointcutAdvisors;
 
-    private final Map<String, Object> cache = new ConcurrentHashMap<>();
+    private final Map<String, Object> cache = new HashMap<>();
 
     public EnhanceProfilingInstrumentTransformer(List<PointcutAdvisor> pointcutAdvisors) {
         this.pointcutAdvisors = pointcutAdvisors;
@@ -40,18 +40,22 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
             return null;
         }
 
-        if (className.startsWith("java") || className.startsWith("sun") || className.startsWith("com/sun") || className.startsWith("jdk") //不处理java包
+        //未被类加载器定义过的类
+        if (classBeingRedefined == null
+                //
+                && (className.startsWith("java/") || className.startsWith("javax/") || className.startsWith("sun") || className.startsWith("com/sun") || className.startsWith("jdk/") //不处理java包
                 || className.startsWith("com/taobao/arthas") //不处理arthas包
                 || className.startsWith("com/intellij") || className.startsWith("org/jetbrains") //不处理IDEA包
                 || AsmUtils.isEnhancerByCGLIB(className) // 不处理cglib类
-        ) {
+        )) {
             return null;
         }
 
         //已增强过
-        /*if (cache.containsKey(className)) {
+        String cacheKey = createCacheKey(loader, className);
+        if (cache.containsKey(cacheKey)) {
             return null;
-        }*/
+        }
 
         ClassNode classNode = new ClassNode(Opcodes.ASM9);
         ClassReader classReader = AsmUtils.toClassNode(classfileBuffer, classNode);
@@ -118,11 +122,26 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
         //需要进行字节码增强
         if (enhance) {
-            //cache.putIfAbsent(className, cached);
+            cache.putIfAbsent(cacheKey, cached);
             return AsmUtils.toBytes(classNode, loader, classReader);
         } else {
             //无需增强
             return null;
+        }
+    }
+
+    /**
+     * 不类加载器加载相同类, 这两个类是不一样的(各自独立存在)
+     *
+     * @param loader
+     * @param className
+     * @return
+     */
+    private String createCacheKey(ClassLoader loader, String className) {
+        if (loader == null) {
+            return "_ClassLoader" + "-" + className;
+        } else {
+            return loader + className;
         }
     }
 

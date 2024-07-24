@@ -1,4 +1,4 @@
-package com.taobao.arthas.core.configuration;
+package com.taobao.arthas.core.configuration.env;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;

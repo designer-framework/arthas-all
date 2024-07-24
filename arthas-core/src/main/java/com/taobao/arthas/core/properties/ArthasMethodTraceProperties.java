@@ -4,7 +4,6 @@ import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.core.vo.ClassMethodInfo;
 import lombok.Data;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -15,15 +14,33 @@ import java.util.Set;
 @Data
 public class ArthasMethodTraceProperties {
 
-    private Set<String> methods;
+    private Set<ClassMethodDesc> methods;
 
-    public Set<ClassMethodInfo> traceMethods() {
+    @Data
+    public static class ClassMethodDesc {
+        
+        /**
+         * 全限定方法名
+         * fullyQualifiedMethodName
+         */
+        private String method;
 
-        Set<ClassMethodInfo> traceMethodProperties = new HashSet<>();
-        for (String invokeTrace : methods) {
-            traceMethodProperties.add(FullyQualifiedClassUtils.parserClassMethodInfo(invokeTrace));
+        /**
+         * 是否允许重新加载已被装载的类
+         */
+        private Boolean canRetransform = Boolean.FALSE;
+
+        public ClassMethodInfo getMethodInfo() {
+            return FullyQualifiedClassUtils.parserClassMethodInfo(method);
         }
-        return traceMethodProperties;
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "method: \"" + method + '\"' +
+                    ", canRetransform: \"" + canRetransform + "\"" +
+                    "}";
+        }
 
     }
 

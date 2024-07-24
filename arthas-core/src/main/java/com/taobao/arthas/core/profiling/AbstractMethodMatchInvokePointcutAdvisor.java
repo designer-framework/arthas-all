@@ -4,27 +4,23 @@ import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.utils.ByteKitUtils;
 import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.core.vo.ClassMethodInfo;
-import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
-@Getter
-public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor {
+@Setter
+public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements InitializingBean {
 
-    protected final ClassMethodInfo classMethodInfo;
+    protected ClassMethodInfo classMethodInfo;
+
+    public AbstractMethodMatchInvokePointcutAdvisor() {
+    }
 
     /**
      * @param fullyQualifiedMethodName 切入点的全限定方法名
      */
     public AbstractMethodMatchInvokePointcutAdvisor(String fullyQualifiedMethodName) {
-        this(FullyQualifiedClassUtils.parserClassMethodInfo(fullyQualifiedMethodName));
-    }
-
-    /**
-     * 方法的切入点信息
-     *
-     * @param classMethodInfo
-     */
-    public AbstractMethodMatchInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
-        this.classMethodInfo = classMethodInfo;
+        classMethodInfo = FullyQualifiedClassUtils.parserClassMethodInfo(fullyQualifiedMethodName);
     }
 
     @Override
@@ -35,6 +31,11 @@ public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractM
     @Override
     public final boolean isCandidateMethod0(String className, String methodName, String methodDesc) {
         return classMethodInfo.isCandidateMethod(methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc));
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(classMethodInfo, "ClassMethodInfo");
     }
 
 }

@@ -8,6 +8,15 @@ package com.taobao.arthas.api.pointcut;
 public interface Pointcut {
 
     /**
+     * 是否允许重新装载
+     *
+     * @return
+     */
+    default boolean getCanRetransform() {
+        return false;
+    }
+
+    /**
      * 是否候选类
      *
      * @param className

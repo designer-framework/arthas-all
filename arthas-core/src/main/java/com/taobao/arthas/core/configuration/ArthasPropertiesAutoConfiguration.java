@@ -10,10 +10,15 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(ArthasConfigProperties.class)
-public class ArthasPropertiesConfiguration {
+public class ArthasPropertiesAutoConfiguration {
 
     @Bean
-    public ArthasMethodTraceProperties arthasConfigProperties(ArthasConfigProperties arthasConfigProperties) {
+    public ArthasConfigProperties arthasConfigProperties() {
+        return new ArthasConfigProperties();
+    }
+
+    @Bean
+    public ArthasMethodTraceProperties arthasMethodTraceProperties(ArthasConfigProperties arthasConfigProperties) {
         return arthasConfigProperties.getTrace();
     }
 
@@ -21,8 +26,7 @@ public class ArthasPropertiesConfiguration {
     public ArthasThreadTraceProperties arthasThreadTraceProperties(ArthasConfigProperties arthasConfigProperties) {
         return arthasConfigProperties.getThread();
     }
-
-
+    
     @Bean
     public ArthasClassLoaderProperties arthasClassLoaderProperties(ArthasConfigProperties arthasConfigProperties) {
         return arthasConfigProperties.getClassLoaders();

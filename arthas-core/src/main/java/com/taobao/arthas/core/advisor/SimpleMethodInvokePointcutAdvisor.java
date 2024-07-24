@@ -3,7 +3,6 @@ package com.taobao.arthas.core.advisor;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.DisposableBeanOrdered;
 import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
-import com.taobao.arthas.core.vo.ClassMethodInfo;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +25,6 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodMatchInvoke
 
     @Autowired
     private ProfilingResultVO profilingResultVO;
-
-    public SimpleMethodInvokePointcutAdvisor(String fullyQualifiedMethodName) {
-        super(fullyQualifiedMethodName);
-    }
-
-    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
-        super(classMethodInfo);
-    }
 
     @Override
     protected void atBefore(InvokeVO invokeVO) {

@@ -17,7 +17,7 @@ public class ArthasClassloader extends URLClassLoader {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass != null) {
             return loadedClass;

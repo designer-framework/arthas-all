@@ -19,6 +19,17 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
     protected final Map<String, Object> cache = new ConcurrentHashMap<>();
 
+    private Boolean canRetransform = Boolean.FALSE;
+
+    @Override
+    public boolean getCanRetransform() {
+        return canRetransform;
+    }
+
+    public void setCanRetransform(Boolean canRetransform) {
+        this.canRetransform = canRetransform;
+    }
+
     @Override
     public final boolean isCandidateMethod(String className, String methodName, String methodDesc) {
         String cacheKey = getCacheKey(className, methodName, methodDesc);
