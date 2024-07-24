@@ -53,7 +53,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     public String getCacheKey(String className, String methodName, String methodDesc) {
-        return className + "#" + methodName + "(" + methodDesc + ")";
+        return className + "#" + methodName + methodDesc;
     }
 
     /**
