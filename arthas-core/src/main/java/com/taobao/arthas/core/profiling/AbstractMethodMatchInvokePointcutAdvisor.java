@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.profiling;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.utils.ByteKitUtils;
 import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.core.vo.ClassMethodInfo;
 import lombok.Getter;
@@ -32,8 +33,8 @@ public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractM
     }
 
     @Override
-    public final boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
-        return classMethodInfo.isCandidateMethod(methodName, methodArgTypes);
+    public final boolean isCandidateMethod0(String className, String methodName, String methodDesc) {
+        return classMethodInfo.isCandidateMethod(methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc));
     }
 
 }

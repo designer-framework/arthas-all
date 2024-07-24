@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import static com.taobao.arthas.core.util.ArthasCheckUtils.isEquals;
-import static com.taobao.arthas.core.util.ArthasCheckUtils.isIn;
+import static com.taobao.arthas.core.utils.ArthasCheckUtils.isEquals;
+import static com.taobao.arthas.core.utils.ArthasCheckUtils.isIn;
 
 /**
  * Feature编解器(线程安全)<br/>

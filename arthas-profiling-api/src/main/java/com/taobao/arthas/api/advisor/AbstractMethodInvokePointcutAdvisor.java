@@ -8,7 +8,9 @@ import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.vo.InvokeVO;
 
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -24,11 +26,45 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
      */
     private static final ThreadLocal<InvokeStack> invokeStack = ThreadLocal.withInitial(InvokeStack::new);
 
-    @Override
-    public abstract boolean isCandidateClass(String className);
+    protected final Set<String> cache = new HashSet<>();
 
     @Override
-    public abstract boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes);
+    public final boolean isCandidateMethod(String className, String methodName, String methodDesc) {
+        String cacheKey = getCacheKey(className, methodName, methodDesc);
+        if (cache.contains(getCacheKey(className, methodName, methodDesc))) {
+
+            return true;
+
+        } else {
+
+            if (isCandidateMethod0(methodName, methodName, methodDesc)) {
+                cache.add(cacheKey);
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+    @Override
+    public final boolean isCached(String className, String methodName, String methodDesc) {
+        return cache.contains(getCacheKey(className, methodName, methodDesc));
+    }
+
+    public String getCacheKey(String className, String methodName, String methodDesc) {
+        return className + "#" + methodName + "(" + methodDesc + ")";
+    }
+
+    /**
+     * 是否候选方法
+     *
+     * @param className
+     * @param methodName
+     * @param methodDesc
+     * @return
+     */
+    public abstract boolean isCandidateMethod0(String className, String methodName, String methodDesc);
 
     @Override
     public long id() {
@@ -89,7 +125,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
         if (isReady()) {
 
-            InvokeVO invokeVO = InvokeVO.newForBefore(loader, clazz, methodName, methodArgumentTypes, target, args, InvokeType.ENTER, headInvokeId, currInvokeId);
+            InvokeVO invokeVO = InvokeVO.newForAfterThrowing(loader, clazz, methodName, methodArgumentTypes, target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId);
             atAfterThrowing(invokeVO);
 
         }

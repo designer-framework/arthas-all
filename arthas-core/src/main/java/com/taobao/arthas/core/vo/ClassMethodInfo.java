@@ -2,6 +2,8 @@ package com.taobao.arthas.core.vo;
 
 import lombok.Data;
 
+import java.util.Objects;
+
 @Data
 public class ClassMethodInfo {
 
@@ -25,7 +27,11 @@ public class ClassMethodInfo {
 
     public boolean isCandidateMethod(String methodName, String[] methodArgumentTypes) {
         //
-        if (!this.methodName.startsWith(methodName)) {
+        if (!methodName.startsWith(this.methodName)) {
+            return false;
+        }
+
+        if (methodArgumentLength != methodArgumentTypes.length) {
             return false;
         }
 
@@ -36,6 +42,16 @@ public class ClassMethodInfo {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        return Objects.equals(fullyQualifiedMethodName, that);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fullyQualifiedMethodName);
     }
 
 }

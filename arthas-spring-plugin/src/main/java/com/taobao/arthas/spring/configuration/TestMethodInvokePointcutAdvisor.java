@@ -1,13 +1,11 @@
 package com.taobao.arthas.spring.configuration;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
-import com.taobao.arthas.api.handler.MethodInvokeListener;
-import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
 import com.taobao.arthas.api.vo.InvokeVO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TestMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements MethodInvokeListener, ClassMethodMatchPointcut {
+public class TestMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor {
 
     @Override
     public boolean isCandidateClass(String className) {
@@ -15,31 +13,16 @@ public class TestMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcu
     }
 
     @Override
-    public boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes) {
+    public boolean isCandidateMethod0(String className, String methodName, String methodDesc) {
         return false;
     }
 
     @Override
     protected void atBefore(InvokeVO invokeVO) {
-
     }
 
     @Override
     protected void atExit(InvokeVO invokeVO) {
-
-    }
-
-    @Override
-    public void before(InvokeVO invokeVO) {
-        log.error("");
-    }
-
-    @Override
-    public void afterReturning(InvokeVO invokeVO) {
-    }
-
-    @Override
-    public void afterThrowing(InvokeVO invokeVO) {
     }
 
 }

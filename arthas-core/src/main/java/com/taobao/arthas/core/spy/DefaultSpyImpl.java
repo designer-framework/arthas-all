@@ -1,6 +1,5 @@
 package com.taobao.arthas.core.spy;
 
-import com.alibaba.deps.org.objectweb.asm.Type;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,36 +24,17 @@ public class DefaultSpyImpl extends AbstractSpy {
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
-        spyExtensionApi.atEnter(clazz, methodName, getMethodArgumentTypes(methodDesc), target, args);
+        spyExtensionApi.atEnter(clazz, methodName, methodDesc, target, args);
     }
 
     @Override
     public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
-        spyExtensionApi.atExit(clazz, methodName, getMethodArgumentTypes(methodDesc), target, args, returnObject);
+        spyExtensionApi.atExit(clazz, methodName, methodDesc, target, args, returnObject);
     }
 
     @Override
     public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
-        spyExtensionApi.atExceptionExit(clazz, methodName, getMethodArgumentTypes(methodDesc), target, args, throwable);
-    }
-
-    /**
-     * 方法签名解析成易于阅读的字段
-     *
-     * @param methodDesc
-     * @return
-     */
-    private String[] getMethodArgumentTypes(String methodDesc) {
-        Type methodType = Type.getMethodType(methodDesc);
-        Type[] argumentTypes = methodType.getArgumentTypes();
-        //方法入参对应的JAVA类型
-        String[] javaArgumentTypes = new String[argumentTypes.length];
-
-        for (int i = 0; i < argumentTypes.length; i++) {
-            javaArgumentTypes[i] = argumentTypes[i].getClassName();
-        }
-
-        return javaArgumentTypes;
+        spyExtensionApi.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable);
     }
 
 }

@@ -13,7 +13,7 @@ import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.core.interceptor.ExtensionSpyInterceptor;
-import com.taobao.arthas.core.util.StringUtils;
+import com.taobao.arthas.core.utils.ByteKitUtils;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -24,10 +24,10 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
     private final Logger logger = Loggers.getLogger(getClass());
 
-    private final List<PointcutAdvisor> classMethodMatchPointcuts;
+    private final List<PointcutAdvisor> pointcutAdvisors;
 
-    public EnhanceProfilingInstrumentTransformer(List<PointcutAdvisor> classMethodMatchPointcuts) {
-        this.classMethodMatchPointcuts = classMethodMatchPointcuts;
+    public EnhanceProfilingInstrumentTransformer(List<PointcutAdvisor> pointcutAdvisors) {
+        this.pointcutAdvisors = pointcutAdvisors;
     }
 
     @Override
@@ -61,11 +61,12 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
         // fix https://github.com/alibaba/one-java-agent/issues/51
         classNode = AsmUtils.removeJSRInstructions(classNode);
 
-        String newClassName = StringUtils.normalizeClassName(classNode.name);
+        String newClassName = ByteKitUtils.normalizeClassName(classNode.name);
 
-        for (PointcutAdvisor classMethodMatchPointcut : classMethodMatchPointcuts) {
+        boolean enhanced = false;
+        for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-            Pointcut pointcut = classMethodMatchPointcut.getPointcut();
+            Pointcut pointcut = pointcutAdvisor.getPointcut();
 
             //类名不匹配
             if (!pointcut.isCandidateClass(newClassName)) {
@@ -95,8 +96,15 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 }
 
                 //方法不匹配则直接匹配下一个方法
-                if (!pointcut.isCandidateMethod(newClassName, methodNode.name, StringUtils.getMethodArgumentTypes(methodNode.desc))) {
+                if (!pointcut.isCandidateMethod(newClassName, methodNode.name, methodNode.desc)) {
                     continue;
+                }
+
+                //只增强一次
+                if (enhanced) {
+                    continue;
+                } else {
+                    enhanced = true;
                 }
 
                 MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
@@ -115,15 +123,17 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
                 }
 
-                //只需要增强一次
-                return AsmUtils.toBytes(classNode, loader, classReader);
-
             }
 
         }
 
-        //无需增强
-        return null;
+        if (enhanced) {
+            //只需要增强一次
+            return AsmUtils.toBytes(classNode, loader, classReader);
+        } else {
+            //无需增强
+            return null;
+        }
     }
 
 }

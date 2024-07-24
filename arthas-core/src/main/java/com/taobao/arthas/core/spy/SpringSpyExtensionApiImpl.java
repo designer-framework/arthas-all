@@ -2,8 +2,8 @@ package com.taobao.arthas.core.spy;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
-import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
+import com.taobao.arthas.core.utils.ByteKitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,18 +28,16 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
     private List<PointcutAdvisor> pointcutAdvisors;
 
     @Override
-    public void atEnter(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {
+    public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
 
         try {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                Pointcut pointcut = pointcutAdvisor.getPointcut();
-
-                if (pointcut.isCandidateClass(clazz.getName()) && pointcut.isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+                if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-                    advice.before(clazz, methodName, methodArgumentTypes, target, args);
+                    advice.before(clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args);
 
                 }
 
@@ -52,18 +50,16 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
     }
 
     @Override
-    public void atExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
+    public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
 
         try {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                Pointcut pointcut = pointcutAdvisor.getPointcut();
-
-                if (pointcut.isCandidateClass(clazz.getName()) && pointcut.isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+                if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-                    advice.afterReturning(clazz, methodName, methodArgumentTypes, target, args, returnObject);
+                    advice.afterReturning(clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject);
 
                 }
 
@@ -76,17 +72,15 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
     }
 
     @Override
-    public void atExceptionExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) {
+    public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
         try {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                Pointcut pointcut = pointcutAdvisor.getPointcut();
-
-                if (pointcut.isCandidateClass(clazz.getName()) && pointcut.isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+                if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-                    advice.afterThrowing(clazz, methodName, methodArgumentTypes, target, args, throwable);
+                    advice.afterThrowing(clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable);
 
                 }
 

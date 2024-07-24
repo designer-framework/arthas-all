@@ -20,9 +20,9 @@ public interface Pointcut {
      *
      * @param className
      * @param methodName
-     * @param methodArgTypes
+     * @param methodDesc
      * @return
      */
-    boolean isCandidateMethod(String className, String methodName, String[] methodArgTypes);
+    boolean isCandidateMethod(String className, String methodName, String methodDesc);
 
 }

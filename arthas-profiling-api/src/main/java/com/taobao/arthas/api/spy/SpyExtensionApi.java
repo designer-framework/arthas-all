@@ -5,10 +5,10 @@ package com.taobao.arthas.api.spy;
  */
 public interface SpyExtensionApi {
 
-    void atEnter(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args);
+    void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args);
 
-    void atExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject);
+    void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject);
 
-    void atExceptionExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable);
+    void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable);
 
 }
