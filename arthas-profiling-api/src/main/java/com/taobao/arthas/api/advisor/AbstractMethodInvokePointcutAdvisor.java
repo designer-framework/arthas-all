@@ -31,7 +31,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     @Override
     public final boolean isCandidateMethod(String className, String methodName, String methodDesc) {
         String cacheKey = getCacheKey(className, methodName, methodDesc);
-        if (cache.contains(getCacheKey(className, methodName, methodDesc))) {
+        if (cache.contains(cacheKey)) {
 
             return true;
 

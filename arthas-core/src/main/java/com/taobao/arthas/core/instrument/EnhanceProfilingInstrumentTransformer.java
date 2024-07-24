@@ -73,9 +73,6 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 continue;
             }
 
-            DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-            List<InterceptorProcessor> interceptorProcessors = processors.parse(ExtensionSpyInterceptor.class);
-
             // 查找 @Instrument 字节码里的 method，如果在原来的有同样的，则处理替换；如果没有，则复制过去
             for (MethodNode methodNode : classNode.methods) {
 
@@ -108,6 +105,9 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 }
 
                 MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
+
+                DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
+                List<InterceptorProcessor> interceptorProcessors = processors.parse(ExtensionSpyInterceptor.class);
 
                 //匹配成功，则进行字节码替换处理
                 for (InterceptorProcessor processor : interceptorProcessors) {
