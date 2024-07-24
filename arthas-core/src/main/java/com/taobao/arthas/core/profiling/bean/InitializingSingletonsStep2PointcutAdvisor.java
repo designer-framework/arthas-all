@@ -26,7 +26,7 @@ class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodMatchInvo
 
     @Override
     public boolean isReady() {
-        return initializingSingletonsStep1AdviceHandler.isReady();
+        return initializingSingletonsStep1AdviceHandler.step1Ready();
     }
 
     public String getBeanName() {
@@ -40,11 +40,19 @@ class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodMatchInvo
      */
     @Override
     public void atBefore(InvokeVO invokeVO) {
-        INSTANTIATE_SINGLETON_CACHE.get().push(String.valueOf(invokeVO.getParams()[0]));
     }
 
     @Override
     protected void atExit(InvokeVO invokeVO) {
+        try {
+            Class<?> afterSingletonsInstantiatedClass = Class.forName("org.springframework.beans.factory.SmartInitializingSingleton", true, invokeVO.getLoader());
+            //是否SmartInitializingSingleton实例
+            if (invokeVO.getReturnObj() != null && afterSingletonsInstantiatedClass.isAssignableFrom(invokeVO.getReturnObj().getClass())) {
+                INSTANTIATE_SINGLETON_CACHE.get().push(String.valueOf(invokeVO.getParams()[0]));
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

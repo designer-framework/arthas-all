@@ -39,17 +39,13 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
     @Autowired
     private List<PointcutAdvisor> pointcutAdvisors;
 
-    protected long headInvokeId() {
-        return invokeStack.get().headInvokeId();
-    }
-
     @Override
     public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
         InvokeStack stack = invokeStack.get();
 
         long currInvokeId = ID_GENERATOR.addAndGet(1);
         stack.pushInvokeId(currInvokeId);
-        long headInvokeId = headInvokeId();
+        long headInvokeId = stack.headInvokeId();
 
         try {
 
@@ -76,7 +72,7 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
     @Override
     public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
         InvokeStack stack = invokeStack.get();
-        long headInvokeId = headInvokeId();
+        long headInvokeId = stack.headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
         try {
@@ -104,7 +100,7 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
     @Override
     public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
         InvokeStack stack = invokeStack.get();
-        long headInvokeId = headInvokeId();
+        long headInvokeId = stack.headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
         try {

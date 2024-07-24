@@ -14,6 +14,10 @@ public class InitializingSingletonsStep1PointcutAdvisor extends AbstractMethodMa
         super("org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()");
     }
 
+    boolean step1Ready() {
+        return isReady.get();
+    }
+
     /**
      * @param invokeVO
      */

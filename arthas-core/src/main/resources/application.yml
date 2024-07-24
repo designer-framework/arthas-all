@@ -24,7 +24,7 @@ spring:
         - method: org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
         - method: org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)
         - method: java.net.URLClassLoader#findResource(java.lang.String)
-          can-retransform: true
+          can-retransform: false
 
 logging:
   config: 'classpath:logback.xml'
