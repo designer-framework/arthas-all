@@ -1,6 +1,5 @@
 package com.taobao.arthas.core.vo;
 
-import com.alibaba.fastjson.JSON;
 import lombok.Data;
 
 /**
@@ -35,10 +34,9 @@ public class MethodInvokeVO {
         Object[] argStrList = new String[args.length];
 
         for (int i = 0; i < args.length; i++) {
-            try {
-                argStrList[i] = JSON.toJSONString(args[i]);
-            } catch (Throwable ignored) {
-                argStrList[i] = args[i].toString();
+            Object arg = args[i];
+            if (arg != null) {
+                argStrList[i] = arg.toString();
             }
         }
         this.args = argStrList;
