@@ -37,7 +37,9 @@ class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodMatchInvo
      */
     @Override
     public void atBefore(InvokeVO invokeVO) {
-        stackThreadLocal.get().push(new InstantiateSingletonOverEvent(this, initializingSingletonsStep2AdviceHandler.getBeanName()));
+        if (initializingSingletonsStep2AdviceHandler.hasSmartInitializingSingleton()) {
+            stackThreadLocal.get().push(new InstantiateSingletonOverEvent(this, initializingSingletonsStep2AdviceHandler.popBeanName()));
+        }
     }
 
     /**
@@ -45,15 +47,9 @@ class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodMatchInvo
      */
     @Override
     protected void atExit(InvokeVO invokeVO) {
-        try {
-            Class<?> afterSingletonsInstantiatedClass = Class.forName("org.springframework.beans.factory.SmartInitializingSingleton", true, invokeVO.getLoader());
-            boolean isSmartInitializingSingletonBean = afterSingletonsInstantiatedClass.isAssignableFrom(invokeVO.getClazz());
-            //是否SmartInitializingSingleton实例
-            if (isSmartInitializingSingletonBean) {
-                eventPublisher.publishEvent(stackThreadLocal.get().pop().instantiated());
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        //正在加载SmartInitializingSingleton Bean
+        if (!stackThreadLocal.get().isEmpty()) {
+            eventPublisher.publishEvent(stackThreadLocal.get().pop().instantiated());
         }
     }
 

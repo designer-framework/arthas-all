@@ -12,7 +12,7 @@ import java.util.Stack;
 @Component
 class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements ClassMethodMatchPointcut, DisposableBean {
 
-    private static final ThreadLocal<Stack<String>> INSTANTIATE_SINGLETON_CACHE = ThreadLocal.withInitial(Stack::new);
+    private final ThreadLocal<Stack<String>> INSTANTIATE_SINGLETON_CACHE = ThreadLocal.withInitial(Stack::new);
 
     @Autowired
     private InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1AdviceHandler;
@@ -27,10 +27,6 @@ class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodMatchInvo
     @Override
     public boolean isReady() {
         return initializingSingletonsStep1AdviceHandler.step1Ready();
-    }
-
-    public String getBeanName() {
-        return INSTANTIATE_SINGLETON_CACHE.get().peek();
     }
 
     /**
@@ -53,6 +49,14 @@ class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodMatchInvo
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String popBeanName() {
+        return INSTANTIATE_SINGLETON_CACHE.get().pop();
+    }
+
+    public boolean hasSmartInitializingSingleton() {
+        return !INSTANTIATE_SINGLETON_CACHE.get().isEmpty();
     }
 
     @Override
