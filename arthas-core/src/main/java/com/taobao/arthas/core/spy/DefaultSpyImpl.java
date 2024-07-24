@@ -44,7 +44,7 @@ public class DefaultSpyImpl extends AbstractSpy {
      * @param methodDesc
      * @return
      */
-    public String[] getMethodArgumentTypes(String methodDesc) {
+    private String[] getMethodArgumentTypes(String methodDesc) {
         Type methodType = Type.getMethodType(methodDesc);
         Type[] argumentTypes = methodType.getArgumentTypes();
         //方法入参对应的JAVA类型

@@ -4,7 +4,6 @@ import com.taobao.arthas.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.profiling.hook.ArthasExtensionShutdownHookPostProcessor;
 import com.taobao.arthas.core.profiling.stacktrace.SpringStacktraceProfiler;
-import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class SpringContainerLifeCycleListenerMethod extends AbstractMethodMatchInvokePointcutAdvisor {
+public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor {
 
     @Autowired
     protected ApplicationEventPublisher eventPublisher;
@@ -31,11 +30,8 @@ public class SpringContainerLifeCycleListenerMethod extends AbstractMethodMatchI
 
     private long startTime = 0L;
 
-    public SpringContainerLifeCycleListenerMethod() {
-        super(FullyQualifiedClassUtils.parserClassMethodInfo(
-                "org.springframework.boot.SpringApplication" +
-                        "#run(java.lang.Class, java.lang.String[])"
-        ));
+    public SpringApplicationLifeCyclePointcutAdvisor() {
+        super("org.springframework.boot.SpringApplication#run(java.lang.Class, java.lang.String[])");
     }
 
     /**

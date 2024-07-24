@@ -3,7 +3,6 @@ package com.taobao.arthas.core.profiling.bean;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.events.InstantiateSingletonOverEvent;
 import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
-import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-class InitializingSingletonsStep3Advisor extends AbstractMethodMatchInvokePointcutAdvisor implements DisposableBean {
+class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements DisposableBean {
 
     private final ThreadLocal<Stack<InstantiateSingletonOverEvent>> stackThreadLocal = ThreadLocal.withInitial(Stack::new);
 
@@ -20,12 +19,10 @@ class InitializingSingletonsStep3Advisor extends AbstractMethodMatchInvokePointc
     protected ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    private InitializingSingletonsStep2Advisor initializingSingletonsStep2AdviceHandler;
+    private InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2AdviceHandler;
 
-    public InitializingSingletonsStep3Advisor() {
-        super(FullyQualifiedClassUtils.parserClassMethodInfo(
-                "*#afterSingletonsInstantiated()"
-        ));
+    public InitializingSingletonsStep3PointcutAdvisor() {
+        super("*#afterSingletonsInstantiated()");
     }
 
     @Override

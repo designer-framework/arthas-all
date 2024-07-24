@@ -51,7 +51,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         stack.pushInvokeId(currInvokeId);
         long headInvokeId = headInvokeId();
 
-        if (isReady() && isCandidateClass(clazz.getName()) && isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+        if (isReady()) {
 
             InvokeVO invokeVO = InvokeVO.newForBefore(loader, clazz, methodName, methodArgumentTypes, target, args, InvokeType.ENTER, headInvokeId, currInvokeId);
             atBefore(invokeVO);
@@ -68,7 +68,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        if (isReady() && isCandidateClass(clazz.getName()) && isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+        if (isReady()) {
 
             InvokeVO invokeVO = InvokeVO.newForAfterReturning(loader, clazz, methodName, methodArgumentTypes, target, args, returnObject, InvokeType.EXIT, headInvokeId, currInvokeId);
             atAfterReturning(invokeVO);
@@ -87,7 +87,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         long headInvokeId = headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        if (isReady() && isCandidateClass(clazz.getName()) && isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+        if (isReady()) {
 
             InvokeVO invokeVO = InvokeVO.newForBefore(loader, clazz, methodName, methodArgumentTypes, target, args, InvokeType.ENTER, headInvokeId, currInvokeId);
             atAfterThrowing(invokeVO);

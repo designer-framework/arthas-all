@@ -2,6 +2,7 @@ package com.taobao.arthas.core.spy;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
+import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,36 +25,73 @@ import java.util.List;
 public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
     @Autowired
-    private List<PointcutAdvisor> advices;
+    private List<PointcutAdvisor> pointcutAdvisors;
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args) {
+
         try {
-            for (Advice advice : advices) {
-                advice.before(clazz, methodName, methodArgumentTypes, target, args);
+
+            for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
+
+                Pointcut pointcut = pointcutAdvisor.getPointcut();
+
+                if (pointcut.isCandidateClass(clazz.getName()) && pointcut.isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+
+                    Advice advice = pointcutAdvisor.getAdvice();
+                    advice.before(clazz, methodName, methodArgumentTypes, target, args);
+
+                }
+
             }
+
         } catch (Throwable e) {
             log.error("AtEnter异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
         }
+
     }
 
     @Override
     public void atExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Object returnObject) {
+
         try {
-            for (Advice advice : advices) {
-                advice.afterReturning(clazz, methodName, methodArgumentTypes, target, args, returnObject);
+
+            for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
+
+                Pointcut pointcut = pointcutAdvisor.getPointcut();
+
+                if (pointcut.isCandidateClass(clazz.getName()) && pointcut.isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+
+                    Advice advice = pointcutAdvisor.getAdvice();
+                    advice.afterReturning(clazz, methodName, methodArgumentTypes, target, args, returnObject);
+
+                }
+
             }
+
         } catch (Throwable e) {
             log.error("AfterReturning异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
         }
+
     }
 
     @Override
     public void atExceptionExit(Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] args, Throwable throwable) {
         try {
-            for (Advice advice : advices) {
-                advice.afterThrowing(clazz, methodName, methodArgumentTypes, target, args, throwable);
+
+            for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
+
+                Pointcut pointcut = pointcutAdvisor.getPointcut();
+
+                if (pointcut.isCandidateClass(clazz.getName()) && pointcut.isCandidateMethod(clazz.getName(), methodName, methodArgumentTypes)) {
+
+                    Advice advice = pointcutAdvisor.getAdvice();
+                    advice.afterThrowing(clazz, methodName, methodArgumentTypes, target, args, throwable);
+
+                }
+
             }
+
         } catch (Throwable e) {
             log.error("AtExceptionExit异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
         }

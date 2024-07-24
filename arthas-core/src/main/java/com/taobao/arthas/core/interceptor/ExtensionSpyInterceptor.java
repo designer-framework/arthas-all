@@ -11,7 +11,9 @@ import java.arthas.SpyAPI;
 public class ExtensionSpyInterceptor implements SpyInterceptorApi {
 
     @AtEnter(inline = true)
-    public static void atEnter(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args) {
+    public static void atEnter(
+            @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
+    ) {
         SpyAPI.atEnter(clazz, methodName, methodDesc, target, args);
     }
 

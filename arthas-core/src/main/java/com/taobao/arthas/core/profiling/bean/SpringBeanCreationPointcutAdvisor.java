@@ -6,7 +6,6 @@ import com.taobao.arthas.core.events.BeanCreationEvent;
 import com.taobao.arthas.core.events.InstantiateSingletonOverEvent;
 import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
 import com.taobao.arthas.core.utils.CreateBeanHolder;
-import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.core.vo.BeanCreateVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import org.springframework.beans.factory.DisposableBean;
@@ -15,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringBeanCreateAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean {
+public class SpringBeanCreationPointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean {
 
     @Autowired
     private ProfilingResultVO profilingResultVO;
@@ -23,11 +22,8 @@ public class SpringBeanCreateAdvisor extends AbstractMethodMatchInvokePointcutAd
     /**
      * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
-    public SpringBeanCreateAdvisor() {
-        super(FullyQualifiedClassUtils.parserClassMethodInfo(
-                "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory" +
-                        "#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])"
-        ));
+    public SpringBeanCreationPointcutAdvisor() {
+        super("org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])");
     }
 
     /**

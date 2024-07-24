@@ -9,6 +9,11 @@ import com.taobao.arthas.api.advice.Advice;
  */
 public interface Advisor {
 
+    /**
+     * 切入点调用
+     *
+     * @return
+     */
     Advice getAdvice();
 
 }

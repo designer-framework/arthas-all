@@ -3,7 +3,6 @@ package com.taobao.arthas.core.configuration;
 import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
-import com.taobao.arthas.core.vo.ClassMethodInfo;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -39,14 +38,14 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
                 .ifBound(arthasMethodTraceProperties -> {
 
                     //将性能分析Bean的Definition注入到容器中
-                    for (ClassMethodInfo classMethodInfo : arthasMethodTraceProperties.traceMethods()) {
+                    for (String fullyQualifiedMethodName : arthasMethodTraceProperties.getMethods()) {
 
                         BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
                                 .genericBeanDefinition(SimpleMethodInvokePointcutAdvisor.class);
-                        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodInfo);
+                        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(fullyQualifiedMethodName);
                         //
                         registry.registerBeanDefinition(
-                                SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + classMethodInfo.getFullyQualifiedMethodName()
+                                SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + fullyQualifiedMethodName
                                 , methodInvokeAdviceHandlerBuilder.getBeanDefinition()
                         );
 

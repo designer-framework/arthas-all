@@ -27,6 +27,10 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodMatchInvoke
     @Autowired
     private ProfilingResultVO profilingResultVO;
 
+    public SimpleMethodInvokePointcutAdvisor(String fullyQualifiedMethodName) {
+        super(fullyQualifiedMethodName);
+    }
+
     public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
         super(classMethodInfo);
     }
