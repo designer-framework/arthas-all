@@ -8,11 +8,13 @@ import com.alibaba.bytekit.utils.AsmUtils;
 import com.alibaba.bytekit.utils.IOUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.core.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.instrument.EnhanceProfilingInstrumentTransformer;
 import com.taobao.arthas.core.properties.ArthasClassLoaderProperties;
 import com.taobao.arthas.core.transformer.TransformerManager;
 import com.taobao.arthas.core.utils.FeatureCodec;
+import com.taobao.arthas.core.utils.InstrumentationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -29,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 
 /**
@@ -65,13 +68,13 @@ public class ArthasBootstrap {
         // 2. 启动性能分析容器
         initProfilingContainer(args);
 
-        // 3. 增强ClassLoader
+        // 4. 增强ClassLoader
         enhanceClassLoader();
 
-        // 4. 增强待分析的类
+        // 5. 增强待分析的类
         enhanceProfilingClass();
 
-        // 5. hooker
+        // 6. hooker
         shutdown = new Thread("spring-profiling-shutdown-hooker") {
 
             @Override
@@ -121,8 +124,14 @@ public class ArthasBootstrap {
     private void enhanceProfilingClass() {
         //获取Spy实现类
         SpyAPI.setSpy(springProfilingContainer.getSpyAPI());
+
         EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(springProfilingContainer.getPointcutAdvisor());
         instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
+
+        InstrumentationUtils.trigerRetransformClasses(
+                instrumentation
+                , springProfilingContainer.getPointcutAdvisor().stream().map(PointcutAdvisor::getPointcut).collect(Collectors.toList())
+        );
     }
 
     private void initFastjson() {
@@ -195,17 +204,7 @@ public class ArthasBootstrap {
 
         } else {
 
-            for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {
-
-                if (loaders.contains(clazz.getName())) {
-                    try {
-                        instrumentation.retransformClasses(clazz);
-                    } catch (Throwable e) {
-                        //log.error("retransformClasses class error, name: {}", clazz.getName(), e);
-                    }
-                }
-
-            }
+            InstrumentationUtils.trigerRetransformClasses(instrumentation, loaders);
 
         }
 

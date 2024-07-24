@@ -18,11 +18,17 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class EnhanceProfilingInstrumentTransformer implements ClassFileTransformer {
 
+    private static final Object cached = new Object();
+
     private final List<PointcutAdvisor> pointcutAdvisors;
+
+    private final Map<String, Object> cache = new ConcurrentHashMap<>();
 
     public EnhanceProfilingInstrumentTransformer(List<PointcutAdvisor> pointcutAdvisors) {
         this.pointcutAdvisors = pointcutAdvisors;
@@ -39,6 +45,11 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 || className.startsWith("com/intellij") || className.startsWith("org/jetbrains") //不处理IDEA包
                 || AsmUtils.isEnhancerByCGLIB(className) // 不处理cglib类
         ) {
+            return null;
+        }
+
+        //已增强过
+        if (cache.containsKey(className)) {
             return null;
         }
 
@@ -107,6 +118,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
         //需要进行字节码增强
         if (enhance) {
+            cache.putIfAbsent(className, cached);
             return AsmUtils.toBytes(classNode, loader, classReader);
         } else {
             //无需增强

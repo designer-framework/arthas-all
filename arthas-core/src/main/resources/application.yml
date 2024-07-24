@@ -8,7 +8,7 @@ spring:
     name: 'spring-boot-profiling'
   profiling:
     outputPath: arthas-output
-    #类加载器增强
+    #类加载器增强(解决SPY类加载不到的问题)
     class-loaders:
       enhance-loaders: java.lang.ClassLoader
     #火焰图数据采集
@@ -20,6 +20,7 @@ spring:
       methods:
         - org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
         - org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)
+        - java.net.URLClassLoader#findResource(java.lang.String)
 
 logging:
   config: 'classpath:logback.xml'
