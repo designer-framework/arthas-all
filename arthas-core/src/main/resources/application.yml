@@ -10,7 +10,8 @@ spring:
     outputPath: arthas-output
     #类加载器增强(解决SPY类加载不到的问题)
     class-loaders:
-      enhance-loaders: java.lang.ClassLoader
+      enhance-loaders:
+        - java.lang.ClassLoader
     #火焰图数据采集
     thread:
       names: main

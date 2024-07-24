@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, ClassMethodMatchPointcut, Advice {
 
+    private static final Object none = new Object();
+
     protected final Map<String, Object> cache = new ConcurrentHashMap<>();
 
     @Override
@@ -26,8 +28,8 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
         } else {
 
-            if (isCandidateMethod0(methodName, methodName, methodDesc)) {
-                cache.put(cacheKey, "");
+            if (isCandidateMethod0(className, methodName, methodDesc)) {
+                cache.put(cacheKey, none);
                 return true;
             }
 

@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class EnhanceProfilingInstrumentTransformer implements ClassFileTransformer {
 
-    private static final Object cached = new Object();
+    //private static final Object cached = new Object();
 
     private final List<PointcutAdvisor> pointcutAdvisors;
 
@@ -49,9 +49,9 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
         }
 
         //已增强过
-        if (cache.containsKey(className)) {
+        /*if (cache.containsKey(className)) {
             return null;
-        }
+        }*/
 
         ClassNode classNode = new ClassNode(Opcodes.ASM9);
         ClassReader classReader = AsmUtils.toClassNode(classfileBuffer, classNode);
@@ -76,8 +76,8 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
             for (MethodNode methodNode : classNode.methods) {
 
                 //调用频率最高的判断放前面, 减少匹配次数
-                // 不处理 abstract函数, native, 构造函数, 静态函数。 (按需调整)
-                if (AsmUtils.isAbstract(methodNode) || AsmUtils.isNative(methodNode) || AsmUtils.isConstructor(methodNode) || AsmUtils.isStatic(methodNode)) {
+                // 不处理 abstract函数, native, 构造函数。 (按需调整)
+                if (AsmUtils.isAbstract(methodNode) || AsmUtils.isNative(methodNode) || AsmUtils.isConstructor(methodNode)) {
                     continue;
                 }
 
@@ -118,7 +118,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
 
         //需要进行字节码增强
         if (enhance) {
-            cache.putIfAbsent(className, cached);
+            //cache.putIfAbsent(className, cached);
             return AsmUtils.toBytes(classNode, loader, classReader);
         } else {
             //无需增强
