@@ -2,13 +2,18 @@ package com.taobao.arthas.core.spy;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
+import com.taobao.arthas.api.enums.InvokeType;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
+import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.utils.ByteKitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * <pre>
@@ -24,11 +29,27 @@ import java.util.List;
 @Component
 public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
+    private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
+
+    /**
+     * 调用链
+     */
+    private static final ThreadLocal<InvokeStack> invokeStack = ThreadLocal.withInitial(InvokeStack::new);
+
     @Autowired
     private List<PointcutAdvisor> pointcutAdvisors;
 
+    protected long headInvokeId() {
+        return invokeStack.get().headInvokeId();
+    }
+
     @Override
     public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
+        InvokeStack stack = invokeStack.get();
+
+        long currInvokeId = ID_GENERATOR.addAndGet(1);
+        stack.pushInvokeId(currInvokeId);
+        long headInvokeId = headInvokeId();
 
         try {
 
@@ -37,7 +58,10 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
                 if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-                    advice.before(clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args);
+
+                    advice.before(
+                            InvokeVO.newForBefore(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
+                    );
 
                 }
 
@@ -51,6 +75,9 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
     @Override
     public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
+        InvokeStack stack = invokeStack.get();
+        long headInvokeId = headInvokeId();
+        long currInvokeId = stack.popInvokeId();
 
         try {
 
@@ -59,7 +86,10 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
                 if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-                    advice.afterReturning(clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject);
+
+                    advice.afterReturning(
+                            InvokeVO.newForAfterReturning(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject, InvokeType.EXIT, headInvokeId, currInvokeId)
+                    );
 
                 }
 
@@ -73,6 +103,10 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
 
     @Override
     public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
+        InvokeStack stack = invokeStack.get();
+        long headInvokeId = headInvokeId();
+        long currInvokeId = stack.popInvokeId();
+
         try {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
@@ -80,7 +114,10 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
                 if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-                    advice.afterThrowing(clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable);
+
+                    advice.afterThrowing(
+                            InvokeVO.newForAfterThrowing(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
+                    );
 
                 }
 
@@ -89,6 +126,41 @@ public class SpringSpyExtensionApiImpl implements SpyExtensionApi {
         } catch (Throwable e) {
             log.error("AtExceptionExit异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
         }
+    }
+
+    static class InvokeStack {
+
+        /**
+         * 调用栈
+         */
+        private final Deque<Long> stack = new LinkedList<>();
+
+        public void pushInvokeId(long invokeId) {
+            stack.push(invokeId);
+        }
+
+        public long popInvokeId() {
+            long invokeId = stack.pop();
+            if (stack.isEmpty()) {
+                invokeStack.remove();
+            }
+
+            return invokeId;
+        }
+
+        /**
+         * 首次调用
+         *
+         * @return
+         */
+        long headInvokeId() {
+            return stack.getFirst();
+        }
+
+        boolean isEmpty() {
+            return stack.isEmpty();
+        }
+
     }
 
 }

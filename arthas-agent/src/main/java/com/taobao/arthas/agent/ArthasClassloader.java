@@ -7,6 +7,11 @@ import java.net.URLClassLoader;
  * @author beiwei30 on 09/12/2016.
  */
 public class ArthasClassloader extends URLClassLoader {
+
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
     public ArthasClassloader(URL[] urls) {
         super(urls, ClassLoader.getSystemClassLoader().getParent());
     }

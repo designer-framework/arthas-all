@@ -9,13 +9,6 @@ import com.taobao.arthas.api.advice.Advice;
 public interface InvokeInterceptor extends Advice {
 
     /**
-     * id
-     *
-     * @return
-     */
-    long id();
-
-    /**
      * 监听器创建<br/>
      * 监听器被注册时触发
      */
