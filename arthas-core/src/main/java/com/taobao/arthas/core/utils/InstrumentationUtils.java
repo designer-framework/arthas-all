@@ -2,7 +2,6 @@ package com.taobao.arthas.core.utils;
 
 import com.taobao.arthas.api.pointcut.Pointcut;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.ClassUtils;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
@@ -22,7 +21,7 @@ public class InstrumentationUtils {
             inst.addTransformer(transformer, true);
 
             for (Class<?> clazz : classes) {
-                if (ClassUtils.isLambdaClass(clazz)) {
+                if (isLambdaClass(clazz)) {
                     log.info(
                             "ignore lambda class: {}, because jdk do not support retransform lambda class: https://github.com/alibaba/arthas/issues/1512.",
                             clazz.getName());
@@ -44,7 +43,8 @@ public class InstrumentationUtils {
 
         for (Class<?> clazz : inst.getAllLoadedClasses()) {
             //
-            pointcuts.forEach(pointcut -> {
+
+            for (Pointcut pointcut : pointcuts) {
 
                 if (pointcut.isCandidateClass(clazz.getName())) {
 
@@ -57,7 +57,7 @@ public class InstrumentationUtils {
 
                 }
 
-            });
+            }
 
         }
     }
@@ -73,6 +73,11 @@ public class InstrumentationUtils {
                 }
             }
         }
+    }
+
+    public static boolean isLambdaClass(Class<?> clazz) {
+        return (clazz.isSynthetic() && (clazz.getSuperclass() == Object.class) &&
+                (clazz.getInterfaces().length > 0) && clazz.getName().contains("$$Lambda"));
     }
 
 }

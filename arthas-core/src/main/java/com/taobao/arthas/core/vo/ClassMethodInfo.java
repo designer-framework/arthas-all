@@ -1,11 +1,14 @@
 package com.taobao.arthas.core.vo;
 
 import lombok.Data;
+import org.springframework.util.AntPathMatcher;
 
 import java.util.Objects;
 
 @Data
 public class ClassMethodInfo {
+
+    private static final AntPathMatcher antPathMatcher = new AntPathMatcher(".");
 
     public final String className;
     public final String methodName;
@@ -22,12 +25,12 @@ public class ClassMethodInfo {
     }
 
     public boolean isCandidateClass(String className) {
-        return this.className.startsWith(className) || "*".equals(this.className);
+        return antPathMatcher.match(this.className, className);
     }
 
     public boolean isCandidateMethod(String methodName, String[] methodArgumentTypes) {
         //
-        if (!methodName.startsWith(this.methodName)) {
+        if (!antPathMatcher.match(this.methodName, methodName)) {
             return false;
         }
 

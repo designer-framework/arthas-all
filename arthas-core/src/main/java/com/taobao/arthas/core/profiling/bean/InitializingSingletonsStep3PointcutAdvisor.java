@@ -22,7 +22,7 @@ class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodMatchInvo
     private InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2AdviceHandler;
 
     public InitializingSingletonsStep3PointcutAdvisor() {
-        super("*#afterSingletonsInstantiated()");
+        super("**#afterSingletonsInstantiated()");
     }
 
     @Override
