@@ -43,8 +43,8 @@
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
 
         <netty.version>4.1.112.Final</netty.version>
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <!--<spring-boot.version>2.3.12.RELEASE</spring-boot.version>-->
+        <!--        <spring-boot.version>2.7.18</spring-boot.version>-->
+        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <maven-invoker-plugin.version>3.0.0</maven-invoker-plugin.version>
         <project.build.outputTimestamp>2020-09-27T15:10:43Z</project.build.outputTimestamp>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
