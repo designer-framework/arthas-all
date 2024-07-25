@@ -250,14 +250,28 @@ public class AgentBootstrap {
                 continue;
             }
 
-            String value = jvmArg.substring(index + 11);
+            String javaAgentValue = jvmArg.substring(index + 11);
 
-            if (value.endsWith("arthas-agent.jar")) {
-                return value.substring(0, value.lastIndexOf(File.separator) + 1);
+            int i = javaAgentValue.indexOf("=");
+            if (i > -1) {
+
+                String agentJarPath = javaAgentValue.substring(0, i);
+                if (agentJarPath.endsWith(ARTHAS_AGENT_JAR)) {
+                    //Agent所在文件夹
+                    return javaAgentValue.substring(0, javaAgentValue.lastIndexOf(File.separator) + 1);
+                }
+
             }
+
         }
 
-        return AgentBootstrap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getSchemeSpecificPart();
+        File file = new File(AgentBootstrap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getSchemeSpecificPart());
+        if (file.exists()) {
+            return file.getParentFile().getAbsolutePath();
+        } else {
+            throw new IllegalArgumentException("Agent Path Not Found: " + jvmArgs);
+        }
+
     }
 
 }

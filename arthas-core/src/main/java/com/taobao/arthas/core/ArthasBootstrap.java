@@ -50,11 +50,11 @@ public class ArthasBootstrap {
 
     private final Instrumentation instrumentation;
 
+    private final Thread shutdown;
+
     private SpringProfilingContainer springProfilingContainer;
 
     private InstrumentTransformer classLoaderInstrumentTransformer;
-
-    private Thread shutdown;
 
     private ArthasBootstrap(Instrumentation instrumentation, Map<String, String> args) throws Throwable {
         this.instrumentation = instrumentation;
