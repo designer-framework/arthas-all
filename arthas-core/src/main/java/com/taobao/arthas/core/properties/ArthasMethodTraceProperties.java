@@ -1,7 +1,6 @@
 package com.taobao.arthas.core.properties;
 
-import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.core.vo.ClassMethodInfo;
+import com.taobao.arthas.api.vo.ClassMethodInfo;
 import lombok.Data;
 
 import java.util.Set;
@@ -31,7 +30,7 @@ public class ArthasMethodTraceProperties {
         private Boolean canRetransform = Boolean.FALSE;
 
         public ClassMethodInfo getMethodInfo() {
-            return FullyQualifiedClassUtils.parserClassMethodInfo(method);
+            return ClassMethodInfo.create(method);
         }
 
         @Override

@@ -11,8 +11,8 @@ import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.core.interceptor.ExtensionSpyInterceptor;
-import com.taobao.arthas.core.utils.ByteKitUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -63,7 +63,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
         classNode = AsmUtils.removeJSRInstructions(classNode);
 
         //包路径转类名
-        String newClassName = ByteKitUtils.normalizeClassName(classNode.name);
+        String newClassName = StringUtils.replace(className, "/", ".");
 
         //确保只被增强一次
         boolean enhance = false;

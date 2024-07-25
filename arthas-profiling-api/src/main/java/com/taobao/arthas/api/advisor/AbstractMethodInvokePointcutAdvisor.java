@@ -2,9 +2,10 @@ package com.taobao.arthas.api.advisor;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.interceptor.InvokeInterceptorAdapter;
-import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
 import com.taobao.arthas.api.pointcut.Pointcut;
+import com.taobao.arthas.api.state.AgentState;
 import com.taobao.arthas.api.vo.InvokeVO;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,13 +14,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * 参见
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
-public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, ClassMethodMatchPointcut, Advice {
+public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, Pointcut {
 
     private static final Object none = new Object();
 
-    protected final Map<String, Object> cache = new ConcurrentHashMap<>();
+    @Autowired
+    protected AgentState agentState;
+
+    protected Map<String, Object> cache = new ConcurrentHashMap<>();
 
     private Boolean canRetransform = Boolean.FALSE;
+
+    public boolean isReady() {
+        return agentState.isStarted();
+    }
 
     @Override
     public boolean getCanRetransform() {
@@ -50,7 +58,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     @Override
-    public final boolean isCached(String className, String methodName, String methodDesc) {
+    public final boolean isHit(String className, String methodName, String methodDesc) {
         return cache.containsKey(getCacheKey(className, methodName, methodDesc));
     }
 
@@ -67,10 +75,6 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
      * @return
      */
     public abstract boolean isCandidateMethod0(String className, String methodName, String methodDesc);
-
-    public boolean isReady() {
-        return true;
-    }
 
     protected abstract void atBefore(InvokeVO invokeVO);
 

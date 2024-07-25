@@ -1,9 +1,9 @@
 package com.taobao.arthas.core.profiling.bean;
 
-import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
+import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
+import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.events.BeanAopProxyCreatedEvent;
-import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-public class SpringBeanAopProxyPointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements ClassMethodMatchPointcut, DisposableBean {
+public class SpringBeanAopProxyPointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements Pointcut, DisposableBean {
 
     private static final ThreadLocal<Stack<AopInfo>> STACK_THREAD_LOCAL = ThreadLocal.withInitial(Stack::new);
 

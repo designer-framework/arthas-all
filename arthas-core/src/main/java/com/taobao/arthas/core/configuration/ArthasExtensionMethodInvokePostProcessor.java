@@ -1,6 +1,5 @@
 package com.taobao.arthas.core.configuration;
 
-import com.taobao.arthas.api.pointcut.ClassMethodMatchPointcut;
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
 import lombok.Setter;
@@ -27,7 +26,6 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
     /**
      * @param registry the bean definition registry used by the application context
      * @throws BeansException
-     * @see ClassMethodMatchPointcut
      * @see SimpleMethodInvokePointcutAdvisor
      */
     @Override

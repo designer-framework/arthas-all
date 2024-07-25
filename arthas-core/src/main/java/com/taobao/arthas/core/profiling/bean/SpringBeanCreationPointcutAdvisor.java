@@ -1,10 +1,10 @@
 package com.taobao.arthas.core.profiling.bean;
 
+import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.core.events.BeanCreationEvent;
 import com.taobao.arthas.core.events.InstantiateSingletonOverEvent;
-import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
 import com.taobao.arthas.core.utils.CreateBeanHolder;
 import com.taobao.arthas.core.vo.BeanCreateVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;

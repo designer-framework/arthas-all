@@ -1,22 +1,14 @@
-package com.taobao.arthas.core.profiling;
+package com.taobao.arthas.api.advisor;
 
-import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
-import com.taobao.arthas.core.profiling.state.AgentState;
-import com.taobao.arthas.core.utils.ByteKitUtils;
-import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
-import com.taobao.arthas.core.vo.ClassMethodInfo;
-import lombok.Setter;
+import com.taobao.arthas.api.vo.ByteKitUtils;
+import com.taobao.arthas.api.vo.ClassMethodInfo;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+
 
 public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements InitializingBean {
 
-    @Setter
     protected ClassMethodInfo classMethodInfo;
-
-    @Autowired
-    protected AgentState agentState;
 
     public AbstractMethodMatchInvokePointcutAdvisor() {
     }
@@ -25,12 +17,20 @@ public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractM
      * @param fullyQualifiedMethodName 切入点的全限定方法名
      */
     public AbstractMethodMatchInvokePointcutAdvisor(String fullyQualifiedMethodName) {
-        classMethodInfo = FullyQualifiedClassUtils.parserClassMethodInfo(fullyQualifiedMethodName);
+        this(ClassMethodInfo.create(fullyQualifiedMethodName));
     }
 
-    @Override
-    public boolean isReady() {
-        return super.isReady() && agentState.isStarted();
+    public AbstractMethodMatchInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
+        this.classMethodInfo = classMethodInfo;
+    }
+
+    /**
+     * 该参数不能为空
+     *
+     * @param classMethodInfo
+     */
+    public void setClassMethodInfo(ClassMethodInfo classMethodInfo) {
+        this.classMethodInfo = classMethodInfo;
     }
 
     @Override

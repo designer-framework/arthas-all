@@ -4,8 +4,8 @@ import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.enums.InvokeType;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
+import com.taobao.arthas.api.vo.ByteKitUtils;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.utils.ByteKitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -51,7 +51,7 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
+                if (pointcutAdvisor.isHit(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
 
@@ -79,7 +79,7 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
+                if (pointcutAdvisor.isHit(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
 
@@ -107,7 +107,7 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                if (pointcutAdvisor.isCached(clazz.getName(), methodName, methodDesc)) {
+                if (pointcutAdvisor.isHit(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
 

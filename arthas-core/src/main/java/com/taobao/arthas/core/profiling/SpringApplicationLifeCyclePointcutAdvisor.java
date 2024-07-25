@@ -1,5 +1,6 @@
 package com.taobao.arthas.core.profiling;
 
+import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
 import com.taobao.arthas.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.profiling.hook.ArthasExtensionShutdownHookPostProcessor;
@@ -51,7 +52,7 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMat
         //调用start, 启动性能分析Bean
         profilingLifeCycles.forEach(ProfilingLifeCycle::start);
 
-        agentState.start();
+        agentState.started();
     }
 
     /**
@@ -66,10 +67,8 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMat
         //启动耗时
         profilingResultVO.setStartUpTime(System.currentTimeMillis() - startTime);
 
-        //分析完毕, 通知释放资源,关闭容器,上报分析数据...
-
-
         agentState.stop();
+        //分析完毕, 通知释放资源,关闭容器,上报分析数据...
         profilingLifeCycles.forEach(ProfilingLifeCycle::stop);
 
     }

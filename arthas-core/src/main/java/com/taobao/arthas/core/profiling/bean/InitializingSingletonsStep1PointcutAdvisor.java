@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.profiling.bean;
 
+import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 

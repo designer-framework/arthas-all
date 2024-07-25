@@ -1,25 +1,32 @@
 package com.taobao.arthas.core.profiling.state;
 
-import com.taobao.arthas.core.constants.ProfilingLifeCycleOrdered;
+import com.taobao.arthas.api.state.AgentState;
 import lombok.Getter;
-import org.springframework.core.Ordered;
 
 @Getter
-public class AgentState implements Ordered {
+public class AgentRunningState implements AgentState {
 
+    /**
+     * -- GETTER --
+     * 开始性能分析
+     */
     private volatile boolean started;
 
-    public void start() {
+    @Override
+    public void started() {
         started = true;
     }
 
+    /**
+     * 性能分析完毕
+     */
     public void stop() {
         started = false;
     }
 
-    @Override
+    /*@Override
     public int getOrder() {
         return ProfilingLifeCycleOrdered.STARTING_PROFILING;
-    }
+    }*/
 
 }

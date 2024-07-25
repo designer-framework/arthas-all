@@ -1,6 +1,5 @@
 package com.taobao.arthas.api.advisor;
 
-import com.taobao.arthas.api.cache.Cache;
 import com.taobao.arthas.api.pointcut.Pointcut;
 
 /**
@@ -8,7 +7,7 @@ import com.taobao.arthas.api.pointcut.Pointcut;
  * @author: Designer
  * @date : 2024-07-23 22:40
  */
-public interface PointcutAdvisor extends Advisor, Cache {
+public interface PointcutAdvisor extends Advisor {
 
     /**
      * 切点
@@ -17,6 +16,14 @@ public interface PointcutAdvisor extends Advisor, Cache {
      */
     Pointcut getPointcut();
 
-    boolean isCached(String className, String methodName, String methodDesc);
+    /**
+     * 是增强类(该方法直接读取缓存, 不需要再次解析类信息)
+     *
+     * @param className
+     * @param methodName
+     * @param methodDesc
+     * @return
+     */
+    boolean isHit(String className, String methodName, String methodDesc);
 
 }
