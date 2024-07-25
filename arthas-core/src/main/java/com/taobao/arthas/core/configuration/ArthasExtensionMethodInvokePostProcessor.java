@@ -6,6 +6,7 @@ import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -44,6 +45,7 @@ public class ArthasExtensionMethodInvokePostProcessor implements BeanDefinitionR
                                 .genericBeanDefinition(SimpleMethodInvokePointcutAdvisor.class);
                         methodInvokeAdviceHandlerBuilder.addPropertyValue("classMethodInfo", classMethodDesc.getMethodInfo());
                         methodInvokeAdviceHandlerBuilder.addPropertyValue("canRetransform", classMethodDesc.getCanRetransform());
+                        methodInvokeAdviceHandlerBuilder.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
                         //
                         registry.registerBeanDefinition(
                                 SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + classMethodDesc

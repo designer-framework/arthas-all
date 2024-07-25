@@ -8,6 +8,8 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+
 @Slf4j
 @Component
 public class WriteStartUpAnalysisHtml implements DisposableBean {
@@ -20,12 +22,13 @@ public class WriteStartUpAnalysisHtml implements DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-        //copy js等静态文件
-        writeStaticResource();
-        //生成Html文件
-        writeStartUpAnalysis();
-        //生成Html文件
-        writeFlameGraph();
+        CompletableFuture.allOf(
+                //copy js等静态文件
+                CompletableFuture.runAsync(this::writeStaticResource),
+                //生成Html文件
+                CompletableFuture.runAsync(this::writeStartUpAnalysis),
+                CompletableFuture.runAsync(this::writeFlameGraph)
+        ).get();
     }
 
     private void writeStaticResource() {
