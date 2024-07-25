@@ -61,6 +61,7 @@ public class ArthasBootstrap {
 
         transformerManager = new TransformerManager(instrumentation);
 
+        // 初始化序列化工具
         initFastjson();
 
         // 1. initSpy()

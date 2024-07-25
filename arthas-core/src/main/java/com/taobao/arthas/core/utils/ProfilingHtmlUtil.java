@@ -1,16 +1,18 @@
 package com.taobao.arthas.core.utils;
 
+import com.taobao.arthas.core.properties.ArthasOutputProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
+import java.nio.file.Files;
 import java.util.function.Function;
 
 /**
@@ -23,86 +25,44 @@ import java.util.function.Function;
 public class ProfilingHtmlUtil {
 
     public static final String tailwindJs_ = "/tailwind.js";
-
     public static final String startupAnalysis_ = "/startup-analysis.html";
-
     public static final String hyperappJs_ = "/hyperapp.js";
-
     public static final String flameGraph_ = "/flame-graph.html";
 
-    @Value("classpath:" + tailwindJs_)
-    private Resource tailwindJs;
+    @Autowired
+    private ArthasOutputProperties arthasOutputProperties;
 
-    @Value("classpath:" + startupAnalysis_)
-    private Resource startupAnalysis;
-
-    @Value("classpath:" + hyperappJs_)
-    private Resource hyperappJs;
-
-    @Value("classpath:" + flameGraph_)
-    private Resource flameGraph;
+    public void copyToOutputPath(String... fileNames) {
+        for (String fileName : fileNames) {
+            copyToOutputPath(fileName, Function.identity());
+        }
+    }
 
     @SneakyThrows
-    private String getStartupAnalysisHtml() {
-        try (InputStream inputStream = startupAnalysis.getInputStream()) {
+    public void copyToOutputPath(String fileName, Function<String, String> replaceFun) {
+        FileUtils.write(getOutputFile(fileName), replaceFun.apply(resourrceToString(fileName)), StandardCharsets.UTF_8);
+    }
+
+    @SneakyThrows
+    public File getOutputFile(String fileName) {
+        File outputFile = new File(arthasOutputProperties.getOutputPath(), fileName);
+        if (!outputFile.exists()) {
+            FileUtils.touch(outputFile);
+        }
+        return outputFile;
+    }
+
+    @SneakyThrows
+    public String readOutputResourrceToString(String fileName) {
+        try (InputStream inputStream = Files.newInputStream(new File(arthasOutputProperties.getOutputPath(), fileName).toPath())) {
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         }
     }
 
     @SneakyThrows
-    private String getTailwindJs() {
-        try (InputStream inputStream = tailwindJs.getInputStream()) {
+    public String resourrceToString(String fileName) {
+        try (InputStream inputStream = new ClassPathResource(fileName, getClass().getClassLoader()).getInputStream()) {
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        }
-    }
-
-    @SneakyThrows
-    private String getHyperAppJs() {
-        try (InputStream inputStream = hyperappJs.getInputStream()) {
-            return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        }
-    }
-
-    @SneakyThrows
-    private String getFlameGraphHtml() {
-        try (InputStream inputStream = flameGraph.getInputStream()) {
-            return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        }
-    }
-
-    @SneakyThrows
-    public void writeHtml(String fileName, Consumer<String> consumer) {
-        consumer.accept(getHtml(fileName));
-    }
-
-    public void writeHtml(String fileName) {
-        writeHtml(fileName, Function.identity());
-    }
-
-    @SneakyThrows
-    public void writeHtml(String fileName, Function<String, String> replaceFun) {
-        FileUtils.write(AgentHomeUtil.getOutputFile(fileName), replaceFun.apply(getHtml(fileName)), StandardCharsets.UTF_8);
-    }
-
-    @SneakyThrows
-    public void writeResultHtml(String fileName, Consumer<String> startupAnalysisResult) {
-        try (InputStream inputStream = FileUtils.openInputStream(AgentHomeUtil.getOutputFile(fileName))) {
-            startupAnalysisResult.accept(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
-        }
-    }
-
-    private String getHtml(String fileName) {
-        switch (fileName) {
-            case startupAnalysis_:
-                return getStartupAnalysisHtml();
-            case hyperappJs_:
-                return getHyperAppJs();
-            case tailwindJs_:
-                return getTailwindJs();
-            case flameGraph_:
-                return getFlameGraphHtml();
-            default:
-                return "";
         }
     }
 

@@ -4,11 +4,11 @@ import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -29,7 +29,7 @@ public class FlameGraph {
      * @throws IOException
      */
     @SneakyThrows
-    public void parse(String tail, String outputPath, Map<String, Integer> traceMap) {
+    public void parse(String tail, File outputPath, Map<String, Integer> traceMap) {
 
         for (Map.Entry<String, Integer> entry : traceMap.entrySet()) {
             String[] trace = entry.getKey().split(";");
@@ -51,9 +51,9 @@ public class FlameGraph {
         depth = Math.max(depth, trace.length);
     }
 
-    private void dump(String tail, String outputPath) throws IOException {
+    private void dump(String tail, File outputPath) throws IOException {
 
-        Path destPath = Paths.get(outputPath);
+        Path destPath = outputPath.toPath();
         Files.deleteIfExists(destPath);
         Files.createDirectories(destPath.getParent());
         Files.createFile(destPath);

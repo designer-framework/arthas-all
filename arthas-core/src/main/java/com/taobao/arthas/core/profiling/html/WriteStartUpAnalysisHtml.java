@@ -1,7 +1,6 @@
 package com.taobao.arthas.core.profiling.html;
 
 import com.alibaba.fastjson.JSON;
-import com.taobao.arthas.core.utils.AgentHomeUtil;
 import com.taobao.arthas.core.utils.ProfilingHtmlUtil;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
@@ -21,33 +20,33 @@ public class WriteStartUpAnalysisHtml implements DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-
-        profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.hyperappJs_);
-
-        profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.tailwindJs_);
-
-        writeFlameGraph();
-
+        //copy js等静态文件
+        writeStaticResource();
+        //生成Html文件
         writeStartUpAnalysis();
+        //生成Html文件
+        writeFlameGraph();
+    }
 
+    private void writeStaticResource() {
+        profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.hyperappJs_, ProfilingHtmlUtil.tailwindJs_);
     }
 
     private void writeFlameGraph() {
-
         //
         FlameGraph fg = new FlameGraph();
         //
-        profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.flameGraph_, flameGraphSource -> {
-
-            fg.parse(flameGraphSource, AgentHomeUtil.getOutputPath(ProfilingHtmlUtil.flameGraph_), profilingResultVO.getInvokeTraceMap());
-
-        });
-
+        fg.parse(
+                //flameGraph_html源代码
+                profilingHtmlUtil.resourrceToString(ProfilingHtmlUtil.flameGraph_)
+                //替换占位符
+                , profilingHtmlUtil.getOutputFile(ProfilingHtmlUtil.flameGraph_), profilingResultVO.getInvokeTraceMap()
+        );
     }
 
     private void writeStartUpAnalysis() {
 
-        profilingHtmlUtil.writeHtml(ProfilingHtmlUtil.startupAnalysis_, content -> {
+        profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.startupAnalysis_, content -> {
 
             //替换性能分析对象占位符
             content = content.replace("/*startupVO:*/{}", JSON.toJSONString(profilingResultVO));

@@ -18,7 +18,7 @@ public class ArthasMethodTraceProperties {
 
     @Data
     public static class ClassMethodDesc {
-        
+
         /**
          * 全限定方法名
          * fullyQualifiedMethodName
@@ -36,10 +36,8 @@ public class ArthasMethodTraceProperties {
 
         @Override
         public String toString() {
-            return "{" +
-                    "method: \"" + method + '\"' +
-                    ", canRetransform: \"" + canRetransform + "\"" +
-                    "}";
+            return "{\"method\": \"" + method + '\"' +
+                    ", \"canRetransform\": \"" + canRetransform + "\"}";
         }
 
     }

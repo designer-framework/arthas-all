@@ -8,11 +8,27 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
     <artifactId>arthas-common</artifactId>
     <name>arthas-common</name>
     <url>https://github.com/alibaba/arthas</url>
 
-    <!-- This module can not add any dependencies -->
+    <!-- 当前POM添加的所有依赖全部在core包中管理 -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <finalName>arthas-common</finalName>
         <plugins>

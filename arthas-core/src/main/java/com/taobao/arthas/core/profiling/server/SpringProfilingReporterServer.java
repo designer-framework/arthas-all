@@ -95,47 +95,36 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
                 ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
             }
 
-
             // 获取请求的uri
             String uri = req.uri();
+
+            //报表首页
             if ("/".equals(uri) || ProfilingHtmlUtil.startupAnalysis_.equals(uri)) {
 
-                profilingHtmlUtil.writeResultHtml(ProfilingHtmlUtil.startupAnalysis_, startupAnalysisResult -> {
+                response(ctx, profilingHtmlUtil.readOutputResourrceToString(ProfilingHtmlUtil.startupAnalysis_));
 
-                    FullHttpResponse response = new DefaultFullHttpResponse(
-                            HttpVersion.HTTP_1_1, HttpResponseStatus.OK
-                            , Unpooled.copiedBuffer(startupAnalysisResult, CharsetUtil.UTF_8)
-                    );
-                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-
-                });
-
+                // 火焰图
             } else if (ProfilingHtmlUtil.flameGraph_.equals(uri)) {
 
-                profilingHtmlUtil.writeResultHtml(uri, startupAnalysisResult -> {
+                response(ctx, profilingHtmlUtil.readOutputResourrceToString(uri));
 
-                    FullHttpResponse response = new DefaultFullHttpResponse(
-                            HttpVersion.HTTP_1_1, HttpResponseStatus.OK
-                            , Unpooled.copiedBuffer(startupAnalysisResult, CharsetUtil.UTF_8)
-                    );
-                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                // 静态资源
+            } else if (uri.lastIndexOf(".js") > -1) {
 
-                });
-
-            } else {
-
-                profilingHtmlUtil.writeHtml(uri, htmlSourceCode -> {
-
-                    FullHttpResponse response = new DefaultFullHttpResponse(
-                            HttpVersion.HTTP_1_1, HttpResponseStatus.OK
-                            , Unpooled.copiedBuffer(htmlSourceCode, CharsetUtil.UTF_8)
-                    );
-                    response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
-                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-
-                });
+                response(ctx, profilingHtmlUtil.resourrceToString(uri));
 
             }
+
+        }
+
+        private void response(ChannelHandlerContext ctx, String content) {
+
+            FullHttpResponse response = new DefaultFullHttpResponse(
+                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK
+                    , Unpooled.copiedBuffer(content, CharsetUtil.UTF_8)
+            );
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 
         }
 

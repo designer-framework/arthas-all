@@ -1,9 +1,6 @@
 package com.taobao.arthas.core.configuration;
 
-import com.taobao.arthas.core.properties.ArthasClassLoaderProperties;
-import com.taobao.arthas.core.properties.ArthasConfigProperties;
-import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
-import com.taobao.arthas.core.properties.ArthasThreadTraceProperties;
+import com.taobao.arthas.core.properties.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class ArthasPropertiesAutoConfiguration {
 
     @Bean
-    public ArthasConfigProperties arthasConfigProperties() {
-        return new ArthasConfigProperties();
+    public ArthasOutputProperties arthasOutputProperties(ArthasConfigProperties arthasConfigProperties) {
+        return arthasConfigProperties.getOutput();
     }
 
     @Bean
@@ -26,7 +23,7 @@ public class ArthasPropertiesAutoConfiguration {
     public ArthasThreadTraceProperties arthasThreadTraceProperties(ArthasConfigProperties arthasConfigProperties) {
         return arthasConfigProperties.getThread();
     }
-    
+
     @Bean
     public ArthasClassLoaderProperties arthasClassLoaderProperties(ArthasConfigProperties arthasConfigProperties) {
         return arthasConfigProperties.getClassLoaders();
