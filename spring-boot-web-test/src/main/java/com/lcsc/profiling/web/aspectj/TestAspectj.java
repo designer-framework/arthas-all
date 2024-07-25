@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestAspectj {
 
-    @Around("@annotation(com.lcsc.profiling.web.anotattion.Test)")
+    @Around("@annotation(com.lcsc.profiling.web.annotation.Test)")
     public Object processed(ProceedingJoinPoint joinPoint) throws Throwable {
         return joinPoint.proceed();
     }

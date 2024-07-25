@@ -1,4 +1,4 @@
-package com.lcsc.profiling.web.anotattion;
+package com.lcsc.profiling.web.annotation;
 
 import java.lang.annotation.*;
 

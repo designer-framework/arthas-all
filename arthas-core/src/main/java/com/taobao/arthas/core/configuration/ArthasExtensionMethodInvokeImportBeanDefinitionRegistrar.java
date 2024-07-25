@@ -5,22 +5,27 @@ import com.taobao.arthas.core.annotation.MethodInvokeWatch;
 import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 public class ArthasExtensionMethodInvokeImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
-        AnnotationAttributes annotationAttributes = AnnotationAttributes.fromMap(
-                annotationMetadata.getAnnotationAttributes(EnabledMethodInvokeWatch.class.getName(), false)
-        );
 
-        for (MethodInvokeWatch methodInvokeWatch : annotationAttributes.getAnnotationArray("value", MethodInvokeWatch.class)) {
-            ArthasMethodInvokePostProcessor.registry(registry,
-                    new ArthasMethodTraceProperties.ClassMethodDesc(methodInvokeWatch.value(), methodInvokeWatch.canRetransform())
-            );
-        }
+        annotationMetadata.getAnnotations().stream(EnabledMethodInvokeWatch.class)
+                .map(annotation -> Arrays.asList(annotation.getAnnotationArray("value", MethodInvokeWatch.class)))
+                .flatMap(Collection::stream)
+                .forEach(methodInvokeWatch -> {
+
+                    ArthasMethodInvokePostProcessor.registry(registry,
+                            new ArthasMethodTraceProperties.ClassMethodDesc(methodInvokeWatch.getString("value"), methodInvokeWatch.getBoolean("canRetransform"))
+                    );
+
+                });
+
     }
 
 }

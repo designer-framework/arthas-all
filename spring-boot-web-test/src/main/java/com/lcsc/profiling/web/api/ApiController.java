@@ -1,6 +1,6 @@
 package com.lcsc.profiling.web.api;
 
-import com.lcsc.profiling.web.anotattion.Test;
+import com.lcsc.profiling.web.annotation.Test;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.web.bind.annotation.RequestMapping;

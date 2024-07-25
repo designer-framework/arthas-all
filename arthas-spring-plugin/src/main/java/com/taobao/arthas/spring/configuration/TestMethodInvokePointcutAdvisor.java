@@ -13,6 +13,11 @@ public class TestMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcu
     }
 
     @Override
+    public boolean isReady() {
+        return super.isReady();
+    }
+
+    @Override
     protected void atBefore(InvokeVO invokeVO) {
     }
 
