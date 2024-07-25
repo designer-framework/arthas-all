@@ -3,6 +3,7 @@ package com.taobao.arthas.core.spy;
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.enums.InvokeType;
+import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
 import com.taobao.arthas.api.vo.ByteKitUtils;
 import com.taobao.arthas.api.vo.InvokeVO;
@@ -47,26 +48,11 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
         stack.pushInvokeId(currInvokeId);
         long headInvokeId = stack.headInvokeId();
 
-        try {
-
-            for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
-
-                if (pointcutAdvisor.isHit(clazz.getName(), methodName, methodDesc)) {
-
-                    Advice advice = pointcutAdvisor.getAdvice();
-
-                    advice.before(
-                            InvokeVO.newForBefore(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, InvokeType.ENTER, headInvokeId, currInvokeId)
-                    );
-
-                }
-
-            }
-
-        } catch (Throwable e) {
-            log.error("AtEnter异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
-        }
-
+        proceed(
+                clazz, methodName, methodDesc, InvokeType.ENTER
+                , advice ->
+                        advice.before(InvokeVO.newForBefore(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, InvokeType.ENTER, headInvokeId, currInvokeId))
+        );
     }
 
     @Override
@@ -75,26 +61,11 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
         long headInvokeId = stack.headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
-        try {
-
-            for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
-
-                if (pointcutAdvisor.isHit(clazz.getName(), methodName, methodDesc)) {
-
-                    Advice advice = pointcutAdvisor.getAdvice();
-
-                    advice.afterReturning(
-                            InvokeVO.newForAfterReturning(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject, InvokeType.EXIT, headInvokeId, currInvokeId)
-                    );
-
-                }
-
-            }
-
-        } catch (Throwable e) {
-            log.error("AfterReturning异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
-        }
-
+        proceed(
+                clazz, methodName, methodDesc, InvokeType.EXIT
+                , advice ->
+                        advice.afterReturning(InvokeVO.newForAfterReturning(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject, InvokeType.EXIT, headInvokeId, currInvokeId))
+        );
     }
 
     @Override
@@ -103,25 +74,42 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
         long headInvokeId = stack.headInvokeId();
         long currInvokeId = stack.popInvokeId();
 
+        proceed(
+                clazz, methodName, methodDesc, InvokeType.EXIT
+                , advice ->
+                        advice.afterThrowing(InvokeVO.newForAfterThrowing(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable, InvokeType.EXCEPTION, headInvokeId, currInvokeId))
+        );
+    }
+
+    /**
+     * @param clazz
+     * @param methodName
+     * @param methodDesc
+     * @param invokeType
+     * @param invokeConsumer
+     */
+    private void proceed(Class<?> clazz, String methodName, String methodDesc, InvokeType invokeType, Consumer<Advice> invokeConsumer) {
         try {
 
             for (PointcutAdvisor pointcutAdvisor : pointcutAdvisors) {
 
-                if (pointcutAdvisor.isHit(clazz.getName(), methodName, methodDesc)) {
+                Pointcut pointcut = pointcutAdvisor.getPointcut();
+                if (pointcut.isHit(clazz.getName(), methodName, methodDesc)) {
 
                     Advice advice = pointcutAdvisor.getAdvice();
-
-                    advice.afterThrowing(
-                            InvokeVO.newForAfterThrowing(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable, InvokeType.ENTER, headInvokeId, currInvokeId)
-                    );
+                    invokeConsumer.accept(advice);
 
                 }
 
             }
 
         } catch (Throwable e) {
-            log.error("AtExceptionExit异常, Class:{}, Method: {}", clazz.getName(), methodName, e);
+            log.error("{} -> 异常, Class:{}, Method: {}", invokeType, clazz.getName(), methodName, e);
         }
+    }
+
+    interface Consumer<T> {
+        void accept(T o) throws Throwable;
     }
 
     static class InvokeStack {

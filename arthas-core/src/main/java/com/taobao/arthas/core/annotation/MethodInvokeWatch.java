@@ -1,4 +1,4 @@
-package com.taobao.arthas.api.annotation;
+package com.taobao.arthas.core.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -6,12 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ClassMethodInfo {
+public @interface MethodInvokeWatch {
 
-    String className();
+    String value();
 
-    String methodName();
-
-    String[] methodArgumentTypes();
+    boolean canRetransform() default false;
 
 }

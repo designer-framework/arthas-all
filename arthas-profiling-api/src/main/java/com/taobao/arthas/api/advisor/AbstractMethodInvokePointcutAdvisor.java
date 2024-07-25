@@ -2,79 +2,58 @@ package com.taobao.arthas.api.advisor;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.interceptor.InvokeInterceptorAdapter;
+import com.taobao.arthas.api.pointcut.CachingPointcut;
 import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.state.AgentState;
+import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.util.Assert;
 
 /**
  * 参见
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
-public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, Pointcut {
-
-    private static final Object none = new Object();
+@Slf4j
+public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, InitializingBean {
 
     @Autowired
     protected AgentState agentState;
 
-    protected Map<String, Object> cache = new ConcurrentHashMap<>();
+    @Setter
+    private Pointcut pointcut = Pointcut.FALSE;
 
+    @Getter
+    private ClassMethodInfo classMethodInfo;
+
+    @Getter
+    @Setter
     private Boolean canRetransform = Boolean.FALSE;
+
+    public AbstractMethodInvokePointcutAdvisor() {
+    }
+
+    public AbstractMethodInvokePointcutAdvisor(String fullyQualifiedMethodName) {
+        this(ClassMethodInfo.create(fullyQualifiedMethodName));
+    }
+
+    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
+        this(classMethodInfo, Boolean.FALSE);
+    }
+
+    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
+        this.classMethodInfo = classMethodInfo;
+        this.canRetransform = canRetransform;
+        pointcut = new CachingPointcut(classMethodInfo, canRetransform);
+    }
 
     public boolean isReady() {
         return agentState.isStarted();
     }
-
-    @Override
-    public boolean getCanRetransform() {
-        return canRetransform;
-    }
-
-    public void setCanRetransform(Boolean canRetransform) {
-        this.canRetransform = canRetransform;
-    }
-
-    @Override
-    public final boolean isCandidateMethod(String className, String methodName, String methodDesc) {
-        String cacheKey = getCacheKey(className, methodName, methodDesc);
-        if (cache.containsKey(cacheKey)) {
-
-            return true;
-
-        } else {
-
-            if (isCandidateMethod0(className, methodName, methodDesc)) {
-                cache.put(cacheKey, none);
-                return true;
-            }
-
-        }
-
-        return false;
-    }
-
-    @Override
-    public final boolean isHit(String className, String methodName, String methodDesc) {
-        return cache.containsKey(getCacheKey(className, methodName, methodDesc));
-    }
-
-    public String getCacheKey(String className, String methodName, String methodDesc) {
-        return className + "#" + methodName + methodDesc;
-    }
-
-    /**
-     * 是否候选方法
-     *
-     * @param className
-     * @param methodName
-     * @param methodDesc
-     * @return
-     */
-    public abstract boolean isCandidateMethod0(String className, String methodName, String methodDesc);
 
     protected abstract void atBefore(InvokeVO invokeVO);
 
@@ -111,12 +90,20 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
     @Override
     public Pointcut getPointcut() {
-        return this;
+        return pointcut;
     }
 
     @Override
     public Advice getAdvice() {
         return this;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(agentState, "AgentState");
+        if (pointcut == Pointcut.FALSE) {
+            log.error("默认的Pointcut,  请检查配置是否正确: {}", getClass());
+        }
     }
 
 }

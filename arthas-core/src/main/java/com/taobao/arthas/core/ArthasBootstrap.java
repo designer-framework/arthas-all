@@ -26,10 +26,8 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Method;
 import java.security.CodeSource;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -99,14 +97,8 @@ public class ArthasBootstrap {
         if (arthasBootstrap != null) {
             return arthasBootstrap;
         }
-
-        Map<String, String> argsMap = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(args);
-        // 给配置全加上前缀
-        Map<String, String> mapWithPrefix = new HashMap<String, String>(argsMap.size());
-        for (Entry<String, String> entry : argsMap.entrySet()) {
-            mapWithPrefix.put("arthas." + entry.getKey(), entry.getValue());
-        }
-        return getInstance(instrumentation, mapWithPrefix);
+        //将Agent命令行参数解析成Map格式
+        return getInstance(instrumentation, FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(args));
     }
 
     /**

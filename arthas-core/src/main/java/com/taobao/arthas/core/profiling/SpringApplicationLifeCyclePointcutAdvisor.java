@@ -1,12 +1,13 @@
 package com.taobao.arthas.core.profiling;
 
-import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
+import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.processor.ProfilingLifeCycle;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.profiling.hook.ArthasExtensionShutdownHookPostProcessor;
 import com.taobao.arthas.core.profiling.stacktrace.SpringStacktraceProfiler;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor {
+public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements InitializingBean {
 
     @Autowired
     protected ApplicationEventPublisher eventPublisher;

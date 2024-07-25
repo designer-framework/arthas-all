@@ -7,14 +7,34 @@ package com.taobao.arthas.api.pointcut;
  */
 public interface Pointcut {
 
+    Pointcut FALSE = new Pointcut() {
+        @Override
+        public boolean getCanRetransform() {
+            return false;
+        }
+
+        @Override
+        public boolean isCandidateClass(String className) {
+            return false;
+        }
+
+        @Override
+        public boolean isCandidateMethod(String className, String methodName, String methodDesc) {
+            return false;
+        }
+
+        @Override
+        public boolean isHit(String className, String methodName, String methodDesc) {
+            return false;
+        }
+    };
+
     /**
      * 是否允许重新装载
      *
      * @return
      */
-    default boolean getCanRetransform() {
-        return false;
-    }
+    boolean getCanRetransform();
 
     /**
      * 是否候选类
@@ -33,5 +53,7 @@ public interface Pointcut {
      * @return
      */
     boolean isCandidateMethod(String className, String methodName, String methodDesc);
+
+    boolean isHit(String className, String methodName, String methodDesc);
 
 }

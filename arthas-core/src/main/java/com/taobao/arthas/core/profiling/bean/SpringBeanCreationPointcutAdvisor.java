@@ -1,6 +1,6 @@
 package com.taobao.arthas.core.profiling.bean;
 
-import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
+import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.core.events.BeanCreationEvent;
@@ -9,12 +9,13 @@ import com.taobao.arthas.core.utils.CreateBeanHolder;
 import com.taobao.arthas.core.vo.BeanCreateVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringBeanCreationPointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean {
+public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean, InitializingBean {
 
     @Autowired
     private ProfilingResultVO profilingResultVO;

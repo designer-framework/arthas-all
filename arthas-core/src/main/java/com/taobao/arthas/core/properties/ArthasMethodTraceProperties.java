@@ -1,7 +1,9 @@
 package com.taobao.arthas.core.properties;
 
 import com.taobao.arthas.api.vo.ClassMethodInfo;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -16,6 +18,8 @@ public class ArthasMethodTraceProperties {
     private Set<ClassMethodDesc> methods;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ClassMethodDesc {
 
         /**

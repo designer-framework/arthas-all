@@ -1,16 +1,16 @@
 package com.taobao.arthas.core.profiling.bean;
 
-import com.taobao.arthas.api.advisor.AbstractMethodMatchInvokePointcutAdvisor;
-import com.taobao.arthas.api.pointcut.Pointcut;
+import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Stack;
 
 @Component
-class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodMatchInvokePointcutAdvisor implements Pointcut, DisposableBean {
+class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
     private final ThreadLocal<Stack<String>> INSTANTIATE_SINGLETON_CACHE = ThreadLocal.withInitial(Stack::new);
 

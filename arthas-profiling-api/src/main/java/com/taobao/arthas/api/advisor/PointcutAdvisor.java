@@ -16,14 +16,4 @@ public interface PointcutAdvisor extends Advisor {
      */
     Pointcut getPointcut();
 
-    /**
-     * 是增强类(该方法直接读取缓存, 不需要再次解析类信息)
-     *
-     * @param className
-     * @param methodName
-     * @param methodDesc
-     * @return
-     */
-    boolean isHit(String className, String methodName, String methodDesc);
-
 }

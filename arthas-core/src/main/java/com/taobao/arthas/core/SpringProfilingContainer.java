@@ -48,7 +48,31 @@ public class SpringProfilingContainer implements ProfilingContainer, DisposableB
      * @return
      */
     public static ConfigurableApplicationContext instance(Map<String, String> argsMap) {
-        return SpringApplication.run(SpringProfilingContainer.class);
+        if (argsMap != null) {
+            return SpringApplication.run(SpringProfilingContainer.class, getCommandLineArgs(argsMap));
+        } else {
+            return SpringApplication.run(SpringProfilingContainer.class);
+        }
+    }
+
+    /**
+     * @param argsMap
+     * @return
+     * @see org.springframework.core.env.SimpleCommandLinePropertySource
+     */
+    private static String[] getCommandLineArgs(Map<String, String> argsMap) {
+        if (argsMap == null) {
+
+            return new String[0];
+
+        } else {
+
+            //转换成SpringBoot能识别的环境变量格式
+            return argsMap.entrySet().stream()
+                    .map(entry -> "--" + entry.getKey() + "=" + entry.getValue())
+                    .toArray(String[]::new);
+
+        }
     }
 
     @Override

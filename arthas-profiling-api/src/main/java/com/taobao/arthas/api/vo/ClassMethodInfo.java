@@ -1,10 +1,12 @@
 package com.taobao.arthas.api.vo;
 
+import lombok.Getter;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.Arrays;
 import java.util.Objects;
 
+@Getter
 public class ClassMethodInfo {
 
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher(".");
@@ -19,7 +21,7 @@ public class ClassMethodInfo {
 
     private final int methodArgumentLength;
 
-    public ClassMethodInfo(String fullyQualifiedMethodName, String className, String methodName, String[] methodArgumentTypes) {
+    private ClassMethodInfo(String fullyQualifiedMethodName, String className, String methodName, String[] methodArgumentTypes) {
         this.fullyQualifiedMethodName = fullyQualifiedMethodName;
         this.className = className;
         this.methodName = methodName;
@@ -90,26 +92,6 @@ public class ClassMethodInfo {
     @Override
     public int hashCode() {
         return Objects.hash(fullyQualifiedMethodName);
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public String[] getMethodArgumentTypes() {
-        return methodArgumentTypes;
-    }
-
-    public String getFullyQualifiedMethodName() {
-        return fullyQualifiedMethodName;
-    }
-
-    public int getMethodArgumentLength() {
-        return methodArgumentLength;
     }
 
 }
