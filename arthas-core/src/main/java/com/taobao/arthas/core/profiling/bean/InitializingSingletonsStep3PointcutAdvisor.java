@@ -27,7 +27,7 @@ class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodMatchInvo
 
     @Override
     public boolean isReady() {
-        return initializingSingletonsStep2AdviceHandler.isReady();
+        return super.isReady() && initializingSingletonsStep2AdviceHandler.isReady();
     }
 
     /**

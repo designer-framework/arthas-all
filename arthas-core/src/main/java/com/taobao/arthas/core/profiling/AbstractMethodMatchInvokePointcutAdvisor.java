@@ -1,17 +1,22 @@
 package com.taobao.arthas.core.profiling;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.profiling.state.AgentState;
 import com.taobao.arthas.core.utils.ByteKitUtils;
 import com.taobao.arthas.core.utils.FullyQualifiedClassUtils;
 import com.taobao.arthas.core.vo.ClassMethodInfo;
 import lombok.Setter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-@Setter
 public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements InitializingBean {
 
+    @Setter
     protected ClassMethodInfo classMethodInfo;
+
+    @Autowired
+    protected AgentState agentState;
 
     public AbstractMethodMatchInvokePointcutAdvisor() {
     }
@@ -21,6 +26,11 @@ public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractM
      */
     public AbstractMethodMatchInvokePointcutAdvisor(String fullyQualifiedMethodName) {
         classMethodInfo = FullyQualifiedClassUtils.parserClassMethodInfo(fullyQualifiedMethodName);
+    }
+
+    @Override
+    public boolean isReady() {
+        return super.isReady() && agentState.isStarted();
     }
 
     @Override
@@ -36,6 +46,7 @@ public abstract class AbstractMethodMatchInvokePointcutAdvisor extends AbstractM
     @Override
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(classMethodInfo, "ClassMethodInfo");
+        Assert.notNull(agentState, "AgentState");
     }
 
 }

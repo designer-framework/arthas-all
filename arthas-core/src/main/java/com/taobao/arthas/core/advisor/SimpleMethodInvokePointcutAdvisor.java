@@ -3,7 +3,6 @@ package com.taobao.arthas.core.advisor;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.DisposableBeanOrdered;
 import com.taobao.arthas.core.profiling.AbstractMethodMatchInvokePointcutAdvisor;
-import com.taobao.arthas.core.profiling.state.AgentState;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +22,11 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodMatchInvoke
 
     private final ThreadLocal<Map<String, MethodInvokeVO>> methodInvokeMapThreadLocal = ThreadLocal.withInitial(HashMap::new);
 
-    private final AgentState agentState;
 
     private final ProfilingResultVO profilingResultVO;
 
-    public SimpleMethodInvokePointcutAdvisor(AgentState agentState, ProfilingResultVO profilingResultVO) {
-        this.agentState = agentState;
+    public SimpleMethodInvokePointcutAdvisor(ProfilingResultVO profilingResultVO) {
         this.profilingResultVO = profilingResultVO;
-    }
-
-    @Override
-    public boolean isReady() {
-        return agentState.isStarted();
     }
 
     @Override

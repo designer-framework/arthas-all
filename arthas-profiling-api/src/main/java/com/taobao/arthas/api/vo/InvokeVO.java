@@ -124,4 +124,9 @@ public class InvokeVO {
         return invokeId;
     }
 
+    @Override
+    public String toString() {
+        return headInvokeId + "-" + invokeId + " | " + invokeType + " | " + clazz.getName() + "#" + methodName + "(" + String.join(",", methodArgumentTypes) + ")";
+    }
+
 }

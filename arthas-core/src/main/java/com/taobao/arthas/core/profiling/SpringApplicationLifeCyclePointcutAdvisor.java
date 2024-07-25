@@ -34,6 +34,11 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMat
         super("org.springframework.boot.SpringApplication#run(java.lang.Class, java.lang.String[])");
     }
 
+    @Override
+    public boolean isReady() {
+        return true;
+    }
+
     /**
      * 项目启动时间
      *
@@ -45,6 +50,8 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMat
 
         //调用start, 启动性能分析Bean
         profilingLifeCycles.forEach(ProfilingLifeCycle::start);
+
+        agentState.start();
     }
 
     /**
@@ -61,6 +68,8 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodMat
 
         //分析完毕, 通知释放资源,关闭容器,上报分析数据...
 
+
+        agentState.stop();
         profilingLifeCycles.forEach(ProfilingLifeCycle::stop);
 
     }
