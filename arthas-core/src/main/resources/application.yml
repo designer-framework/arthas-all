@@ -25,11 +25,13 @@ spring:
       methods:
         - method: org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
         - method: org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)
+          #spring-boot3.2.0+= 类加载器
         - method: org.springframework.boot.loader.launch.LaunchedClassloader#loadClass(java.lang.String, boolean)
-          can-retransform: true
-        - method: sun.misc.Launcher.AppClassLoader#loadClass(java.lang.String, boolean)
-          can-retransform: true
+          #spring-boot3.2.0- 类加载器
+        - method: org.springframework.boot.loader.LaunchedURLClassLoader#loadClass(java.lang.String, boolean)
         - method: java.net.URLClassLoader#findResource(java.lang.String)
+          can-retransform: true
+        - method: sun.misc.Launcher$AppClassLoader#loadClass(java.lang.String, boolean)
           can-retransform: true
 
 logging:
