@@ -8,10 +8,10 @@ spring:
     name: 'spring-boot-profiling'
   main:
     allow-bean-definition-overriding: false
-  profiling:
+  agent:
     output:
       home: arthas-output
-      output-path: '${spring.profiling.output.home}/output'
+      output-path: '${spring.agent.output.home}/output'
     #类加载器增强(解决SPY类加载不到的问题)
     class-loaders:
       enhance-loaders:

@@ -11,7 +11,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class Config {
     @Bean
-    String stringxxx() {
+    String stringxxx() throws InterruptedException {
+
+        Thread.sleep(66);
+
         return "";
     }
+
 }

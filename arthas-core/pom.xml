@@ -20,6 +20,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.taobao.arthas</groupId>
             <artifactId>arthas-spy</artifactId>
             <version>${project.version}</version>
@@ -108,12 +114,6 @@
             <groupId>com.taobao.arthas</groupId>
             <artifactId>arthas-profiling-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

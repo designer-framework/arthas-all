@@ -201,7 +201,7 @@ public class AgentBootstrap {
                 }
             });
 
-            bindingThread.setName("spring-profiling-thread");
+            bindingThread.setName("spring-agent-thread");
             bindingThread.start();
             bindingThread.join();
 

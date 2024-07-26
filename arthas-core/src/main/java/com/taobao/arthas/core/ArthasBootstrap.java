@@ -75,7 +75,7 @@ public class ArthasBootstrap {
         enhanceNormalClass();
 
         // 6. hooker
-        shutdown = new Thread("spring-profiling-shutdown-hooker") {
+        shutdown = new Thread("spring-agent-shutdown-hooker") {
 
             @Override
             public void run() {

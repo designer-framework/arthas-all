@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
  * @date : 2024-07-10 22:25
  */
 @Data
-@ConfigurationProperties(prefix = "spring.profiling")
+@ConfigurationProperties(prefix = "spring.agent")
 public class ArthasConfigProperties {
 
     @NestedConfigurationProperty

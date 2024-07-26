@@ -44,7 +44,7 @@ public class ArthasMethodInvokeRegistryPostProcessor implements BeanDefinitionRe
 
         Binder.get(environment)
                 //将配置绑定到对象上
-                .bind("spring.profiling.trace", ArthasMethodTraceProperties.class)
+                .bind("spring.agent.trace", ArthasMethodTraceProperties.class)
                 .ifBound(arthasMethodTraceProperties -> {
 
                     //将性能分析Bean的Definition注入到容器中

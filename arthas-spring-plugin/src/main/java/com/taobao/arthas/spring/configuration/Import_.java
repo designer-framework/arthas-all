@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * @date : 2024-07-25 23:42
  */
 @EnabledMethodInvokeWatch({
+        @MethodInvokeWatch(value = "com.lcsc.profiling.web.configuration.Config#stringxxx()"),
         @MethodInvokeWatch(value = "com.lcsc.profiling.web.configuration.Config#stringxxx()")
 })
 @Configuration

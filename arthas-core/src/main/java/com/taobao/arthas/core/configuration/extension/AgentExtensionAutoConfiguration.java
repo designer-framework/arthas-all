@@ -2,8 +2,8 @@ package com.taobao.arthas.core.configuration.extension;
 
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
+import com.taobao.arthas.core.spy.CompositeSpyAPI;
 import com.taobao.arthas.core.spy.SpyExtensionApiImpl;
-import com.taobao.arthas.core.spy.SpyImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +15,7 @@ public class AgentExtensionAutoConfiguration {
 
     @Bean
     SpyAPI.AbstractSpy abstractSpy(List<SpyExtensionApi> spyExtensionApis) {
-        return new SpyImpl(spyExtensionApis);
+        return new CompositeSpyAPI(spyExtensionApis);
     }
 
     @Bean
