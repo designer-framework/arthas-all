@@ -10,21 +10,14 @@ import com.taobao.arthas.core.vo.BeanCreateVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean, InitializingBean {
 
-    @Autowired
-    private ProfilingResultVO profilingResultVO;
+    private final ProfilingResultVO profilingResultVO;
 
-    /**
-     * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
-     */
-    public SpringBeanCreationPointcutAdvisor() {
-        super("org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])");
+    public SpringBeanCreationPointcutAdvisor(ProfilingResultVO profilingResultVO) {
+        this.profilingResultVO = profilingResultVO;
     }
 
     /**

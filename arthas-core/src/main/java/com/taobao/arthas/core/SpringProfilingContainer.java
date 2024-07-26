@@ -1,8 +1,8 @@
 package com.taobao.arthas.core;
 
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
-import com.taobao.arthas.api.processor.ProfilingContainer;
-import com.taobao.arthas.core.constants.DisposableBeanOrdered;
+import com.taobao.arthas.api.context.ProfilingContainer;
+import com.taobao.arthas.core.constants.DestroyBeanOrdered;
 import com.taobao.arthas.core.properties.ArthasClassLoaderProperties;
 import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
@@ -92,7 +92,7 @@ public class SpringProfilingContainer implements ProfilingContainer, DisposableB
 
     @Override
     public int getOrder() {
-        return DisposableBeanOrdered.RELEASE_ARTHAS_AGENT;
+        return DestroyBeanOrdered.RELEASE_ARTHAS_AGENT;
     }
 
 

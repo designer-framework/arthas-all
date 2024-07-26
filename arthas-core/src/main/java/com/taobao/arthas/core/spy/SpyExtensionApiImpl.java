@@ -8,8 +8,6 @@ import com.taobao.arthas.api.spy.SpyExtensionApi;
 import com.taobao.arthas.api.vo.ByteKitUtils;
 import com.taobao.arthas.api.vo.InvokeVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -27,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author hengyunabc 2020-04-24
  */
 @Slf4j
-@Component
 public class SpyExtensionApiImpl implements SpyExtensionApi {
 
     /**
@@ -37,8 +34,11 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
 
     private final AtomicLong ID_GENERATOR = new AtomicLong(0);
 
-    @Autowired
-    private List<PointcutAdvisor> pointcutAdvisors;
+    private final List<PointcutAdvisor> pointcutAdvisors;
+
+    public SpyExtensionApiImpl(List<PointcutAdvisor> pointcutAdvisors) {
+        this.pointcutAdvisors = pointcutAdvisors;
+    }
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {

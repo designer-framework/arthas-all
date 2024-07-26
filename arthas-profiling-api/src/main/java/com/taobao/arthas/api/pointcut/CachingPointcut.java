@@ -1,11 +1,6 @@
 package com.taobao.arthas.api.pointcut;
 
-import com.taobao.arthas.api.vo.ByteKitUtils;
-import com.taobao.arthas.api.vo.ClassMethodInfo;
-import lombok.Getter;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.taobao.arthas.api.source.AgentSourceAttribute;
 
 /**
  * @description:
@@ -14,21 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachingPointcut implements Pointcut {
 
-    private static final Object none = new Object();
+    private final boolean canRetransform;
 
-    protected Map<String, Object> cache = new ConcurrentHashMap<>();
+    private final AgentSourceAttribute agentSourceAttribute;
 
-    @Getter
-    protected ClassMethodInfo classMethodInfo;
-
-    protected boolean canRetransform;
-
-    public CachingPointcut(ClassMethodInfo classMethodInfo) {
-        this(classMethodInfo, Boolean.FALSE);
-    }
-
-    public CachingPointcut(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
-        this.classMethodInfo = classMethodInfo;
+    public CachingPointcut(AgentSourceAttribute agentSourceAttribute, Boolean canRetransform) {
+        this.agentSourceAttribute = agentSourceAttribute;
         this.canRetransform = canRetransform;
     }
 
@@ -38,47 +24,17 @@ public class CachingPointcut implements Pointcut {
 
     @Override
     public boolean isCandidateClass(String className) {
-        return classMethodInfo.isCandidateClass(className);
+        return agentSourceAttribute.isCandidateClass(className);
     }
 
     @Override
     public boolean isCandidateMethod(String className, String methodName, String methodDesc) {
-        String cacheKey = getCacheKey(className, methodName, methodDesc);
-        if (cache.containsKey(cacheKey)) {
-
-            return true;
-
-        } else {
-
-            if (isCandidateMethod0(className, methodName, methodDesc)) {
-                cache.put(cacheKey, none);
-                return true;
-            }
-
-        }
-
-        return false;
-    }
-
-    /**
-     * 是否候选方法
-     *
-     * @param className
-     * @param methodName
-     * @param methodDesc
-     * @return
-     */
-    protected boolean isCandidateMethod0(String className, String methodName, String methodDesc) {
-        return classMethodInfo.isCandidateMethod(methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc));
+        return agentSourceAttribute.isCandidateMethod(className, methodName, methodDesc);
     }
 
     @Override
     public boolean isHit(String className, String methodName, String methodDesc) {
-        return cache.containsKey(getCacheKey(className, methodName, methodDesc));
-    }
-
-    protected String getCacheKey(String className, String methodName, String methodDesc) {
-        return className + "#" + methodName + methodDesc;
+        return agentSourceAttribute.getSourceAttribute(className, methodName, methodDesc) != null;
     }
 
 }

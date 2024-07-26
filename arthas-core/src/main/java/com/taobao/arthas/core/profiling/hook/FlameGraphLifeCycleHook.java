@@ -1,14 +1,12 @@
-package com.taobao.arthas.core.profiling.stacktrace;
+package com.taobao.arthas.core.profiling.hook;
 
-import com.taobao.arthas.api.processor.ProfilingLifeCycle;
-import com.taobao.arthas.core.constants.ProfilingLifeCycleOrdered;
+import com.taobao.arthas.core.constants.LifeCycleOrdered;
+import com.taobao.arthas.core.lifecycle.LifeCycleHook;
 import com.taobao.arthas.core.properties.ArthasThreadTraceProperties;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ThreadUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -27,8 +25,7 @@ import java.util.stream.Collectors;
  * 火焰图
  **/
 @Slf4j
-@Component
-public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
+public class FlameGraphLifeCycleHook implements LifeCycleHook, Ordered {
 
     private final LinkedBlockingQueue<StackTraceElement[]> stackTraceQueue = new LinkedBlockingQueue<>();
 
@@ -39,18 +36,20 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
      */
     private final AtomicInteger count = new AtomicInteger();
 
+    private final ArthasThreadTraceProperties arthasThreadTraceProperties;
+
+    private final ProfilingResultVO profilingResultVO;
+
     /**
      * 被采样的线程
      */
     private List<Thread> sampledThreads = new ArrayList<>();
-
-    @Autowired
-    private ArthasThreadTraceProperties arthasThreadTraceProperties;
-
-    @Autowired
-    private ProfilingResultVO profilingResultVO;
-
     private volatile boolean stop = false;
+
+    public FlameGraphLifeCycleHook(ArthasThreadTraceProperties arthasThreadTraceProperties, ProfilingResultVO profilingResultVO) {
+        this.arthasThreadTraceProperties = arthasThreadTraceProperties;
+        this.profilingResultVO = profilingResultVO;
+    }
 
     @Override
     public void start() {
@@ -117,7 +116,7 @@ public class SpringStacktraceProfiler implements ProfilingLifeCycle, Ordered {
 
     @Override
     public int getOrder() {
-        return ProfilingLifeCycleOrdered.STOP_STACK_TRACE_PROFILER;
+        return LifeCycleOrdered.STOP_FLAME_GRAPH_PROFILER;
     }
 
     private synchronized void addStackTraceElements(StackTraceElement[] elements) {

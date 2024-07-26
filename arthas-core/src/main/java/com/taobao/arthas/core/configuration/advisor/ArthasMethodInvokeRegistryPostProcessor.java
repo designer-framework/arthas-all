@@ -1,4 +1,4 @@
-package com.taobao.arthas.core.configuration;
+package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
@@ -18,7 +18,7 @@ import org.springframework.core.env.Environment;
  * @date : 2024-07-08 01:49
  */
 @Setter
-public class ArthasMethodInvokePostProcessor implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
+public class ArthasMethodInvokeRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
 
     private Environment environment;
 

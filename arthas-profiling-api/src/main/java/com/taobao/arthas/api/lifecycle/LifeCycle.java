@@ -1,6 +1,6 @@
-package com.taobao.arthas.api.processor;
+package com.taobao.arthas.api.lifecycle;
 
-public interface ProfilingLifeCycle {
+public interface LifeCycle {
 
     /**
      * 开始分析

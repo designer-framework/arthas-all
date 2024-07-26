@@ -4,24 +4,17 @@ import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Stack;
 
-@Component
-class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
+public class InitializingSingletonsStep2PointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
     private final ThreadLocal<Stack<String>> INSTANTIATE_SINGLETON_CACHE = ThreadLocal.withInitial(Stack::new);
 
-    @Autowired
-    private InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1AdviceHandler;
+    private final InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1AdviceHandler;
 
-    /**
-     * org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
-     */
-    public InitializingSingletonsStep2PointcutAdvisor() {
-        super("org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(java.lang.String)");
+    public InitializingSingletonsStep2PointcutAdvisor(InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1AdviceHandler) {
+        this.initializingSingletonsStep1AdviceHandler = initializingSingletonsStep1AdviceHandler;
     }
 
     @Override

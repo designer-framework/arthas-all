@@ -1,38 +1,35 @@
-package com.taobao.arthas.core.profiling.html;
+package com.taobao.arthas.core.profiling.hook;
 
 import com.alibaba.fastjson.JSON;
 import com.taobao.arthas.core.utils.ProfilingHtmlUtil;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
-@Component
-public class WriteStartUpAnalysisHtml implements DisposableBean {
+public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
 
-    @Autowired
-    private ProfilingHtmlUtil profilingHtmlUtil;
+    protected final ProfilingHtmlUtil profilingHtmlUtil;
 
-    @Autowired
-    private ProfilingResultVO profilingResultVO;
+    protected final ProfilingResultVO profilingResultVO;
+
+    public WriteStartUpAnalysisHtmlHook(ProfilingHtmlUtil profilingHtmlUtil, ProfilingResultVO profilingResultVO) {
+        this.profilingHtmlUtil = profilingHtmlUtil;
+        this.profilingResultVO = profilingResultVO;
+    }
 
     @Override
     public void destroy() throws Exception {
         CompletableFuture.allOf(
-                //copy js等静态文件
-                CompletableFuture.runAsync(this::writeStaticResource),
-                //生成Html文件
-                CompletableFuture.runAsync(this::writeStartUpAnalysis),
+                //copy js文件
+                CompletableFuture.runAsync(() -> profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.hyperappJs_)),
+                CompletableFuture.runAsync(() -> profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.tailwindJs_)),
+                //生成 Html文件
+                CompletableFuture.runAsync(this::writeIndexHtml),
                 CompletableFuture.runAsync(this::writeFlameGraph)
         ).get();
-    }
-
-    private void writeStaticResource() {
-        profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.hyperappJs_, ProfilingHtmlUtil.tailwindJs_);
     }
 
     private void writeFlameGraph() {
@@ -47,7 +44,7 @@ public class WriteStartUpAnalysisHtml implements DisposableBean {
         );
     }
 
-    private void writeStartUpAnalysis() {
+    private void writeIndexHtml() {
 
         profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.startupAnalysis_, content -> {
 

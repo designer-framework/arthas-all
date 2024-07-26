@@ -5,25 +5,17 @@ import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.events.InstantiateSingletonOverEvent;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
 import java.util.Stack;
 
-@Component
-class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
+public class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
-    private final ThreadLocal<Stack<InstantiateSingletonOverEvent>> stackThreadLocal = ThreadLocal.withInitial(Stack::new);
+    private final ThreadLocal<Stack<InstantiateSingletonOverEvent>> eventThreadLocal = ThreadLocal.withInitial(Stack::new);
 
-    @Autowired
-    protected ApplicationEventPublisher eventPublisher;
+    private final InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2AdviceHandler;
 
-    @Autowired
-    private InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2AdviceHandler;
-
-    public InitializingSingletonsStep3PointcutAdvisor() {
-        super("**#afterSingletonsInstantiated()");
+    public InitializingSingletonsStep3PointcutAdvisor(InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2AdviceHandler) {
+        this.initializingSingletonsStep2AdviceHandler = initializingSingletonsStep2AdviceHandler;
     }
 
     @Override
@@ -39,7 +31,7 @@ class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodInvokePoi
     @Override
     public void atBefore(InvokeVO invokeVO) {
         if (initializingSingletonsStep2AdviceHandler.hasSmartInitializingSingleton()) {
-            stackThreadLocal.get().push(new InstantiateSingletonOverEvent(this, initializingSingletonsStep2AdviceHandler.popBeanName()));
+            eventThreadLocal.get().push(new InstantiateSingletonOverEvent(this, initializingSingletonsStep2AdviceHandler.popBeanName()));
         }
     }
 
@@ -49,14 +41,14 @@ class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodInvokePoi
     @Override
     protected void atExit(InvokeVO invokeVO) {
         //正在加载SmartInitializingSingleton Bean
-        if (!stackThreadLocal.get().isEmpty()) {
-            eventPublisher.publishEvent(stackThreadLocal.get().pop().instantiated());
+        if (!eventThreadLocal.get().isEmpty()) {
+            applicationEventPublisher.publishEvent(eventThreadLocal.get().pop().instantiated());
         }
     }
 
     @Override
     public void destroy() {
-        stackThreadLocal.remove();
+        eventThreadLocal.remove();
     }
 
 }

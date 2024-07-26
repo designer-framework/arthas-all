@@ -1,8 +1,6 @@
 package com.taobao.arthas.core.spy;
 
 import com.taobao.arthas.api.spy.SpyExtensionApi;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.arthas.SpyAPI.AbstractSpy;
 
@@ -16,11 +14,13 @@ import java.arthas.SpyAPI.AbstractSpy;
  *
  * @author hengyunabc 2020-04-24
  */
-@Component
 public class SpyImpl extends AbstractSpy {
 
-    @Autowired
-    private SpyExtensionApi spyExtensionApi;
+    private final SpyExtensionApi spyExtensionApi;
+
+    public SpyImpl(SpyExtensionApi spyExtensionApi) {
+        this.spyExtensionApi = spyExtensionApi;
+    }
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {

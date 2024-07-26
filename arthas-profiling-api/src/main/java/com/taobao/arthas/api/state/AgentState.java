@@ -5,7 +5,7 @@ public interface AgentState {
     /**
      * 开始性能分析
      */
-    void started();
+    void start();
 
     /**
      * 性能分析完毕

@@ -1,11 +1,11 @@
-package com.taobao.arthas.core.configuration;
+package com.taobao.arthas.core.configuration.env;
 
 import com.taobao.arthas.core.properties.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ArthasConfigProperties.class)
 public class ArthasPropertiesAutoConfiguration {
 

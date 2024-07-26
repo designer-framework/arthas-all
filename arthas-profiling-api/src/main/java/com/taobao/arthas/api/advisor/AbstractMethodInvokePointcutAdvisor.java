@@ -4,6 +4,7 @@ import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.interceptor.InvokeInterceptorAdapter;
 import com.taobao.arthas.api.pointcut.CachingPointcut;
 import com.taobao.arthas.api.pointcut.Pointcut;
+import com.taobao.arthas.api.source.AgentSourceAttribute;
 import com.taobao.arthas.api.state.AgentState;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
@@ -12,6 +13,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.util.Assert;
 
 /**
@@ -19,7 +22,10 @@ import org.springframework.util.Assert;
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
 @Slf4j
-public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements PointcutAdvisor, InitializingBean {
+public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements ApplicationEventPublisherAware, PointcutAdvisor, InitializingBean {
+
+    @Setter
+    protected ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     protected AgentState agentState;
@@ -28,11 +34,8 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     private Pointcut pointcut = Pointcut.FALSE;
 
     @Getter
-    private ClassMethodInfo classMethodInfo;
-
-    @Getter
     @Setter
-    private Boolean canRetransform = Boolean.FALSE;
+    private AgentSourceAttribute agentSourceAttribute;
 
     public AbstractMethodInvokePointcutAdvisor() {
     }
@@ -46,9 +49,8 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
-        this.classMethodInfo = classMethodInfo;
-        this.canRetransform = canRetransform;
-        pointcut = new CachingPointcut(classMethodInfo, canRetransform);
+        this.agentSourceAttribute = new AgentSourceAttribute(classMethodInfo);
+        pointcut = new CachingPointcut(agentSourceAttribute, canRetransform);
     }
 
     public boolean isReady() {
@@ -96,6 +98,10 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     @Override
     public Advice getAdvice() {
         return this;
+    }
+
+    protected ClassMethodInfo getClassMethodInfo() {
+        return agentSourceAttribute.getSourceAttribute();
     }
 
     @Override

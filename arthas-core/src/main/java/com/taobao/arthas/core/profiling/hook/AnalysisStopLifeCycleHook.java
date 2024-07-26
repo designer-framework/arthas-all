@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.profiling.hook;
 
-import com.taobao.arthas.api.processor.ProfilingLifeCycle;
-import com.taobao.arthas.core.constants.ProfilingLifeCycleOrdered;
+import com.taobao.arthas.core.constants.LifeCycleOrdered;
+import com.taobao.arthas.core.lifecycle.LifeCycleHook;
 import lombok.Setter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -14,7 +14,7 @@ import org.springframework.core.Ordered;
  * @date : 2024-07-08 01:49
  */
 @Setter
-public class ArthasExtensionShutdownHookPostProcessor implements ApplicationContextAware, ProfilingLifeCycle, Ordered {
+public class AnalysisStopLifeCycleHook implements ApplicationContextAware, LifeCycleHook, Ordered {
 
     private ApplicationContext applicationContext;
 
@@ -27,7 +27,7 @@ public class ArthasExtensionShutdownHookPostProcessor implements ApplicationCont
 
     @Override
     public int getOrder() {
-        return ProfilingLifeCycleOrdered.STOP_CONTAINER;
+        return LifeCycleOrdered.STOP_PROFILER_CONTAINER;
     }
 
 }

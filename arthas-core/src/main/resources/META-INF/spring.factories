@@ -3,6 +3,9 @@ org.springframework.boot.env.EnvironmentPostProcessor=\
   com.taobao.arthas.core.configuration.env.ArthasEnvironmentPostProcessor
 #
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.taobao.arthas.core.configuration.ArthasMethodInvokePostProcessor,\
-  com.taobao.arthas.core.configuration.ArthasLifeCycleAutoConfiguration,\
-  com.taobao.arthas.core.configuration.ArthasPropertiesAutoConfiguration
+  com.taobao.arthas.core.configuration.env.ArthasPropertiesAutoConfiguration,\
+  com.taobao.arthas.core.configuration.extension.AgentExtensionAutoConfiguration,\
+  com.taobao.arthas.core.configuration.advisor.ArthasMethodInvokeExtensionAutoConfiguration,\
+  com.taobao.arthas.core.configuration.advisor.CreateBeanCostTimeAdvisorAutoConfiguration,\
+  com.taobao.arthas.core.configuration.lifecycle.ArthasLifeCycleAutoConfiguration,\
+  com.taobao.arthas.core.configuration.lifecycle.ArthasDestroyBeanAutoConfiguration

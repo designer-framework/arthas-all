@@ -1,4 +1,4 @@
-package com.taobao.arthas.core.configuration;
+package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
 import com.taobao.arthas.core.annotation.MethodInvokeWatch;
@@ -20,7 +20,7 @@ public class ArthasExtensionMethodInvokeImportBeanDefinitionRegistrar implements
                 .flatMap(Collection::stream)
                 .forEach(methodInvokeWatch -> {
 
-                    ArthasMethodInvokePostProcessor.registry(registry,
+                    ArthasMethodInvokeRegistryPostProcessor.registry(registry,
                             new ArthasMethodTraceProperties.ClassMethodDesc(methodInvokeWatch.getString("value"), methodInvokeWatch.getBoolean("canRetransform"))
                     );
 

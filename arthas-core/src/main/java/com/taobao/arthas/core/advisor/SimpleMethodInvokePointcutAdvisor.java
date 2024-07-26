@@ -3,8 +3,8 @@ package com.taobao.arthas.core.advisor;
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.configuration.ArthasMethodInvokePostProcessor;
-import com.taobao.arthas.core.constants.DisposableBeanOrdered;
+import com.taobao.arthas.core.configuration.advisor.ArthasMethodInvokeRegistryPostProcessor;
+import com.taobao.arthas.core.constants.DestroyBeanOrdered;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.Map;
  * @description:
  * @author: Designer
  * @date : 2024-07-23 23:00
- * @see ArthasMethodInvokePostProcessor
+ * @see ArthasMethodInvokeRegistryPostProcessor
  */
 @Slf4j
 public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered, InitializingBean {
@@ -66,7 +66,7 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     @Override
     public int getOrder() {
-        return DisposableBeanOrdered.RELEASE_METHOD_INVOKE;
+        return DestroyBeanOrdered.RELEASE_METHOD_INVOKE;
     }
 
 }

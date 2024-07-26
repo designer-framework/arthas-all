@@ -1,10 +1,10 @@
 package com.taobao.arthas.core.profiling;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
-import com.taobao.arthas.api.processor.ProfilingLifeCycle;
+import com.taobao.arthas.api.lifecycle.LifeCycle;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.profiling.hook.ArthasExtensionShutdownHookPostProcessor;
-import com.taobao.arthas.core.profiling.stacktrace.SpringStacktraceProfiler;
+import com.taobao.arthas.core.profiling.hook.AnalysisStopLifeCycleHook;
+import com.taobao.arthas.core.profiling.hook.FlameGraphLifeCycleHook;
 import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -25,7 +25,7 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodInv
     protected ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    private List<ProfilingLifeCycle> profilingLifeCycles;
+    private List<LifeCycle> lifeCycles;
 
     @Autowired
     private ProfilingResultVO profilingResultVO;
@@ -51,17 +51,17 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodInv
         startTime = System.currentTimeMillis();
 
         //调用start, 启动性能分析Bean
-        profilingLifeCycles.forEach(ProfilingLifeCycle::start);
+        lifeCycles.forEach(LifeCycle::start);
 
-        agentState.started();
+        agentState.start();
     }
 
     /**
      * 项目启动完成, 发布分析完成事件
      *
      * @param invokeVO
-     * @see SpringStacktraceProfiler
-     * @see ArthasExtensionShutdownHookPostProcessor
+     * @see FlameGraphLifeCycleHook
+     * @see AnalysisStopLifeCycleHook
      */
     @Override
     public void atExit(InvokeVO invokeVO) {
@@ -70,7 +70,7 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractMethodInv
 
         agentState.stop();
         //分析完毕, 通知释放资源,关闭容器,上报分析数据...
-        profilingLifeCycles.forEach(ProfilingLifeCycle::stop);
+        lifeCycles.forEach(LifeCycle::stop);
 
     }
 

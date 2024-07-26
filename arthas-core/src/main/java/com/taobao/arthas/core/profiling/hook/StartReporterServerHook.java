@@ -1,6 +1,6 @@
-package com.taobao.arthas.core.profiling.server;
+package com.taobao.arthas.core.profiling.hook;
 
-import com.taobao.arthas.core.constants.DisposableBeanOrdered;
+import com.taobao.arthas.core.constants.DestroyBeanOrdered;
 import com.taobao.arthas.core.properties.ArthasServerProperties;
 import com.taobao.arthas.core.utils.ProfilingHtmlUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -15,23 +15,23 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 
 @Slf4j
-@Component
-public class SpringProfilingReporterServer implements DisposableBean, Ordered {
+public class StartReporterServerHook implements DisposableBean, Ordered {
 
-    @Autowired
-    private ArthasServerProperties arthasServerProperties;
+    private final ArthasServerProperties arthasServerProperties;
 
-    @Autowired
-    private ProfilingHtmlUtil profilingHtmlUtil;
+    private final ProfilingHtmlUtil profilingHtmlUtil;
+
+    public StartReporterServerHook(ArthasServerProperties arthasServerProperties, ProfilingHtmlUtil profilingHtmlUtil) {
+        this.arthasServerProperties = arthasServerProperties;
+        this.profilingHtmlUtil = profilingHtmlUtil;
+    }
 
     /**
      * 异步启动性能分析报表Web服务端
@@ -79,7 +79,7 @@ public class SpringProfilingReporterServer implements DisposableBean, Ordered {
 
     @Override
     public int getOrder() {
-        return DisposableBeanOrdered.START_REPORTER_SERVER;
+        return DestroyBeanOrdered.START_REPORTER_SERVER;
     }
 
     class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {

@@ -1,6 +1,7 @@
 package com.taobao.arthas.api.advisor;
 
 import com.taobao.arthas.api.pointcut.Pointcut;
+import com.taobao.arthas.api.source.AgentSourceAttribute;
 
 /**
  * @description: 切面
@@ -15,5 +16,7 @@ public interface PointcutAdvisor extends Advisor {
      * @return
      */
     Pointcut getPointcut();
+
+    AgentSourceAttribute getAgentSourceAttribute();
 
 }

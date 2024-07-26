@@ -1,4 +1,4 @@
-package com.taobao.arthas.core.profiling.html;
+package com.taobao.arthas.core.profiling.hook;
 
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +13,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-public class FlameGraph {
+class FlameGraph {
+
     private static final byte FRAME_JIT_COMPILED = 0;
 
     private static final byte FRAME_NATIVE = 1;
@@ -164,4 +165,5 @@ public class FlameGraph {
             self += ticks;
         }
     }
+
 }
