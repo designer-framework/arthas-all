@@ -5,9 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.InputStream;
@@ -21,16 +19,21 @@ import java.util.function.Function;
  * @date : 2024-07-16 23:40
  */
 @Slf4j
-@Component
 public class ProfilingHtmlUtil {
 
     public static final String tailwindJs_ = "/tailwind.js";
+    
     public static final String startupAnalysis_ = "/startup-analysis.html";
+
     public static final String hyperappJs_ = "/hyperapp.js";
+
     public static final String flameGraph_ = "/flame-graph.html";
 
-    @Autowired
-    private ArthasOutputProperties arthasOutputProperties;
+    private final ArthasOutputProperties arthasOutputProperties;
+
+    public ProfilingHtmlUtil(ArthasOutputProperties arthasOutputProperties) {
+        this.arthasOutputProperties = arthasOutputProperties;
+    }
 
     public void copyToOutputPath(String... fileNames) {
         for (String fileName : fileNames) {

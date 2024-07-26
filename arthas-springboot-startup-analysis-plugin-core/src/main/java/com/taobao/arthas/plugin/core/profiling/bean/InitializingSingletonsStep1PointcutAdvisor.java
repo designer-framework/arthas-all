@@ -9,10 +9,6 @@ public class InitializingSingletonsStep1PointcutAdvisor extends AbstractMethodIn
 
     private final ThreadLocal<Boolean> isReady = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
-    public InitializingSingletonsStep1PointcutAdvisor() {
-        super("org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()");
-    }
-
     boolean step1Ready() {
         return isReady.get();
     }

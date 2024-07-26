@@ -1,8 +1,8 @@
 package com.taobao.arthas.plugin.core.configuration;
 
 import com.taobao.arthas.core.configuration.advisor.AdvisorUtils;
-import com.taobao.arthas.core.vo.ProfilingResultVO;
 import com.taobao.arthas.plugin.core.profiling.bean.*;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,9 +13,9 @@ public class CreateBeanCostTimeAdvisorAutoConfiguration {
      * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
     @Bean
-    public SpringBeanCreationPointcutAdvisor springBeanCreationPointcutAdvisor(ProfilingResultVO profilingResultVO) {
+    public SpringBeanCreationPointcutAdvisor springBeanCreationPointcutAdvisor(SpringAgentStatisticsVO springAgentStatisticsVO) {
         return AdvisorUtils.build(
-                new SpringBeanCreationPointcutAdvisor(profilingResultVO)
+                new SpringBeanCreationPointcutAdvisor(springAgentStatisticsVO)
                 , "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])");
     }
 

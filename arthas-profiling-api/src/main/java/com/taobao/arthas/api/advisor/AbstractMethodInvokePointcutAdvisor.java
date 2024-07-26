@@ -38,18 +38,11 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     private AgentSourceAttribute agentSourceAttribute;
 
     public AbstractMethodInvokePointcutAdvisor() {
-    }
-
-    public AbstractMethodInvokePointcutAdvisor(String fullyQualifiedMethodName) {
-        this(ClassMethodInfo.create(fullyQualifiedMethodName));
-    }
-
-    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
-        this(classMethodInfo, Boolean.FALSE);
+        this(null, Boolean.FALSE);
     }
 
     public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
-        this.agentSourceAttribute = new AgentSourceAttribute(classMethodInfo);
+        agentSourceAttribute = new AgentSourceAttribute(classMethodInfo);
         pointcut = new CachingPointcut(agentSourceAttribute, canRetransform);
     }
 

@@ -35,6 +35,13 @@
             <destName>arthas-profiling-api.jar</destName>
         </file>
 
+        <file>
+            <source>
+                ../arthas-springboot-startup-analysis-plugin-core/target/arthas-springboot-startup-analysis-plugin-core.jar
+            </source>
+            <destName>arthas-springboot-startup-analysis-plugin-core.jar</destName>
+        </file>
+
     </files>
 
     <fileSets>

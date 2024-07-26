@@ -14,17 +14,7 @@
     <name>arthas-core</name>
     <url>https://github.com/alibaba/arthas</url>
 
-    <properties>
-        <arthas.deps.package>com.alibaba.arthas.deps</arthas.deps.package>
-    </properties>
-
     <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.taobao.arthas</groupId>
             <artifactId>arthas-spy</artifactId>
@@ -37,11 +27,18 @@
             <artifactId>arthas-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>bytekit-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>

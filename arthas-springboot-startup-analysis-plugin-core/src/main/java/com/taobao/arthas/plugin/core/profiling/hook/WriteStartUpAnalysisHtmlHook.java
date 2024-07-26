@@ -1,8 +1,8 @@
 package com.taobao.arthas.plugin.core.profiling.hook;
 
 import com.alibaba.fastjson.JSON;
-import com.taobao.arthas.core.vo.ProfilingResultVO;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -13,11 +13,11 @@ public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
 
     protected final ProfilingHtmlUtil profilingHtmlUtil;
 
-    protected final ProfilingResultVO profilingResultVO;
+    protected final SpringAgentStatisticsVO springAgentStatisticsVO;
 
-    public WriteStartUpAnalysisHtmlHook(ProfilingHtmlUtil profilingHtmlUtil, ProfilingResultVO profilingResultVO) {
+    public WriteStartUpAnalysisHtmlHook(ProfilingHtmlUtil profilingHtmlUtil, SpringAgentStatisticsVO springAgentStatisticsVO) {
         this.profilingHtmlUtil = profilingHtmlUtil;
-        this.profilingResultVO = profilingResultVO;
+        this.springAgentStatisticsVO = springAgentStatisticsVO;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
                 //flameGraph_html源代码
                 profilingHtmlUtil.resourrceToString(ProfilingHtmlUtil.flameGraph_)
                 //替换占位符
-                , profilingHtmlUtil.getOutputFile(ProfilingHtmlUtil.flameGraph_), profilingResultVO.getInvokeTraceMap()
+                , profilingHtmlUtil.getOutputFile(ProfilingHtmlUtil.flameGraph_), springAgentStatisticsVO.invokeStackTraceMap()
         );
     }
 
@@ -49,7 +49,7 @@ public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
         profilingHtmlUtil.copyToOutputPath(ProfilingHtmlUtil.startupAnalysis_, content -> {
 
             //替换性能分析对象占位符
-            content = content.replace("/*startupVO:*/{}", JSON.toJSONString(profilingResultVO));
+            content = content.replace("/*startupVO:*/{}", JSON.toJSONString(springAgentStatisticsVO));
 
             //替换火焰图Path占位符
             content = content.replace("/*flameGraphUrl*/''", "'." + ProfilingHtmlUtil.flameGraph_ + "'");

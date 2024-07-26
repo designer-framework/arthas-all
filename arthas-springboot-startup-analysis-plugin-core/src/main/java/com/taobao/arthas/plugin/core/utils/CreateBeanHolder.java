@@ -1,6 +1,6 @@
 package com.taobao.arthas.plugin.core.utils;
 
-import com.taobao.arthas.core.vo.BeanCreateVO;
+import com.taobao.arthas.plugin.core.vo.BeanCreateVO;
 import org.springframework.core.NamedThreadLocal;
 
 import java.util.Stack;

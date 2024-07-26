@@ -1,7 +1,7 @@
 package com.taobao.arthas.plugin.core.profiling.hook;
 
-import com.taobao.arthas.core.constants.DestroyBeanOrdered;
-import com.taobao.arthas.core.properties.ArthasServerProperties;
+import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
+import com.taobao.arthas.plugin.core.properties.ArthasServerProperties;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
@@ -79,7 +79,7 @@ public class StartReporterServerHook implements DisposableBean, Ordered {
 
     @Override
     public int getOrder() {
-        return DestroyBeanOrdered.START_REPORTER_SERVER;
+        return LifeCycleStopHookOrdered.START_REPORTER_SERVER;
     }
 
     class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {

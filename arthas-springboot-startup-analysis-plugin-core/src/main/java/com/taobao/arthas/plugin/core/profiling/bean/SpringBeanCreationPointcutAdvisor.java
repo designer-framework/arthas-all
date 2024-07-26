@@ -2,22 +2,22 @@ package com.taobao.arthas.plugin.core.profiling.bean;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.vo.BeanCreateVO;
-import com.taobao.arthas.core.vo.ProfilingResultVO;
 import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.plugin.core.events.BeanCreationEvent;
 import com.taobao.arthas.plugin.core.events.InstantiateSingletonOverEvent;
 import com.taobao.arthas.plugin.core.utils.CreateBeanHolder;
+import com.taobao.arthas.plugin.core.vo.BeanCreateVO;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 
 public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean, InitializingBean {
 
-    private final ProfilingResultVO profilingResultVO;
+    private final SpringAgentStatisticsVO springAgentStatisticsResult;
 
-    public SpringBeanCreationPointcutAdvisor(ProfilingResultVO profilingResultVO) {
-        this.profilingResultVO = profilingResultVO;
+    public SpringBeanCreationPointcutAdvisor(SpringAgentStatisticsVO springAgentStatisticsResult) {
+        this.springAgentStatisticsResult = springAgentStatisticsResult;
     }
 
     /**
@@ -30,10 +30,9 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
         BeanCreateVO creatingBean = new BeanCreateVO(invokeVO.getInvokeId(), String.valueOf(invokeVO.getParams()[0]));
 
         //采集已创建的Bean
-        profilingResultVO.addCreatedBean(creatingBean);
+        springAgentStatisticsResult.addCreatedBean(creatingBean);
 
         CreateBeanHolder.push(creatingBean);
-
     }
 
     /**
@@ -48,7 +47,6 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
         addBeanTags(invokeVO, beanCreateVO)
                 //计算Bean创建耗时
                 .calcBeanLoadTime();
-
     }
 
     private BeanCreateVO addBeanTags(InvokeVO invokeVO, BeanCreateVO creatingBean) {
@@ -82,13 +80,12 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
      */
     @Override
     public void onApplicationEvent(BeanCreationEvent beanCreationEvent) {
-
         if (beanCreationEvent instanceof InstantiateSingletonOverEvent) {
 
             InstantiateSingletonOverEvent instantiateSingletonOverEvent = (InstantiateSingletonOverEvent) beanCreationEvent;
 
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
-            profilingResultVO.fillBeanCreate(instantiateSingletonOverEvent.getBeanName(), beanCreateVO -> {
+            springAgentStatisticsResult.fillBeanCreate(instantiateSingletonOverEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag("smartInitializingDuration", instantiateSingletonOverEvent.getCostTime());
 
@@ -99,14 +96,13 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             BeanAopProxyCreatedEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedEvent) beanCreationEvent;
 
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
-            profilingResultVO.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
+            springAgentStatisticsResult.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag("createProxyDuration", beanAopProxyCreatedEvent.getCostTime());
 
             });
 
         }
-
     }
 
     @Override

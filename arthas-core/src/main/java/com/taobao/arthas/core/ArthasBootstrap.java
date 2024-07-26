@@ -50,7 +50,7 @@ public class ArthasBootstrap {
 
     private final Thread shutdown;
 
-    private SpringProfilingContainer springProfilingContainer;
+    private AgentContainer agentContainer;
 
     private InstrumentTransformer classLoaderInstrumentTransformer;
 
@@ -117,15 +117,15 @@ public class ArthasBootstrap {
 
     private void enhanceNormalClass() {
         //获取Spy实现类
-        SpyAPI.setSpy(springProfilingContainer.getSpyAPI());
+        SpyAPI.setSpy(agentContainer.getSpyAPI());
 
-        EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(springProfilingContainer.getPointcutAdvisor());
+        EnhanceProfilingInstrumentTransformer enhanceProfilingInstrumentTransformer = new EnhanceProfilingInstrumentTransformer(agentContainer.getPointcutAdvisor());
         instrumentation.addTransformer(enhanceProfilingInstrumentTransformer, true);
 
         //
         InstrumentationUtils.trigerRetransformClasses(
                 instrumentation
-                , springProfilingContainer.getPointcutAdvisor().stream()
+                , agentContainer.getPointcutAdvisor().stream()
                         .map(PointcutAdvisor::getPointcut).filter(Pointcut::getCanRetransform).collect(Collectors.toList())
         );
     }
@@ -170,7 +170,7 @@ public class ArthasBootstrap {
     }
 
     private void enhanceClassLoader() throws IOException, UnmodifiableClassException {
-        ArthasClassLoaderProperties arthasClassLoaderProperties = springProfilingContainer.getArthasClassLoaderProperties();
+        ArthasClassLoaderProperties arthasClassLoaderProperties = agentContainer.getArthasClassLoaderProperties();
         if (arthasClassLoaderProperties.getEnhanceLoaders() == null) {
             return;
         }
@@ -207,9 +207,9 @@ public class ArthasBootstrap {
     }
 
     private void initProfilingContainer(Map<String, String> argsMap) {
-        ConfigurableApplicationContext configurableApplicationContext = SpringProfilingContainer.instance(argsMap);
+        ConfigurableApplicationContext configurableApplicationContext = AgentContainer.instance(argsMap);
         log.error("性能分析容器启动完毕： {}, ClassLoader: {}", configurableApplicationContext.getDisplayName(), configurableApplicationContext.getClassLoader());
-        springProfilingContainer = configurableApplicationContext.getBean(SpringProfilingContainer.class);
+        agentContainer = configurableApplicationContext.getBean(AgentContainer.class);
     }
 
     /**

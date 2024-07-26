@@ -3,10 +3,9 @@ package com.taobao.arthas.core.advisor;
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.configuration.advisor.ArthasMethodInvokeRegistryPostProcessor;
-import com.taobao.arthas.core.constants.DestroyBeanOrdered;
+import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
+import com.taobao.arthas.core.vo.AgentStatistics;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
-import com.taobao.arthas.core.vo.ProfilingResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -20,7 +19,7 @@ import java.util.Map;
  * @description:
  * @author: Designer
  * @date : 2024-07-23 23:00
- * @see ArthasMethodInvokeRegistryPostProcessor
+ * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
  */
 @Slf4j
 public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered, InitializingBean {
@@ -28,8 +27,13 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
     private final ThreadLocal<Map<String, MethodInvokeVO>> methodInvokeMapThreadLocal = ThreadLocal.withInitial(HashMap::new);
 
     @Autowired
-    private ProfilingResultVO profilingResultVO;
+    private AgentStatistics agentStatistics;
 
+    /**
+     * @param classMethodInfo
+     * @param canRetransform
+     * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
+     */
     public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
         super(classMethodInfo, canRetransform);
     }
@@ -40,7 +44,7 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
         MethodInvokeVO methodInvokeVO = new MethodInvokeVO(getClassMethodInfo().getFullyQualifiedMethodName(), invokeVO.getParams());
         methodInvokeMapThreadLocal.get().put(getInvokeKey(invokeVO), methodInvokeVO);
 
-        profilingResultVO.addMethodInvoke(methodInvokeVO);
+        agentStatistics.addMethodInvoke(methodInvokeVO);
 
     }
 
@@ -66,7 +70,7 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     @Override
     public int getOrder() {
-        return DestroyBeanOrdered.RELEASE_METHOD_INVOKE;
+        return LifeCycleStopHookOrdered.RELEASE_METHOD_INVOKE;
     }
 
 }

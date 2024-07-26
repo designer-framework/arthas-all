@@ -19,23 +19,6 @@
     <description>arthas</description>
     <url>https://github.com/alibaba/arthas</url>
 
-    <modules>
-        <module>arthas-spring-maven-plugin</module>
-
-        <module>arthas-common</module>
-        <module>arthas-spy</module>
-        <module>arthas-core</module>
-        <module>arthas-agent</module>
-
-        <module>arthas-springboot-startup-analysis-plugin-core</module>
-        <module>arthas-profiling-api</module>
-        <module>arthas-spring-plugin</module>
-
-        <module>arthas-packaging</module>
-
-        <module>spring-boot-web-test</module>
-    </modules>
-
     <properties>
         <revision>3.7.2</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,12 +27,30 @@
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
 
         <netty.version>4.1.112.Final</netty.version>
-        <!--        <spring-boot.version>2.7.18</spring-boot.version>-->
+        <!-- <spring-boot.version>2.7.18</spring-boot.version> -->
         <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <maven-invoker-plugin.version>3.0.0</maven-invoker-plugin.version>
         <project.build.outputTimestamp>2020-09-27T15:10:43Z</project.build.outputTimestamp>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
+
+        <arthas.deps.package>com.alibaba.arthas.deps</arthas.deps.package>
     </properties>
+
+    <modules>
+        <module>arthas-spring-maven-plugin</module>
+
+        <module>arthas-common</module>
+        <module>arthas-spy</module>
+        <module>arthas-agent</module>
+        <module>arthas-profiling-api</module>
+        <module>arthas-core</module>
+
+        <module>arthas-springboot-startup-analysis-plugin-core</module>
+
+        <module>arthas-packaging</module>
+
+        <module>spring-boot-web-test</module>
+    </modules>
 
     <dependencies>
     </dependencies>
