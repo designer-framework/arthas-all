@@ -1,6 +1,9 @@
 package com.taobao.arthas.plugin.core.events;
 
+import com.taobao.arthas.core.vo.DurationUtils;
 import lombok.Getter;
+
+import java.math.BigDecimal;
 
 /**
  * @description:
@@ -10,23 +13,23 @@ import lombok.Getter;
 @Getter
 public class InstantiateSingletonOverEvent extends BeanCreationEvent {
 
-    private final long startTime;
-
     private final String beanName;
 
-    private long endTime;
+    private final BigDecimal startTime;
 
-    private long costTime;
+    private BigDecimal endTime;
+
+    private BigDecimal costTime;
 
     public InstantiateSingletonOverEvent(Object source, String beanName) {
         super(source);
         this.beanName = beanName;
-        startTime = System.currentTimeMillis();
+        startTime = DurationUtils.nowMillis();
     }
 
     public InstantiateSingletonOverEvent instantiated() {
-        endTime = System.currentTimeMillis();
-        costTime = endTime - startTime;
+        endTime = DurationUtils.nowMillis();
+        costTime = endTime.subtract(startTime);
         return this;
     }
 

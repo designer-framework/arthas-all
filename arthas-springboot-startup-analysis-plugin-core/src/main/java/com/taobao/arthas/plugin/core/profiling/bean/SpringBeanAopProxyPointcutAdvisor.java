@@ -2,10 +2,12 @@ package com.taobao.arthas.plugin.core.profiling.bean;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
+import com.taobao.arthas.core.vo.DurationUtils;
 import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.math.BigDecimal;
 import java.util.Stack;
 
 public class SpringBeanAopProxyPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
@@ -39,13 +41,13 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractMethodInvokePoint
 
     static class AopInfo {
 
-        private final long startTime;
+        private final BigDecimal startTime;
 
         private final String beanName;
 
         public AopInfo(String beanName) {
             this.beanName = beanName;
-            startTime = System.currentTimeMillis();
+            startTime = DurationUtils.nowMillis();
         }
 
     }

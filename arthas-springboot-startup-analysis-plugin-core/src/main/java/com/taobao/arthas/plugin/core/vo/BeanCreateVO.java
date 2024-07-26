@@ -1,8 +1,10 @@
 package com.taobao.arthas.plugin.core.vo;
 
+import com.taobao.arthas.core.vo.DurationUtils;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,19 +40,19 @@ public class BeanCreateVO implements Serializable {
     /**
      * 创建时间
      */
-    private long startMillis;
+    private BigDecimal startMillis;
     /**
      * 创建完成时间
      */
-    private long endMillis;
+    private BigDecimal endMillis;
     /**
      * 加载耗时
      */
-    private long duration;
+    private BigDecimal duration;
     /**
      * 实际加载耗时(减去依赖Bean的耗时)
      */
-    private long actualDuration;
+    private BigDecimal actualDuration;
 
     /**
      * 创建代理Bean耗时
@@ -60,17 +62,19 @@ public class BeanCreateVO implements Serializable {
     public BeanCreateVO(long id, String name) {
         this.id = id;
         this.name = name;
-        startMillis = System.currentTimeMillis();
+        startMillis = DurationUtils.nowMillis();
         children = new ArrayList<>();
         tags = new HashMap<>();
     }
 
 
     public void calcBeanLoadTime() {
-        endMillis = System.currentTimeMillis();
-        duration = endMillis - startMillis;
-        long childrenDuration = children.stream().mapToLong(BeanCreateVO::getDuration).sum();
-        actualDuration = duration - childrenDuration;
+        endMillis = DurationUtils.nowMillis();
+        duration = endMillis.subtract(startMillis);
+
+        BigDecimal childrenDuration = children.stream().map(BeanCreateVO::getDuration)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        actualDuration = duration.subtract(childrenDuration);
     }
 
     public void addDependBean(BeanCreateVO dependBean) {

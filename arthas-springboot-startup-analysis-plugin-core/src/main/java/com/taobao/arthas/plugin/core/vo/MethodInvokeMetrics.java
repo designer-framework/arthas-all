@@ -3,6 +3,7 @@ package com.taobao.arthas.plugin.core.vo;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -15,17 +16,17 @@ public class MethodInvokeMetrics {
 
     private final long invokeCount;
 
-    private final long totalCost;
+    private final BigDecimal totalCost;
 
-    private final String averageCost;
+    private final BigDecimal averageCost;
 
     private final List<MethodInvokeVO> invokeDetails;
 
-    public MethodInvokeMetrics(String method, long invokeCount, long totalCost, double averageCost, List<MethodInvokeVO> invokeDetails) {
+    public MethodInvokeMetrics(String method, long invokeCount, BigDecimal totalCost, BigDecimal averageCost, List<MethodInvokeVO> invokeDetails) {
         this.method = method;
         this.invokeCount = invokeCount;
         this.totalCost = totalCost;
-        this.averageCost = String.format("%.2f", averageCost);
+        this.averageCost = averageCost;
         this.invokeDetails = invokeDetails;
     }
 

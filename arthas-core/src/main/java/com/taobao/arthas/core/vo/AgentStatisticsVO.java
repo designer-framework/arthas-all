@@ -3,6 +3,7 @@ package com.taobao.arthas.core.vo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ public class AgentStatisticsVO implements AgentStatistics {
 
     @Getter
     @Setter
-    protected volatile long agentTime;
+    protected volatile BigDecimal agentTime;
 
     @Override
     public void addMethodInvoke(MethodInvokeVO methodInvokeVO) {

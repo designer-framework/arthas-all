@@ -2,6 +2,8 @@ package com.taobao.arthas.core.vo;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author linyimin
  **/
@@ -10,26 +12,19 @@ public class MethodInvokeVO {
 
     private final String methodQualifier;
 
-    private final long startMillis;
+    private final BigDecimal startMillis;
 
-    private long duration;
+    private BigDecimal duration;
 
     private Object[] args;
 
-    public MethodInvokeVO(String methodQualifier, long startMillis, long duration) {
-        this.methodQualifier = methodQualifier;
-        this.startMillis = startMillis;
-        this.duration = duration;
-    }
-
     public MethodInvokeVO(String methodQualifier, Object[] args) {
         this.methodQualifier = methodQualifier;
-        startMillis = System.currentTimeMillis();
+        startMillis = DurationUtils.nowMillis();
 
         if (args == null) {
             return;
         }
-
 
         Object[] argStrList = new String[args.length];
 

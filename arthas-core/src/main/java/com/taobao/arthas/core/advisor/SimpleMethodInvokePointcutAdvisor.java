@@ -5,6 +5,7 @@ import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
 import com.taobao.arthas.core.vo.AgentStatistics;
+import com.taobao.arthas.core.vo.DurationUtils;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -54,7 +55,7 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
         Map<String, MethodInvokeVO> methodInvokeMap = methodInvokeMapThreadLocal.get();
         if (methodInvokeMap.containsKey(getInvokeKey(invokeVO))) {
             MethodInvokeVO invokeDetail = methodInvokeMap.get(getInvokeKey(invokeVO));
-            invokeDetail.setDuration(System.currentTimeMillis() - invokeDetail.getStartMillis());
+            invokeDetail.setDuration(DurationUtils.nowMillis().subtract(invokeDetail.getStartMillis()));
         }
 
     }

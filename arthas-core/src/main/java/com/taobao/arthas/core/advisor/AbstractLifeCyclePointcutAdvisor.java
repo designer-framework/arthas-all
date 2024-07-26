@@ -5,7 +5,10 @@ import com.taobao.arthas.api.lifecycle.AgentLifeCycle;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.hook.AgentLifeCycleStopHook;
 import com.taobao.arthas.core.vo.AgentStatistics;
+import com.taobao.arthas.core.vo.DurationUtils;
 import lombok.extern.slf4j.Slf4j;
+
+import java.math.BigDecimal;
 
 /**
  * Spring项目启动耗时分析
@@ -17,7 +20,7 @@ public abstract class AbstractLifeCyclePointcutAdvisor extends AbstractMethodInv
 
     private final AgentStatistics agentStatistics;
 
-    private long startTime = 0L;
+    private BigDecimal startTime = BigDecimal.ZERO;
 
     public AbstractLifeCyclePointcutAdvisor(AgentLifeCycle agentLifeCycle, AgentStatistics agentStatistics) {
         super();
@@ -44,7 +47,7 @@ public abstract class AbstractLifeCyclePointcutAdvisor extends AbstractMethodInv
         agentState.start();
 
         //性能分析起始时间
-        startTime = System.currentTimeMillis();
+        startTime = DurationUtils.nowMillis();
     }
 
     /**
@@ -56,7 +59,7 @@ public abstract class AbstractLifeCyclePointcutAdvisor extends AbstractMethodInv
     @Override
     public void atExit(InvokeVO invokeVO) {
         //性能分析耗时
-        agentStatistics.setAgentTime(System.currentTimeMillis() - startTime);
+        agentStatistics.setAgentTime(DurationUtils.nowMillis().subtract(startTime));
 
         //标记分析完毕
         agentState.stop();

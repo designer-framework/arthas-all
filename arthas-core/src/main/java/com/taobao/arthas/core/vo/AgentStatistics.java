@@ -1,5 +1,6 @@
 package com.taobao.arthas.core.vo;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -14,9 +15,9 @@ public interface AgentStatistics {
      *
      * @return
      */
-    long getAgentTime();
+    BigDecimal getAgentTime();
 
-    void setAgentTime(long agentTime);
+    void setAgentTime(BigDecimal agentTime);
 
     void addMethodInvoke(MethodInvokeVO methodInvokeVO);
 
