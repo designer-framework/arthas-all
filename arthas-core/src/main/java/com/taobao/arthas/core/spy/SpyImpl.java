@@ -3,6 +3,7 @@ package com.taobao.arthas.core.spy;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
 
 import java.arthas.SpyAPI.AbstractSpy;
+import java.util.List;
 
 /**
  * <pre>
@@ -16,25 +17,31 @@ import java.arthas.SpyAPI.AbstractSpy;
  */
 public class SpyImpl extends AbstractSpy {
 
-    private final SpyExtensionApi spyExtensionApi;
+    private final List<SpyExtensionApi> spyExtensionApis;
 
-    public SpyImpl(SpyExtensionApi spyExtensionApi) {
-        this.spyExtensionApi = spyExtensionApi;
+    public SpyImpl(List<SpyExtensionApi> spyExtensionApis) {
+        this.spyExtensionApis = spyExtensionApis;
     }
 
     @Override
     public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
-        spyExtensionApi.atEnter(clazz, methodName, methodDesc, target, args);
+        for (SpyExtensionApi spyExtensionApi : spyExtensionApis) {
+            spyExtensionApi.atEnter(clazz, methodName, methodDesc, target, args);
+        }
     }
 
     @Override
     public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
-        spyExtensionApi.atExit(clazz, methodName, methodDesc, target, args, returnObject);
+        for (SpyExtensionApi spyExtensionApi : spyExtensionApis) {
+            spyExtensionApi.atExit(clazz, methodName, methodDesc, target, args, returnObject);
+        }
     }
 
     @Override
     public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
-        spyExtensionApi.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable);
+        for (SpyExtensionApi spyExtensionApi : spyExtensionApis) {
+            spyExtensionApi.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable);
+        }
     }
 
 }

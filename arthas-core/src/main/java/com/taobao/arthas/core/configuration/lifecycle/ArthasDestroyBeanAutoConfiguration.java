@@ -22,7 +22,7 @@ public class ArthasDestroyBeanAutoConfiguration {
     }
 
     @Bean
-    WriteStartUpAnalysisHtmlHook startReporterServerHook(ProfilingHtmlUtil profilingHtmlUtil, ProfilingResultVO profilingResultVO) {
+    WriteStartUpAnalysisHtmlHook writeStartUpAnalysisHtmlHook(ProfilingHtmlUtil profilingHtmlUtil, ProfilingResultVO profilingResultVO) {
         return new WriteStartUpAnalysisHtmlHook(profilingHtmlUtil, profilingResultVO);
     }
 

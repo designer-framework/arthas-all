@@ -18,6 +18,11 @@ public class AnalysisStopLifeCycleHook implements ApplicationContextAware, LifeC
 
     private ApplicationContext applicationContext;
 
+    /**
+     * 销毁Bean
+     *
+     * @see org.springframework.beans.factory.DisposableBean#destroy()
+     */
     @Override
     public void stop() {
         if (applicationContext instanceof ConfigurableApplicationContext) {

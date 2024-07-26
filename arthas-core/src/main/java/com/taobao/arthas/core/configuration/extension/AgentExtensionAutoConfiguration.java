@@ -14,8 +14,8 @@ import java.util.List;
 public class AgentExtensionAutoConfiguration {
 
     @Bean
-    SpyAPI.AbstractSpy abstractSpy(SpyExtensionApi spyExtensionApi) {
-        return new SpyImpl(spyExtensionApi);
+    SpyAPI.AbstractSpy abstractSpy(List<SpyExtensionApi> spyExtensionApis) {
+        return new SpyImpl(spyExtensionApis);
     }
 
     @Bean
