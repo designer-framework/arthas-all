@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-public class CreateBeanCostTimeAdvisorAutoConfiguration {
+public class SpringCreateBeanCostTimeAdvisorAutoConfiguration {
 
     /**
      * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
@@ -40,7 +40,7 @@ public class CreateBeanCostTimeAdvisorAutoConfiguration {
     }
 
     /**
-     * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
+     * @see org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(String)
      */
     @Bean
     public InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2PointcutAdvisor(InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1PointcutAdvisor) {

@@ -1,18 +1,20 @@
 package com.taobao.arthas.plugin.core.events;
 
 import com.taobao.arthas.core.vo.DurationUtils;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
+@Getter
 public class BeanAopProxyCreatedEvent extends BeanCreationEvent {
 
-    private BigDecimal startTime;
+    private final BigDecimal startTime;
 
-    private BigDecimal endTime;
+    private final BigDecimal endTime;
 
-    private BigDecimal costTime;
+    private final BigDecimal costTime;
 
-    private String beanName;
+    private final String beanName;
 
     public BeanAopProxyCreatedEvent(Object source, String beanName, BigDecimal startTime) {
         super(source);
@@ -20,22 +22,6 @@ public class BeanAopProxyCreatedEvent extends BeanCreationEvent {
         this.startTime = startTime;
         endTime = DurationUtils.nowMillis();
         costTime = endTime.subtract(startTime);
-    }
-
-    public BigDecimal getCostTime() {
-        return costTime;
-    }
-
-    public BigDecimal getStartTime() {
-        return startTime;
-    }
-
-    public BigDecimal getEndTime() {
-        return endTime;
-    }
-
-    public String getBeanName() {
-        return beanName;
     }
 
 }

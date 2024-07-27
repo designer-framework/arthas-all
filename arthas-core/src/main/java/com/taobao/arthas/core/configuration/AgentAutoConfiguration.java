@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Configuration;
 import java.arthas.SpyAPI;
 import java.util.List;
 
+/**
+ * @see com.taobao.arthas.core.configuration.env.AgentPropertiesAutoConfiguration
+ * @see com.taobao.arthas.core.configuration.lifecycle.AgentLifeCycleAutoConfiguration
+ */
 @Configuration(proxyBeanMethods = false)
 public class AgentAutoConfiguration {
 

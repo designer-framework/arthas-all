@@ -24,13 +24,13 @@ import org.springframework.context.annotation.Configuration;
 public class SpringApplicationReporterAutoConfiguration {
 
     @Bean
-    ArthasServerProperties arthasServerProperties() {
-        return new ArthasServerProperties();
+    StartReporterServerHook startReporterServerHook(ArthasServerProperties arthasServerProperties, ProfilingHtmlUtil profilingHtmlUtil) {
+        return new StartReporterServerHook(arthasServerProperties, profilingHtmlUtil);
     }
 
     @Bean
-    StartReporterServerHook startReporterServerHook(ArthasServerProperties arthasServerProperties, ProfilingHtmlUtil profilingHtmlUtil) {
-        return new StartReporterServerHook(arthasServerProperties, profilingHtmlUtil);
+    ArthasServerProperties arthasServerProperties() {
+        return new ArthasServerProperties();
     }
 
     @Bean

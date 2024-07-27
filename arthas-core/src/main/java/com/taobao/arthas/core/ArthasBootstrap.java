@@ -208,7 +208,7 @@ public class ArthasBootstrap {
 
     private void initProfilingContainer(Map<String, String> argsMap) {
         ConfigurableApplicationContext configurableApplicationContext = AgentContainer.instance(argsMap);
-        log.error("性能分析容器启动完毕： {}, ClassLoader: {}", configurableApplicationContext.getDisplayName(), configurableApplicationContext.getClassLoader());
+        log.error("The performance analysis container is started! ClassLoader: {}， Container: {}", configurableApplicationContext.getClassLoader(), configurableApplicationContext.getDisplayName());
         agentContainer = configurableApplicationContext.getBean(AgentContainer.class);
     }
 

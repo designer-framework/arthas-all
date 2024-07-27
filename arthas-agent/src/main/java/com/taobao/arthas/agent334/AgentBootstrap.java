@@ -203,7 +203,7 @@ public class AgentBootstrap {
                 }
             });
 
-            bindingThread.setName("spring-agent-thread");
+            bindingThread.setName("agent-thread");
             bindingThread.start();
             bindingThread.join();
 

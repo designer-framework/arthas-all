@@ -65,7 +65,7 @@ public class StartReporterServerHook implements DisposableBean, Ordered {
             //io.netty.handler.codec.DefaultHeaders.ValueValidator
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
 
-            log.error("点击查看性能分析报告: http://127.0.0.1:{}", port);
+            log.error("Click to view the performance analysis report: http://127.0.0.1:{}", port);
 
             f.channel().closeFuture().sync();
 

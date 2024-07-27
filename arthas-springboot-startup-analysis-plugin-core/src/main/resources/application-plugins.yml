@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: plugins
+    include: plugins-extension
   agent:
     trace:
       methods:
