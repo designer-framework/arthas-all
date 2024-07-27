@@ -12,7 +12,7 @@ import java.io.File;
  * @date : 2024-07-10 22:25
  */
 @Data
-public class ArthasOutputProperties implements InitializingBean {
+public class AgentOutputProperties implements InitializingBean {
 
     /**
      * 性能分析jar包所在文件夹

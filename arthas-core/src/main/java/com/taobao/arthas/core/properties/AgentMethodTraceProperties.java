@@ -13,7 +13,7 @@ import java.util.Set;
  * @date : 2024-07-10 22:25
  */
 @Data
-public class ArthasMethodTraceProperties {
+public class AgentMethodTraceProperties {
 
     private Set<ClassMethodDesc> methods;
 

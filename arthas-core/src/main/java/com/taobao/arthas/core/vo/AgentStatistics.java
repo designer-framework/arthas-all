@@ -26,7 +26,7 @@ public interface AgentStatistics {
      *
      * @param stackTraceElements
      */
-    void addInvokeTrace(StackTraceElement[] stackTraceElements);
+    void addInvokeTrace(String stackTraceElements);
 
     Map<String, Integer> invokeStackTraceMap();
 

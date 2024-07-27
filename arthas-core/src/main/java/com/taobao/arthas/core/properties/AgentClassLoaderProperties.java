@@ -12,16 +12,11 @@ import java.util.Set;
  * @date : 2024-07-10 22:25
  */
 @Data
-public class ArthasThreadTraceProperties {
+public class AgentClassLoaderProperties {
 
     /**
-     * 被采样线程名
+     * 哪些类加载器需要增强
      */
-    private Set<String> names = new HashSet<>(Collections.singletonList("main"));
-
-    /**
-     * 采样间隔
-     */
-    private long interval = 1;
+    private Set<String> enhanceLoaders = new HashSet<>(Collections.singletonList("java.lang.ClassLoader"));
 
 }

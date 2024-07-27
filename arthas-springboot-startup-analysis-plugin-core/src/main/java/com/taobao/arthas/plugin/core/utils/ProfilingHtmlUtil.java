@@ -1,6 +1,6 @@
 package com.taobao.arthas.plugin.core.utils;
 
-import com.taobao.arthas.core.properties.ArthasOutputProperties;
+import com.taobao.arthas.core.properties.AgentOutputProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -22,17 +22,17 @@ import java.util.function.Function;
 public class ProfilingHtmlUtil {
 
     public static final String tailwindJs_ = "/tailwind.js";
-    
+
     public static final String startupAnalysis_ = "/startup-analysis.html";
 
     public static final String hyperappJs_ = "/hyperapp.js";
 
     public static final String flameGraph_ = "/flame-graph.html";
 
-    private final ArthasOutputProperties arthasOutputProperties;
+    private final AgentOutputProperties agentOutputProperties;
 
-    public ProfilingHtmlUtil(ArthasOutputProperties arthasOutputProperties) {
-        this.arthasOutputProperties = arthasOutputProperties;
+    public ProfilingHtmlUtil(AgentOutputProperties agentOutputProperties) {
+        this.agentOutputProperties = agentOutputProperties;
     }
 
     public void copyToOutputPath(String... fileNames) {
@@ -48,7 +48,7 @@ public class ProfilingHtmlUtil {
 
     @SneakyThrows
     public File getOutputFile(String fileName) {
-        File outputFile = new File(arthasOutputProperties.getOutputPath(), fileName);
+        File outputFile = new File(agentOutputProperties.getOutputPath(), fileName);
         if (!outputFile.exists()) {
             FileUtils.touch(outputFile);
         }
@@ -57,7 +57,7 @@ public class ProfilingHtmlUtil {
 
     @SneakyThrows
     public String readOutputResourrceToString(String fileName) {
-        try (InputStream inputStream = Files.newInputStream(new File(arthasOutputProperties.getOutputPath(), fileName).toPath())) {
+        try (InputStream inputStream = Files.newInputStream(new File(agentOutputProperties.getOutputPath(), fileName).toPath())) {
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         }
     }

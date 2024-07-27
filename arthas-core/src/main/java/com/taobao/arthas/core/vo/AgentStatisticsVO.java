@@ -4,9 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class AgentStatisticsVO implements AgentStatistics {
 
@@ -24,20 +25,8 @@ public class AgentStatisticsVO implements AgentStatistics {
     }
 
     @Override
-    public void addInvokeTrace(StackTraceElement[] stackTraceElements) {
-        List<StackTraceElement> stackTraceElementList = Arrays.asList(stackTraceElements);
-
-        if (stackTraceElementList.stream().anyMatch(element -> element.getClassName().startsWith("com.taobao.arthas"))) {
-            return;
-        }
-
-        Collections.reverse(stackTraceElementList);
-
-        //栈帧转换成String, 便于垃圾回收
-        String stackTraceElementsString = stackTraceElementList.stream()
-                .map(element -> element.getClassName() + "." + element.getMethodName()).collect(Collectors.joining(";"));
-
-        invokeStackTraceMap.put(stackTraceElementsString, invokeStackTraceMap.getOrDefault(stackTraceElementsString, 0) + 1);
+    public void addInvokeTrace(String stackTraceElements) {
+        invokeStackTraceMap.put(stackTraceElements, invokeStackTraceMap.getOrDefault(stackTraceElements, 0) + 1);
     }
 
     @Override

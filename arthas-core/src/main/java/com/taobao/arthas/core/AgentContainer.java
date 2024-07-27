@@ -3,7 +3,7 @@ package com.taobao.arthas.core;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.context.ProfilingContainer;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
-import com.taobao.arthas.core.properties.ArthasClassLoaderProperties;
+import com.taobao.arthas.core.properties.AgentClassLoaderProperties;
 import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class AgentContainer implements ProfilingContainer, DisposableBean, Order
      * 用于判断哪些类需要增强
      */
     @Autowired
-    private ArthasClassLoaderProperties arthasClassLoaderProperties;
+    private AgentClassLoaderProperties agentClassLoaderProperties;
 
     /**
      * 环境变量透传到性能分析容器中

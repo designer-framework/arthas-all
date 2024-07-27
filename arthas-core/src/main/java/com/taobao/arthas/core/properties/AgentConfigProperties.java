@@ -11,18 +11,18 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
  */
 @Data
 @ConfigurationProperties(prefix = "spring.agent")
-public class ArthasConfigProperties {
+public class AgentConfigProperties {
 
     @NestedConfigurationProperty
-    private ArthasOutputProperties output;
+    private AgentOutputProperties output;
 
     @NestedConfigurationProperty
-    private ArthasClassLoaderProperties classLoaders;
+    private AgentClassLoaderProperties classLoaders;
 
     @NestedConfigurationProperty
-    private ArthasMethodTraceProperties trace;
+    private AgentMethodTraceProperties trace;
 
     @NestedConfigurationProperty
-    private ArthasThreadTraceProperties thread;
+    private AgentFlameGraphProperties flameGraph;
 
 }

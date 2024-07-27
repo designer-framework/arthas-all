@@ -17,9 +17,14 @@ spring:
       enhance-loaders:
         - java.lang.ClassLoader
     #火焰图数据采集
-    thread:
+    flame-graph:
+      high-precision: false
       names: main
-      interval: 5
+      interval: 1
+      #高精度模式下此配置无效
+      skip-trace:
+        - java.arthas
+        - com.taobao.arthas
     #方法调用统计
     trace:
       methods:

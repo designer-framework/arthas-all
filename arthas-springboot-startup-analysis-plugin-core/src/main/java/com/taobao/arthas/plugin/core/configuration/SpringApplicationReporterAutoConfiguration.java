@@ -1,8 +1,8 @@
 package com.taobao.arthas.plugin.core.configuration;
 
 import com.taobao.arthas.core.configuration.lifecycle.AgentLifeCycleAutoConfiguration;
-import com.taobao.arthas.core.properties.ArthasOutputProperties;
-import com.taobao.arthas.core.properties.ArthasThreadTraceProperties;
+import com.taobao.arthas.core.properties.AgentFlameGraphProperties;
+import com.taobao.arthas.core.properties.AgentOutputProperties;
 import com.taobao.arthas.plugin.core.profiling.hook.FlameGraphAgentLifeCycleHook;
 import com.taobao.arthas.plugin.core.profiling.hook.StartReporterServerHook;
 import com.taobao.arthas.plugin.core.profiling.hook.WriteStartUpAnalysisHtmlHook;
@@ -35,8 +35,8 @@ public class SpringApplicationReporterAutoConfiguration {
     }
 
     @Bean
-    ProfilingHtmlUtil profilingHtmlUtil(ArthasOutputProperties arthasOutputProperties) {
-        return new ProfilingHtmlUtil(arthasOutputProperties);
+    ProfilingHtmlUtil profilingHtmlUtil(AgentOutputProperties agentOutputProperties) {
+        return new ProfilingHtmlUtil(agentOutputProperties);
     }
 
     @Bean
@@ -45,8 +45,8 @@ public class SpringApplicationReporterAutoConfiguration {
     }
 
     @Bean
-    FlameGraphAgentLifeCycleHook flameGraphLifeCycleHook(ArthasThreadTraceProperties arthasThreadTraceProperties, SpringAgentStatisticsVO springAgentStatisticsVO) {
-        return new FlameGraphAgentLifeCycleHook(arthasThreadTraceProperties, springAgentStatisticsVO);
+    FlameGraphAgentLifeCycleHook flameGraphLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, SpringAgentStatisticsVO springAgentStatisticsVO) {
+        return new FlameGraphAgentLifeCycleHook(agentFlameGraphProperties, springAgentStatisticsVO);
     }
 
 }

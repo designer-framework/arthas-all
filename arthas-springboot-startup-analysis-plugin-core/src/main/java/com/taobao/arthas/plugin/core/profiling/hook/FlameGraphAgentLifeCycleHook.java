@@ -2,7 +2,7 @@ package com.taobao.arthas.plugin.core.profiling.hook;
 
 import com.taobao.arthas.core.constants.LifeCycleOrdered;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
-import com.taobao.arthas.core.properties.ArthasThreadTraceProperties;
+import com.taobao.arthas.core.properties.AgentFlameGraphProperties;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ThreadUtils;
@@ -10,6 +10,8 @@ import org.springframework.core.Ordered;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,6 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 火焰图
@@ -33,7 +36,7 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
      */
     private final AtomicInteger count = new AtomicInteger();
 
-    private final ArthasThreadTraceProperties arthasThreadTraceProperties;
+    private final AgentFlameGraphProperties agentFlameGraphProperties;
 
     private final SpringAgentStatisticsVO springAgentStatisticsVO;
 
@@ -41,10 +44,11 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
      * 被采样的线程
      */
     private List<Thread> sampledThreads = new ArrayList<>();
+
     private volatile boolean stop = false;
 
-    public FlameGraphAgentLifeCycleHook(ArthasThreadTraceProperties arthasThreadTraceProperties, SpringAgentStatisticsVO springAgentStatisticsVO) {
-        this.arthasThreadTraceProperties = arthasThreadTraceProperties;
+    public FlameGraphAgentLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, SpringAgentStatisticsVO springAgentStatisticsVO) {
+        this.agentFlameGraphProperties = agentFlameGraphProperties;
         this.springAgentStatisticsVO = springAgentStatisticsVO;
     }
 
@@ -58,15 +62,17 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
         SAMPLE_SCHEDULER.scheduleAtFixedRate(() -> {
 
             // refresh per second
-            if (count.get() % (1000 / arthasThreadTraceProperties.getInterval()) == 0) {
+            if (count.get() % (1000 / agentFlameGraphProperties.getInterval()) == 0) {
                 sampledThreads = getTargetThreads();
             }
+
             count.getAndIncrement();
 
             for (Thread thread : sampledThreads) {
                 addStackTraceElements(thread.getStackTrace());
             }
-        }, 0, arthasThreadTraceProperties.getInterval(), TimeUnit.MILLISECONDS);
+
+        }, 0, agentFlameGraphProperties.getInterval(), TimeUnit.MILLISECONDS);
 
         new Thread(this::collectStackTrace).start();
     }
@@ -75,12 +81,48 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
         while (true) {
 
             try {
-                StackTraceElement[] traces = stackTraceQueue.poll(5, TimeUnit.SECONDS);
-                if (traces == null || traces.length == 0) {
+                //拉取间隔越短, 采样精度越高
+                StackTraceElement[] stackTraceElements = stackTraceQueue.poll(5, TimeUnit.SECONDS);
+                if (stackTraceElements == null || stackTraceElements.length == 0) {
                     continue;
                 }
 
-                springAgentStatisticsVO.addInvokeTrace(traces);
+                List<StackTraceElement> stackTraceElementList = Arrays.asList(stackTraceElements);
+
+                Collections.reverse(stackTraceElementList);
+
+                //高精度, 不丢弃栈帧
+                if (agentFlameGraphProperties.isHighPrecision()) {
+
+                    //将栈帧转换成String, 便于JVM对栈帧的回收
+                    springAgentStatisticsVO.addInvokeTrace(
+                            stackTraceElementList.stream()
+                                    .map(stackTraceElement -> stackTraceElement.getClassName() + "." + stackTraceElement.getMethodName() + ";")
+                                    .collect(Collectors.joining())
+                    );
+
+                    //默认会将
+                } else {
+
+                    StringBuilder stackTraceElementsBuilder = new StringBuilder();
+                    label:
+                    for (StackTraceElement stackTraceElement : stackTraceElementList) {
+
+                        for (String skipStackTrace : agentFlameGraphProperties.getSkipTrace()) {
+                            String className = stackTraceElement.getClassName();
+                            //丢弃后续栈帧
+                            if (className.startsWith(skipStackTrace)) {
+                                break label;
+                            }
+                        }
+                        stackTraceElementsBuilder.append(stackTraceElement.getClassName()).append(".").append(stackTraceElement.getMethodName()).append(";");
+
+                    }
+                    //将栈帧转换成String, 便于JVM对栈帧的回收
+                    springAgentStatisticsVO.addInvokeTrace(stackTraceElementsBuilder.toString());
+
+                }
+
 
             } catch (InterruptedException ignored) {
             }
@@ -113,11 +155,11 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
 
         return new ArrayList<>(ThreadUtils.findThreads(thread -> {
 
-            if (CollectionUtils.isEmpty(arthasThreadTraceProperties.getNames())) {
+            if (CollectionUtils.isEmpty(agentFlameGraphProperties.getNames())) {
                 return true;
             }
 
-            return arthasThreadTraceProperties.getNames().stream()
+            return agentFlameGraphProperties.getNames().stream()
                     .anyMatch(name -> {
                         if (name.contains("*")) {
                             return Pattern.compile(name).matcher(thread.getName()).matches();

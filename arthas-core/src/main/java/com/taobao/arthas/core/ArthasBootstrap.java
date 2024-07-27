@@ -12,7 +12,7 @@ import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.core.instrument.ClassLoader_Instrument;
 import com.taobao.arthas.core.instrument.EnhanceProfilingInstrumentTransformer;
-import com.taobao.arthas.core.properties.ArthasClassLoaderProperties;
+import com.taobao.arthas.core.properties.AgentClassLoaderProperties;
 import com.taobao.arthas.core.transformer.TransformerManager;
 import com.taobao.arthas.core.utils.FeatureCodec;
 import com.taobao.arthas.core.utils.InstrumentationUtils;
@@ -170,13 +170,13 @@ public class ArthasBootstrap {
     }
 
     private void enhanceClassLoader() throws IOException, UnmodifiableClassException {
-        ArthasClassLoaderProperties arthasClassLoaderProperties = agentContainer.getArthasClassLoaderProperties();
-        if (arthasClassLoaderProperties.getEnhanceLoaders() == null) {
+        AgentClassLoaderProperties agentClassLoaderProperties = agentContainer.getAgentClassLoaderProperties();
+        if (agentClassLoaderProperties.getEnhanceLoaders() == null) {
             return;
         }
         Set<String> loaders = new HashSet<>();
 
-        for (String enhanceLoader : arthasClassLoaderProperties.getEnhanceLoaders()) {
+        for (String enhanceLoader : agentClassLoaderProperties.getEnhanceLoaders()) {
             loaders.add(enhanceLoader.trim());
         }
 

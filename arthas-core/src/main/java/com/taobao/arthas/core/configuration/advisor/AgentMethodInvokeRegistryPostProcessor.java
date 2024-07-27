@@ -1,11 +1,10 @@
 package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
-import com.taobao.arthas.core.properties.ArthasMethodTraceProperties;
+import com.taobao.arthas.core.properties.AgentMethodTraceProperties;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -22,18 +21,6 @@ public class AgentMethodInvokeRegistryPostProcessor implements BeanDefinitionReg
 
     private Environment environment;
 
-    static void registry(BeanDefinitionRegistry registry, ArthasMethodTraceProperties.ClassMethodDesc classMethodDesc) {
-        BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
-                .genericBeanDefinition(SimpleMethodInvokePointcutAdvisor.class);
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getMethodInfo());
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getCanRetransform());
-        //
-        registry.registerBeanDefinition(
-                SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + classMethodDesc
-                , methodInvokeAdviceHandlerBuilder.getBeanDefinition()
-        );
-    }
-
     /**
      * @param registry the bean definition registry used by the application context
      * @throws BeansException
@@ -41,15 +28,18 @@ public class AgentMethodInvokeRegistryPostProcessor implements BeanDefinitionReg
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        if (Boolean.parseBoolean(environment.resolvePlaceholders(BeanDefinitionRegistryUtils.ENABLED))) {
+            return;
+        }
 
         Binder.get(environment)
                 //将配置绑定到对象上
-                .bind("spring.agent.trace", ArthasMethodTraceProperties.class)
+                .bind("spring.agent.trace", AgentMethodTraceProperties.class)
                 .ifBound(arthasMethodTraceProperties -> {
 
                     //将性能分析Bean的Definition注入到容器中
-                    for (ArthasMethodTraceProperties.ClassMethodDesc classMethodDesc : arthasMethodTraceProperties.getMethods()) {
-                        registry(registry, classMethodDesc);
+                    for (AgentMethodTraceProperties.ClassMethodDesc classMethodDesc : arthasMethodTraceProperties.getMethods()) {
+                        BeanDefinitionRegistryUtils.registry(registry, classMethodDesc);
                     }
 
                 });
