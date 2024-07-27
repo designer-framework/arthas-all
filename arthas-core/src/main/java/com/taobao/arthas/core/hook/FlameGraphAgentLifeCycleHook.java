@@ -5,10 +5,12 @@ import com.taobao.arthas.core.flamegraph.FlameGraph;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.core.properties.AgentFlameGraphProperties;
 import com.taobao.arthas.core.vo.AgentStatistics;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ThreadUtils;
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.CollectionUtils;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
  * 火焰图
  **/
 @Slf4j
-public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleHook, Ordered {
+public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleHook, Ordered, BeanClassLoaderAware {
 
     private final LinkedBlockingQueue<StackTraceElement[]> stackTraceQueue = new LinkedBlockingQueue<>();
 
@@ -53,6 +55,9 @@ public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleH
     private List<Thread> sampledThreads = new ArrayList<>();
 
     private volatile boolean stop = false;
+
+    @Setter
+    private ClassLoader beanClassLoader;
 
     public FlameGraphAgentLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, AgentStatistics agentStatistics) {
         this.agentFlameGraphProperties = agentFlameGraphProperties;
@@ -180,7 +185,7 @@ public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleH
     @SneakyThrows
     @Override
     public void write(File outputFile) {
-        ClassPathResource classPathResource = new ClassPathResource("./flame-graph.html");
+        ClassPathResource classPathResource = new ClassPathResource("./flame-graph.html", beanClassLoader);
         //导出火焰图
         try (InputStream inputStream = classPathResource.getInputStream()) {
             FlameGraphUtil flameGraphUtil = new FlameGraphUtil();

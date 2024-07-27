@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * @description:
@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 public class AgentMethodTraceProperties {
 
-    private Set<ClassMethodDesc> methods;
+    private List<ClassMethodDesc> methods;
 
     @Data
     @NoArgsConstructor

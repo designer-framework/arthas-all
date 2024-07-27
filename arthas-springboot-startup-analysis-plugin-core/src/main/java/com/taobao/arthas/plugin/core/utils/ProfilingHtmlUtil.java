@@ -1,10 +1,12 @@
 package com.taobao.arthas.plugin.core.utils;
 
 import com.taobao.arthas.core.properties.AgentOutputProperties;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -19,7 +21,7 @@ import java.util.function.Function;
  * @date : 2024-07-16 23:40
  */
 @Slf4j
-public class ProfilingHtmlUtil {
+public class ProfilingHtmlUtil implements BeanClassLoaderAware {
 
     public static final String tailwindJs_ = "/tailwind.js";
 
@@ -30,6 +32,9 @@ public class ProfilingHtmlUtil {
     public static final String flameGraph_ = "/flame-graph.html";
 
     private final AgentOutputProperties agentOutputProperties;
+
+    @Setter
+    private ClassLoader beanClassLoader;
 
     public ProfilingHtmlUtil(AgentOutputProperties agentOutputProperties) {
         this.agentOutputProperties = agentOutputProperties;
@@ -64,7 +69,7 @@ public class ProfilingHtmlUtil {
 
     @SneakyThrows
     public String resourrceToString(String fileName) {
-        try (InputStream inputStream = new ClassPathResource(fileName, getClass().getClassLoader()).getInputStream()) {
+        try (InputStream inputStream = new ClassPathResource(fileName, beanClassLoader).getInputStream()) {
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         }
     }
