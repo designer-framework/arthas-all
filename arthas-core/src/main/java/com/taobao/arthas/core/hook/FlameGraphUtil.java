@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.profiling.hook;
+package com.taobao.arthas.core.hook;
 
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
@@ -12,8 +12,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
 
-
-class FlameGraph {
+class FlameGraphUtil {
 
     private static final byte FRAME_JIT_COMPILED = 0;
 
@@ -25,19 +24,19 @@ class FlameGraph {
 
     /**
      * @param tail       html源码
-     * @param outputPath
+     * @param outputFile
      * @param traceMap
      * @throws IOException
      */
     @SneakyThrows
-    public void parse(String tail, File outputPath, Map<String, Integer> traceMap) {
+    public void parse(String tail, File outputFile, Map<String, Integer> traceMap) {
 
         for (Map.Entry<String, Integer> entry : traceMap.entrySet()) {
             String[] trace = entry.getKey().split(";");
             addSample(trace, entry.getValue());
         }
 
-        dump(tail, outputPath);
+        dump(tail, outputFile);
 
     }
 
@@ -52,9 +51,9 @@ class FlameGraph {
         depth = Math.max(depth, trace.length);
     }
 
-    private void dump(String tail, File outputPath) throws IOException {
+    private void dump(String tail, File outputFile) throws IOException {
 
-        Path destPath = outputPath.toPath();
+        Path destPath = outputFile.toPath();
         Files.deleteIfExists(destPath);
         Files.createDirectories(destPath.getParent());
         Files.createFile(destPath);
@@ -119,8 +118,12 @@ class FlameGraph {
     }
 
     private String escape(String s) {
-        if (s.indexOf('\\') >= 0) s = s.replace("\\", "\\\\");
-        if (s.indexOf('\'') >= 0) s = s.replace("'", "\\'");
+        if (s.indexOf('\\') >= 0) {
+            s = s.replace("\\", "\\\\");
+        }
+        if (s.indexOf('\'') >= 0) {
+            s = s.replace("'", "\\'");
+        }
         return s;
     }
 

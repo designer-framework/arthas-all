@@ -1,14 +1,21 @@
-package com.taobao.arthas.plugin.core.profiling.hook;
+package com.taobao.arthas.core.hook;
 
 import com.taobao.arthas.core.constants.LifeCycleOrdered;
+import com.taobao.arthas.core.flamegraph.FlameGraph;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.core.properties.AgentFlameGraphProperties;
-import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
+import com.taobao.arthas.core.vo.AgentStatistics;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ThreadUtils;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +32,7 @@ import java.util.stream.Collectors;
  * 火焰图
  **/
 @Slf4j
-public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered {
+public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleHook, Ordered {
 
     private final LinkedBlockingQueue<StackTraceElement[]> stackTraceQueue = new LinkedBlockingQueue<>();
 
@@ -38,7 +45,7 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
 
     private final AgentFlameGraphProperties agentFlameGraphProperties;
 
-    private final SpringAgentStatisticsVO springAgentStatisticsVO;
+    private final AgentStatistics agentStatistics;
 
     /**
      * 被采样的线程
@@ -47,9 +54,9 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
 
     private volatile boolean stop = false;
 
-    public FlameGraphAgentLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, SpringAgentStatisticsVO springAgentStatisticsVO) {
+    public FlameGraphAgentLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, AgentStatistics agentStatistics) {
         this.agentFlameGraphProperties = agentFlameGraphProperties;
-        this.springAgentStatisticsVO = springAgentStatisticsVO;
+        this.agentStatistics = agentStatistics;
     }
 
     @Override
@@ -95,7 +102,7 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
                 if (agentFlameGraphProperties.isHighPrecision()) {
 
                     //将栈帧转换成String, 便于JVM对栈帧的回收
-                    springAgentStatisticsVO.addInvokeTrace(
+                    agentStatistics.addInvokeTrace(
                             stackTraceElementList.stream()
                                     .map(stackTraceElement -> stackTraceElement.getClassName() + "." + stackTraceElement.getMethodName() + ";")
                                     .collect(Collectors.joining())
@@ -119,7 +126,7 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
 
                     }
                     //将栈帧转换成String, 便于JVM对栈帧的回收
-                    springAgentStatisticsVO.addInvokeTrace(stackTraceElementsBuilder.toString());
+                    agentStatistics.addInvokeTrace(stackTraceElementsBuilder.toString());
 
                 }
 
@@ -168,6 +175,17 @@ public class FlameGraphAgentLifeCycleHook implements AgentLifeCycleHook, Ordered
                         }
                     });
         }));
+    }
+
+    @SneakyThrows
+    @Override
+    public void write(File outputFile) {
+        ClassPathResource classPathResource = new ClassPathResource("./flame-graph.html");
+        //导出火焰图
+        try (InputStream inputStream = classPathResource.getInputStream()) {
+            FlameGraphUtil flameGraphUtil = new FlameGraphUtil();
+            flameGraphUtil.parse(IOUtils.toString(inputStream, StandardCharsets.UTF_8), outputFile, agentStatistics.invokeStackTraceMap());
+        }
     }
 
 }

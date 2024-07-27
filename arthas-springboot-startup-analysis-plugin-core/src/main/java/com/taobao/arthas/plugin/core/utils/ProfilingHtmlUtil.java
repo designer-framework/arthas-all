@@ -35,15 +35,15 @@ public class ProfilingHtmlUtil {
         this.agentOutputProperties = agentOutputProperties;
     }
 
-    public void copyToOutputPath(String... fileNames) {
+    public void copyFileToOutputPath(String... fileNames) {
         for (String fileName : fileNames) {
-            copyToOutputPath(fileName, Function.identity());
+            copyFileToOutputPath(fileName, Function.identity());
         }
     }
 
     @SneakyThrows
-    public void copyToOutputPath(String fileName, Function<String, String> replaceFun) {
-        FileUtils.write(getOutputFile(fileName), replaceFun.apply(resourrceToString(fileName)), StandardCharsets.UTF_8);
+    public void copyFileToOutputPath(String fileName, Function<String, String> resolvePlaceholders) {
+        FileUtils.write(getOutputFile(fileName), resolvePlaceholders.apply(resourrceToString(fileName)), StandardCharsets.UTF_8);
     }
 
     @SneakyThrows

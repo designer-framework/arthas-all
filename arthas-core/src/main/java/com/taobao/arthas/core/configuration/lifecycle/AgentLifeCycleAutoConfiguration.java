@@ -1,8 +1,10 @@
 package com.taobao.arthas.core.configuration.lifecycle;
 
 import com.taobao.arthas.core.hook.AgentLifeCycleStopHook;
+import com.taobao.arthas.core.hook.FlameGraphAgentLifeCycleHook;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.core.lifecycle.SimpleAgentLifeCycle;
+import com.taobao.arthas.core.properties.AgentFlameGraphProperties;
 import com.taobao.arthas.core.vo.AgentStatistics;
 import com.taobao.arthas.core.vo.AgentStatisticsVO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -33,6 +35,11 @@ public class AgentLifeCycleAutoConfiguration {
     @ConditionalOnMissingBean
     AgentStatistics agentStatistics() {
         return new AgentStatisticsVO();
+    }
+
+    @Bean
+    FlameGraphAgentLifeCycleHook flameGraphLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, AgentStatistics agentStatistics) {
+        return new FlameGraphAgentLifeCycleHook(agentFlameGraphProperties, agentStatistics);
     }
 
 }
