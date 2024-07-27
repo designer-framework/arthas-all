@@ -4,5 +4,7 @@ spring:
   agent:
     trace:
       methods:
-        - method: 'org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)'
-        - method: 'org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)'
+        - method: 'java.net.URLClassLoader#findResource(java.lang.String)'
+          can-retransform: true
+        - method: 'sun.misc.Launcher$AppClassLoader#loadClass(java.lang.String, boolean)'
+          can-retransform: true
