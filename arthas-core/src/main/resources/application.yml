@@ -5,10 +5,13 @@ server:
 #方法调用统计
 spring:
   application:
-    name: 'spring-boot-profiling'
+    name: 'agent'
+  profiles:
+    active: plugins
   main:
-    allow-bean-definition-overriding: false
+    allow-bean-definition-overriding: true
   agent:
+    allow-overriding-default-properties: true
     output:
       home: arthas-output
       output-path: '${spring.agent.output.home}/output'

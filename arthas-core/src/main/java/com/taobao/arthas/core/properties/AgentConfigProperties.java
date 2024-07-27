@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 @ConfigurationProperties(prefix = "spring.agent")
 public class AgentConfigProperties {
 
+    private Boolean allowOverridingDefaultProperties;
+
     @NestedConfigurationProperty
     private AgentOutputProperties output;
 

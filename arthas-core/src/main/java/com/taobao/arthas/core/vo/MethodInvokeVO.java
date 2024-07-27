@@ -5,8 +5,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * @author linyimin
- **/
+ * @description:
+ * @author: Designer
+ * @date : 2024-07-01 21:05
+ */
 @Data
 public class MethodInvokeVO {
 

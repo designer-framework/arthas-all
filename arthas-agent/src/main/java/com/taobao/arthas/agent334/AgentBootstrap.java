@@ -109,6 +109,8 @@ public class AgentBootstrap {
      */
     private static URL[] getAllJarFileURL(File arthasCoreJarFile) throws Throwable {
         List<URL> jarUrls = new ArrayList<>();
+        //core包放在第一位
+        jarUrls.add(arthasCoreJarFile.toURI().toURL());
         jarUrls.addAll(findJarFileURL(arthasCoreJarFile.getParentFile()));
         jarUrls.addAll(findJarFileURL(new File(arthasCoreJarFile.getParentFile(), "plugins")));
         return jarUrls.toArray(new URL[]{});
@@ -122,7 +124,7 @@ public class AgentBootstrap {
             File[] plugins = file.listFiles();
             for (File plugin : plugins) {
                 String jarFileName = plugin.getName();
-                if (!ARTHAS_AGENT_JAR.equals(jarFileName) && jarFileName.endsWith(".jar")) {
+                if (!ARTHAS_AGENT_JAR.equals(jarFileName) && !ARTHAS_CORE_JAR.equals(jarFileName)) {
                     jarUrls.add(plugin.toURI().toURL());
                 }
             }

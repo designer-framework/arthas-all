@@ -6,9 +6,6 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * @author linyimin
- **/
 @Data
 public class MethodInvokeMetrics {
 

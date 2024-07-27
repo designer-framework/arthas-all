@@ -5,74 +5,44 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.boot.env.EnvironmentPostProcessor;
-import org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor;
-import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class AgentEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
+public class AgentHomeEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
-    private static final String PROFILING_JAR_HOME = "spring.profiling.output.home";
+    static final String PROFILING_JAR_HOME = "spring.profiling.output.home";
 
     /**
      * 比系统环境变量配置加载更早
      *
      * @return
+     * @see org.springframework.boot.context.config.ConfigFileApplicationListener
+     * @see org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor
      */
     @Override
     public int getOrder() {
-        return SystemEnvironmentPropertySourceEnvironmentPostProcessor.LOWEST_PRECEDENCE;
+        return ConfigFileApplicationListener.DEFAULT_ORDER - 1;
     }
 
+    /**
+     * @param environment the environment to post-process
+     * @param application the application to which the environment belongs
+     * @see com.taobao.arthas.core.properties.AgentConfigProperties#getAllowOverridingDefaultProperties()
+     */
     @Override
     @SneakyThrows
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        /**
-         * <pre>
-         * ${AgentHome}/application.yml > System Env > System Properties > classpath:/application.yml
-         * arthas.properties 提供一个配置项，可以反转优先级。 arthas.config.overrideAll=true
-         * https://github.com/alibaba/arthas/issues/986
-         * </pre>
-         */
-        String agentHome = agentHome();
-        //从Agent目录读取application.yml配置文件
-        loadArthasConfigurationProperties(environment, agentHome);
-
         //Agent所在的文件夹
-        loadArthasAgentHome(environment, agentHome);
-    }
-
-    private void loadArthasConfigurationProperties(ConfigurableEnvironment environment, String agentHome) throws IOException {
-        File file = new File(agentHome, "application.yml");
-
-        if (file.exists()) {
-
-            //解析配置文件
-            String location = new File(agentHome, "application.yml").getAbsolutePath();
-
-            if (new File(location).exists()) {
-
-                new YamlPropertySourceLoader()
-                        .load(location, new FileSystemResource(location))
-                        .forEach(propertySource -> {
-
-                            environment.getPropertySources().addFirst(propertySource);
-
-                        });
-
-            }
-
-        }
+        loadArthasAgentHome(environment, agentHome());
     }
 
     private void loadArthasAgentHome(ConfigurableEnvironment environment, String agentHome) {
