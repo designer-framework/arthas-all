@@ -99,7 +99,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
 
                 DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-                List<InterceptorProcessor> interceptorProcessors = processors.parse(pointcut.getSpyInterceptorApiClass());
+                List<InterceptorProcessor> interceptorProcessors = processors.parse(pointcut.getInterceptor());
 
                 //匹配成功，则进行字节码替换处理
                 for (InterceptorProcessor processor : interceptorProcessors) {

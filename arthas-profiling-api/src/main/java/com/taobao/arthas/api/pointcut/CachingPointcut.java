@@ -17,13 +17,13 @@ public class CachingPointcut implements Pointcut {
 
     private final AgentSourceAttribute agentSourceAttribute;
 
-    private Class<? extends SpyInterceptorApi> spyInterceptorApiClass;
+    private Class<? extends SpyInterceptorApi> interceptor;
 
-    public CachingPointcut(AgentSourceAttribute agentSourceAttribute, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorApiClass) {
+    public CachingPointcut(AgentSourceAttribute agentSourceAttribute, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor) {
         this.agentSourceAttribute = agentSourceAttribute;
         this.canRetransform = canRetransform;
-        this.spyInterceptorApiClass = spyInterceptorApiClass;
-        Assert.notNull(spyInterceptorApiClass, "SpyInterceptorClass");
+        this.interceptor = interceptor;
+        Assert.notNull(interceptor, "SpyInterceptorClass");
     }
 
     @Override

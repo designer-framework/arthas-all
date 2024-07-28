@@ -15,16 +15,16 @@ public class AdvisorUtils {
 
     public static <T extends AbstractMethodInvokePointcutAdvisor> T build(
             T abstractMethodInvokePointcutAdvisor, String fullyQualifiedMethodName
-            , Class<? extends SpyInterceptorApi> spyExtensionApiClass
+            , Class<? extends SpyInterceptorApi> interceptor
     ) {
         //AgentSourceAttribute
         AgentSourceAttribute agentSourceAttribute = new AgentSourceAttribute(ClassMethodInfo.create(fullyQualifiedMethodName));
 
         //切点
         abstractMethodInvokePointcutAdvisor.setPointcut(
-                new CachingPointcut(agentSourceAttribute, Boolean.FALSE, spyExtensionApiClass == null ? SimpleSpyInterceptorApi.class : spyExtensionApiClass)
+                new CachingPointcut(agentSourceAttribute, Boolean.FALSE, interceptor == null ? SimpleSpyInterceptorApi.class : interceptor)
         );
-        
+
         //
         abstractMethodInvokePointcutAdvisor.setAgentSourceAttribute(agentSourceAttribute);
 

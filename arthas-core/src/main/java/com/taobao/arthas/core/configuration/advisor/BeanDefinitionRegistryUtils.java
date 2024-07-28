@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
-import com.taobao.arthas.core.properties.ClassMethodDesc;
+import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -16,25 +16,24 @@ class BeanDefinitionRegistryUtils {
 
     public static final String ENABLED = "${spring.agent.flame-graph.high-precision}";
 
-    public static void registry(BeanDefinitionRegistry registry, ClassMethodDesc classMethodDesc) {
-        String beanName = getBeanName(classMethodDesc);
+    public static void registry(BeanDefinitionRegistry registry, MethodInvokeAdvisor methodInvokeAdvisor) {
+        String beanName = getBeanName(methodInvokeAdvisor);
 
         if (registry.containsBeanDefinition(beanName)) {
-            log.warn("Repeated method call statistics, ignored: {}", classMethodDesc.getMethodInfo().getFullyQualifiedMethodName());
+            log.warn("Repeated method call statistics, ignored: {}", methodInvokeAdvisor.getMethodInfo().getFullyQualifiedMethodName());
             return;
         }
 
-        BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder
-                .genericBeanDefinition(SimpleMethodInvokePointcutAdvisor.class);
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getMethodInfo());
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getCanRetransform());
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getSpyInterceptorApiClass());
+        BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder.genericBeanDefinition(methodInvokeAdvisor.getPointcutAdvisor());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeAdvisor.getMethodInfo());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeAdvisor.getCanRetransform());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeAdvisor.getInterceptor());
         //
         registry.registerBeanDefinition(beanName, methodInvokeAdviceHandlerBuilder.getBeanDefinition());
     }
 
-    private static String getBeanName(ClassMethodDesc classMethodDesc) {
-        return SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + classMethodDesc;
+    private static String getBeanName(MethodInvokeAdvisor methodInvokeAdvisor) {
+        return SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + methodInvokeAdvisor;
     }
 
 }

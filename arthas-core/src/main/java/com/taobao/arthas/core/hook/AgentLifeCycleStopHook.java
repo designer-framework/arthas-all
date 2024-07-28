@@ -20,8 +20,8 @@ public class AgentLifeCycleStopHook implements ApplicationContextAware, AgentLif
 
     /**
      * 销毁Bean
-     *
-     * @see org.springframework.beans.factory.DisposableBean#destroy()
+     * <p>
+     * //@see org.springframework.beans.factory.DisposableBean#destroy()
      */
     @Override
     public void stop() {

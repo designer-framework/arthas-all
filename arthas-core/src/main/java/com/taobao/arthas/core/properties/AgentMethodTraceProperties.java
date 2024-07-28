@@ -12,6 +12,6 @@ import java.util.List;
 @Data
 public class AgentMethodTraceProperties {
 
-    private List<ClassMethodDesc> methods;
+    private List<MethodInvokeAdvisor> methodInvokeAdvisors;
 
 }

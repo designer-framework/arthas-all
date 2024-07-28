@@ -13,7 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.util.Assert;
@@ -23,13 +24,15 @@ import org.springframework.util.Assert;
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
 @Slf4j
-public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements ApplicationEventPublisherAware, PointcutAdvisor, InitializingBean {
+public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements ApplicationContextAware, ApplicationEventPublisherAware, PointcutAdvisor, InitializingBean {
 
     @Setter
     protected ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
     protected AgentState agentState;
+
+    @Setter
+    protected ApplicationContext applicationContext;
 
     @Setter
     private Pointcut pointcut = Pointcut.FALSE;
@@ -39,21 +42,16 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     private AgentSourceAttribute agentSourceAttribute;
 
     public AbstractMethodInvokePointcutAdvisor() {
-        this(null, Boolean.FALSE);
-    }
-
-    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
-        this(classMethodInfo, canRetransform, SpyInterceptorApi.class);
     }
 
     /**
      * @param classMethodInfo
      * @param canRetransform
-     * @param spyInterceptorClass 默认值是不会生成代理类的
+     * @param interceptor     默认值是不会生成代理类的
      */
-    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
+    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor) {
         agentSourceAttribute = new AgentSourceAttribute(classMethodInfo);
-        pointcut = new CachingPointcut(agentSourceAttribute, canRetransform, spyInterceptorClass);
+        pointcut = new CachingPointcut(agentSourceAttribute, canRetransform, interceptor);
     }
 
     public boolean isReady() {
@@ -109,6 +107,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        this.agentState = applicationContext.getBean(AgentState.class);
         Assert.notNull(agentState, "AgentState");
         if (pointcut == Pointcut.FALSE) {
             log.error("默认的Pointcut,  请检查配置是否正确: {}", getClass());

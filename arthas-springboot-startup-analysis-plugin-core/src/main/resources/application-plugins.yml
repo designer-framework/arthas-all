@@ -1,6 +1,8 @@
 spring:
+  agent:
+    #方法调用统计
+    trace:
+      #屏蔽类加载器增强
+      method-invoke-advisors:
   profiles:
     include: plugins-extension
-  agent:
-    flame-graph:
-      high-precision: false

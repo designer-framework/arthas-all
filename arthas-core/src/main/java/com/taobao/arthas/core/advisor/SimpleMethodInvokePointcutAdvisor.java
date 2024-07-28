@@ -5,14 +5,15 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
+import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
 import com.taobao.arthas.core.vo.AgentStatistics;
 import com.taobao.arthas.core.vo.DurationUtils;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.Ordered;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,17 +25,20 @@ import java.util.Map;
  * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
  */
 @Slf4j
-public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered, InitializingBean {
+public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered {
 
     private final ThreadLocal<Map<String, MethodInvokeVO>> methodInvokeMapThreadLocal = ThreadLocal.withInitial(HashMap::new);
 
-    @Autowired
     private AgentStatistics agentStatistics;
+
+    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
+        super(classMethodInfo, Boolean.FALSE, interceptor);
+    }
 
     /**
      * @param classMethodInfo
      * @param canRetransform
-     * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
+     * @see com.taobao.arthas.core.configuration.advisor.BeanDefinitionRegistryUtils#registry(BeanDefinitionRegistry, MethodInvokeAdvisor)
      */
     public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
         super(classMethodInfo, canRetransform, spyInterceptorClass);
@@ -42,17 +46,16 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     @Override
     protected void atBefore(InvokeVO invokeVO) {
-
-        MethodInvokeVO methodInvokeVO = new MethodInvokeVO(getClassMethodInfo().getFullyQualifiedMethodName(), invokeVO.getParams());
+        //入栈
+        MethodInvokeVO methodInvokeVO = new MethodInvokeVO(getClassMethodInfo().getFullyQualifiedMethodName(), getParams(invokeVO));
         methodInvokeMapThreadLocal.get().put(getInvokeKey(invokeVO), methodInvokeVO);
 
         agentStatistics.addMethodInvoke(methodInvokeVO);
-
     }
 
     @Override
     protected void atExit(InvokeVO invokeVO) {
-
+        //出栈
         Map<String, MethodInvokeVO> methodInvokeMap = methodInvokeMapThreadLocal.get();
         if (methodInvokeMap.containsKey(getInvokeKey(invokeVO))) {
             MethodInvokeVO invokeDetail = methodInvokeMap.get(getInvokeKey(invokeVO));
@@ -61,8 +64,19 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     }
 
+    protected Object[] getParams(InvokeVO invokeVO) {
+        return invokeVO.getParams();
+    }
+
     protected String getInvokeKey(InvokeVO invokeVO) {
         return invokeVO.getHeadInvokeId() + ":" + invokeVO.getInvokeId();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
+        this.agentStatistics = applicationContext.getBean(AgentStatistics.class);
+        Assert.notNull(agentStatistics, "AgentStatistics");
     }
 
     @Override

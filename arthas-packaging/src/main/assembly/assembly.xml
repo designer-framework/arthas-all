@@ -22,8 +22,8 @@
             <destName>logback.xml</destName>
         </file>
         <file>
-            <source>../arthas-core/src/main/resources/application.yml</source>
-            <destName>application.yml</destName>
+            <source>../arthas-core/src/main/resources/application-agent.yml</source>
+            <destName>application-agent.yml</destName>
         </file>
         <file>
             <source>../arthas-agent/target/arthas-agent-jar-with-dependencies.jar</source>

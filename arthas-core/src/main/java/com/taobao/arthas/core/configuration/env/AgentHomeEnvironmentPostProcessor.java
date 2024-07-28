@@ -10,16 +10,19 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.PropertiesPropertySource;
 
 import java.io.File;
 import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Slf4j
 public class AgentHomeEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
     static final String PROFILING_JAR_HOME = "spring.profiling.output.home";
+    private static final String DEFAULT_PROPERTIES = "defaultProperties";
 
     /**
      * 比系统环境变量配置加载更早
@@ -43,6 +46,10 @@ public class AgentHomeEnvironmentPostProcessor implements EnvironmentPostProcess
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         //Agent所在的文件夹
         loadArthasAgentHome(environment, agentHome());
+
+        Properties properties = new Properties();
+        properties.put("spring.agent.flame-graph.high-precision", "true");
+        environment.getPropertySources().addLast(new PropertiesPropertySource(DEFAULT_PROPERTIES, properties));
     }
 
     private void loadArthasAgentHome(ConfigurableEnvironment environment, String agentHome) {

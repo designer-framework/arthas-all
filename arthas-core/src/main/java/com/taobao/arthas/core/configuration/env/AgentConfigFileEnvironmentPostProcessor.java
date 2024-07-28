@@ -65,7 +65,7 @@ public class AgentConfigFileEnvironmentPostProcessor implements EnvironmentPostP
                 String allowPropertiesOverriding = String.valueOf(propertySource.getProperty("spring.agent.allow-overriding-default-properties"));
                 //允许重写默认配置
                 if (Boolean.parseBoolean(allowPropertiesOverriding)) {
-                    environment.getPropertySources().addLast(propertySource);
+                    environment.getPropertySources().addBefore("applicationConfig: [classpath:/application-agent.yml]", propertySource);
                     //不允许重写默认配置
                 } else {
                     environment.getPropertySources().addFirst(propertySource);

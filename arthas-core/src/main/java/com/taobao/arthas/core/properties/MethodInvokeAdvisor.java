@@ -2,6 +2,7 @@ package com.taobao.arthas.core.properties;
 
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class ClassMethodDesc {
+public class MethodInvokeAdvisor {
 
     /**
      * 全限定方法名
@@ -26,12 +27,22 @@ public class ClassMethodDesc {
      */
     private Boolean canRetransform = Boolean.FALSE;
 
-    private Class<? extends SpyInterceptorApi> spyInterceptorApiClass = SimpleSpyInterceptorApi.class;
+    private Class<? extends SpyInterceptorApi> interceptor = SimpleSpyInterceptorApi.class;
 
-    public ClassMethodDesc(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorApiClass) {
+    /**
+     * 只能继承该类
+     */
+    private Class<? extends SimpleMethodInvokePointcutAdvisor> pointcutAdvisor = SimpleMethodInvokePointcutAdvisor.class;
+
+    public MethodInvokeAdvisor(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor) {
+        this(method, canRetransform, interceptor, SimpleMethodInvokePointcutAdvisor.class);
+    }
+
+    public MethodInvokeAdvisor(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor, Class<? extends SimpleMethodInvokePointcutAdvisor> pointcutAdvisor) {
         this.method = method;
         this.canRetransform = canRetransform;
-        this.spyInterceptorApiClass = spyInterceptorApiClass;
+        this.interceptor = interceptor;
+        this.pointcutAdvisor = pointcutAdvisor;
     }
 
     public ClassMethodInfo getMethodInfo() {

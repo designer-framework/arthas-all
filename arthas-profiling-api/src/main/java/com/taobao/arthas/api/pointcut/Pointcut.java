@@ -31,7 +31,7 @@ public interface Pointcut {
         }
 
         @Override
-        public Class<? extends SpyInterceptorApi> getSpyInterceptorApiClass() {
+        public Class<? extends SpyInterceptorApi> getInterceptor() {
             return SpyInterceptorApi.class;
         }
 
@@ -68,6 +68,6 @@ public interface Pointcut {
      * @return
      * @see com.taobao.arthas.core.interceptor.ExtensionSpyInterceptor
      */
-    Class<? extends SpyInterceptorApi> getSpyInterceptorApiClass();
+    Class<? extends SpyInterceptorApi> getInterceptor();
 
 }

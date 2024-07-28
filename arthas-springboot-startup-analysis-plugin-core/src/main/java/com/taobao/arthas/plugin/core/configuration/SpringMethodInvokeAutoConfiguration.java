@@ -11,11 +11,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @EnabledMethodInvokeWatch({
-        @MethodInvokeWatch("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)"),
         //spring-boot3.2.0+= 类加载器
         @MethodInvokeWatch("org.springframework.boot.loader.launch.LaunchedClassloader#loadClass(java.lang.String, boolean)"),
         //spring-boot3.2.0- 类加载器
-        @MethodInvokeWatch("org.springframework.boot.loader.LaunchedURLClassLoader#loadClass(java.lang.String, boolean)")
+        @MethodInvokeWatch("org.springframework.boot.loader.LaunchedURLClassLoader#loadClass(java.lang.String, boolean)"),
 })
 public class SpringMethodInvokeAutoConfiguration {
 }
