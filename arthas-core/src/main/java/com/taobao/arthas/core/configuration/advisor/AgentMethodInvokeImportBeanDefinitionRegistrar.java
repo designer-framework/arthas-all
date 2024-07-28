@@ -15,7 +15,6 @@ import java.util.Collection;
 
 public class AgentMethodInvokeImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
-
     @Setter
     private Environment environment;
 

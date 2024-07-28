@@ -1,10 +1,9 @@
-package com.taobao.arthas.core.spy;
+package com.taobao.arthas.api.spy;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.enums.InvokeType;
 import com.taobao.arthas.api.pointcut.Pointcut;
-import com.taobao.arthas.api.spy.SpyExtensionApi;
 import com.taobao.arthas.api.vo.ByteKitUtils;
 import com.taobao.arthas.api.vo.InvokeVO;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -41,7 +41,7 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
     }
 
     @Override
-    public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args) {
+    public void atEnter(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Map<String, Object> attach) {
         InvokeStack stack = invokeStack.get();
 
         long currInvokeId = ID_GENERATOR.addAndGet(1);
@@ -51,12 +51,15 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
         proceed(
                 clazz, methodName, methodDesc, InvokeType.ENTER
                 , advice ->
-                        advice.before(InvokeVO.newForBefore(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, InvokeType.ENTER, headInvokeId, currInvokeId))
+                        advice.before(InvokeVO.newForBefore(
+                                clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, InvokeType.ENTER
+                                , headInvokeId, currInvokeId, attach
+                        ))
         );
     }
 
     @Override
-    public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject) {
+    public void atExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Object returnObject, Map<String, Object> attach) {
         InvokeStack stack = invokeStack.get();
         long headInvokeId = stack.headInvokeId();
         long currInvokeId = stack.popInvokeId();
@@ -64,12 +67,15 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
         proceed(
                 clazz, methodName, methodDesc, InvokeType.EXIT
                 , advice ->
-                        advice.afterReturning(InvokeVO.newForAfterReturning(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject, InvokeType.EXIT, headInvokeId, currInvokeId))
+                        advice.afterReturning(InvokeVO.newForAfterReturning(
+                                clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, returnObject, InvokeType.EXIT
+                                , headInvokeId, currInvokeId, attach
+                        ))
         );
     }
 
     @Override
-    public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable) {
+    public void atExceptionExit(Class<?> clazz, String methodName, String methodDesc, Object target, Object[] args, Throwable throwable, Map<String, Object> attach) {
         InvokeStack stack = invokeStack.get();
         long headInvokeId = stack.headInvokeId();
         long currInvokeId = stack.popInvokeId();
@@ -77,7 +83,10 @@ public class SpyExtensionApiImpl implements SpyExtensionApi {
         proceed(
                 clazz, methodName, methodDesc, InvokeType.EXIT
                 , advice ->
-                        advice.afterThrowing(InvokeVO.newForAfterThrowing(clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable, InvokeType.EXCEPTION, headInvokeId, currInvokeId))
+                        advice.afterThrowing(InvokeVO.newForAfterThrowing(
+                                clazz.getClassLoader(), clazz, methodName, ByteKitUtils.getMethodArgumentTypes(methodDesc), target, args, throwable, InvokeType.EXCEPTION
+                                , headInvokeId, currInvokeId, attach
+                        ))
         );
     }
 

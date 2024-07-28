@@ -248,7 +248,7 @@ public class AgentBootstrap {
         for (String jvmArg : jvmArgs) {
 
             int index = jvmArg.indexOf("-javaagent:");
-            if (index + 1 >= jvmArg.length()) {
+            if (index == -1 || index + 1 >= jvmArg.length()) {
                 continue;
             }
 

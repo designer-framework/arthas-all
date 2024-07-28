@@ -1,5 +1,7 @@
 package com.taobao.arthas.api.pointcut;
 
+import com.taobao.arthas.api.spy.SpyExtensionApi;
+
 /**
  * @description:
  * @author: Designer
@@ -27,6 +29,12 @@ public interface Pointcut {
         public boolean isHit(String className, String methodName, String methodDesc) {
             return false;
         }
+
+        @Override
+        public Class<? extends SpyExtensionApi> getSpyInterceptorClass() {
+            return null;
+        }
+
     };
 
     /**
@@ -55,5 +63,11 @@ public interface Pointcut {
     boolean isCandidateMethod(String className, String methodName, String methodDesc);
 
     boolean isHit(String className, String methodName, String methodDesc);
+
+    /**
+     * @return
+     * @see com.taobao.arthas.core.interceptor.ExtensionSpyInterceptor
+     */
+    Class<? extends SpyExtensionApi> getSpyInterceptorClass();
 
 }

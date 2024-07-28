@@ -14,17 +14,17 @@ public class ExtensionSpyInterceptor implements SpyInterceptorApi {
     public static void atEnter(
             @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
     ) {
-        SpyAPI.atEnter(clazz, methodName, methodDesc, target, args);
+        SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, null);
     }
 
     @AtExit(inline = true)
     public static void atExit(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args, @Binding.Return Object returnObj) {
-        SpyAPI.atExit(clazz, methodName, methodDesc, target, args, returnObj);
+        SpyAPI.atExit(clazz, methodName, methodDesc, target, args, returnObj, null);
     }
 
     @AtExceptionExit(inline = true)
     public static void atExceptionExit(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args, @Binding.Throwable Throwable throwable) {
-        SpyAPI.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable);
+        SpyAPI.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable, null);
     }
 
 }

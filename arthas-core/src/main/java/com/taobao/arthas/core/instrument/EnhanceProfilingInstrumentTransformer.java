@@ -10,7 +10,6 @@ import com.alibaba.deps.org.objectweb.asm.tree.ClassNode;
 import com.alibaba.deps.org.objectweb.asm.tree.MethodNode;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.pointcut.Pointcut;
-import com.taobao.arthas.core.interceptor.ExtensionSpyInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -100,7 +99,7 @@ public class EnhanceProfilingInstrumentTransformer implements ClassFileTransform
                 MethodProcessor methodProcessor = new MethodProcessor(classNode, methodNode);
 
                 DefaultInterceptorClassParser processors = new DefaultInterceptorClassParser();
-                List<InterceptorProcessor> interceptorProcessors = processors.parse(ExtensionSpyInterceptor.class);
+                List<InterceptorProcessor> interceptorProcessors = processors.parse(pointcut.getSpyInterceptorClass());
 
                 //匹配成功，则进行字节码替换处理
                 for (InterceptorProcessor processor : interceptorProcessors) {

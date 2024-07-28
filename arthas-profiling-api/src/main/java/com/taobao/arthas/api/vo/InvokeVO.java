@@ -1,10 +1,14 @@
 package com.taobao.arthas.api.vo;
 
 import com.taobao.arthas.api.enums.InvokeType;
+import lombok.Getter;
+
+import java.util.Map;
 
 /**
  * 通知点 Created by vlinux on 15/5/20.
  */
+@Getter
 public class InvokeVO {
 
     private final ClassLoader loader;
@@ -24,6 +28,8 @@ public class InvokeVO {
     private final long headInvokeId;
 
     private final long invokeId;
+
+    private final Map<String, Object> attach;
 
     /**
      * for finish
@@ -46,7 +52,8 @@ public class InvokeVO {
             Object returnObj,
             Throwable throwExp,
             InvokeType invokeType,
-            long headInvokeId, long invokeId) {
+            long headInvokeId, long invokeId, Map<String, Object> attach
+    ) {
         this.loader = loader;
         this.clazz = clazz;
         this.methodName = methodName;
@@ -58,70 +65,32 @@ public class InvokeVO {
         this.invokeType = invokeType;
         this.headInvokeId = headInvokeId;
         this.invokeId = invokeId;
+        this.attach = attach;
     }
 
-    public static InvokeVO newForBefore(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, InvokeType invokeType, long headInvokeId, long invokeId) {
+    public static InvokeVO newForBefore(
+            ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, InvokeType invokeType
+            , long headInvokeId, long invokeId, Map<String, Object> attach
+    ) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, null, //returnObj
                 null, //throwExp
-                invokeType, headInvokeId, invokeId);
+                invokeType, headInvokeId, invokeId, attach);
     }
 
-    public static InvokeVO newForAfterReturning(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Object returnObj, InvokeType invokeType, long headInvokeId, long invokeId) {
+    public static InvokeVO newForAfterReturning(
+            ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Object returnObj, InvokeType invokeType
+            , long headInvokeId, long invokeId, Map<String, Object> attach
+    ) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, returnObj, null, //throwExp
-                invokeType, headInvokeId, invokeId);
+                invokeType, headInvokeId, invokeId, attach);
     }
 
-    public static InvokeVO newForAfterThrowing(ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Throwable throwExp, InvokeType invokeType, long headInvokeId, long invokeId) {
+    public static InvokeVO newForAfterThrowing(
+            ClassLoader loader, Class<?> clazz, String methodName, String[] methodArgumentTypes, Object target, Object[] params, Throwable throwExp, InvokeType invokeType
+            , long headInvokeId, long invokeId, Map<String, Object> attach
+    ) {
         return new InvokeVO(loader, clazz, methodName, methodArgumentTypes, target, params, null, //returnObj
-                throwExp, invokeType, headInvokeId, invokeId);
-    }
-
-    public String[] getMethodArgumentTypes() {
-        return methodArgumentTypes;
-    }
-
-    public ClassLoader getLoader() {
-        return loader;
-    }
-
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
-    public Object getTarget() {
-        return target;
-    }
-
-    public Object[] getParams() {
-        return params;
-    }
-
-    public Object getReturnObj() {
-        return returnObj;
-    }
-
-    public Throwable getThrowExp() {
-        return throwExp;
-    }
-
-    public InvokeType getInvokeType() {
-        return invokeType;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public String[] getMethodDesc() {
-        return methodArgumentTypes;
-    }
-
-    public long getHeadInvokeId() {
-        return headInvokeId;
-    }
-
-    public long getInvokeId() {
-        return invokeId;
+                throwExp, invokeType, headInvokeId, invokeId, attach);
     }
 
     @Override
