@@ -8,7 +8,7 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 
 import java.arthas.SpyAPI;
 
-public class ExtensionSpyInterceptor implements SpyInterceptorApi {
+public class SimpleSpyInterceptorApi implements SpyInterceptorApi {
 
     @AtEnter(inline = true)
     public static void atEnter(

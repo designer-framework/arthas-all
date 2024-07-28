@@ -2,6 +2,7 @@ package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.AgentMethodTraceProperties;
+import com.taobao.arthas.core.properties.ClassMethodDesc;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -38,7 +39,7 @@ public class AgentMethodInvokeRegistryPostProcessor implements BeanDefinitionReg
                 .ifBound(arthasMethodTraceProperties -> {
 
                     //将性能分析Bean的Definition注入到容器中
-                    for (AgentMethodTraceProperties.ClassMethodDesc classMethodDesc : arthasMethodTraceProperties.getMethods()) {
+                    for (ClassMethodDesc classMethodDesc : arthasMethodTraceProperties.getMethods()) {
                         BeanDefinitionRegistryUtils.registry(registry, classMethodDesc);
                     }
 

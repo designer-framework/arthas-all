@@ -1,9 +1,10 @@
-package com.taobao.arthas.api.spy;
+package com.taobao.arthas.core.spy;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.enums.InvokeType;
 import com.taobao.arthas.api.pointcut.Pointcut;
+import com.taobao.arthas.api.spy.SpyExtensionApi;
 import com.taobao.arthas.api.vo.ByteKitUtils;
 import com.taobao.arthas.api.vo.InvokeVO;
 import lombok.extern.slf4j.Slf4j;

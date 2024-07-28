@@ -1,9 +1,9 @@
 package com.taobao.arthas.api.pointcut;
 
+import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.source.AgentSourceAttribute;
-import com.taobao.arthas.api.spy.SpyExtensionApi;
-import com.taobao.arthas.api.spy.SpyExtensionApiImpl;
 import lombok.Data;
+import org.springframework.util.Assert;
 
 /**
  * @description:
@@ -17,12 +17,13 @@ public class CachingPointcut implements Pointcut {
 
     private final AgentSourceAttribute agentSourceAttribute;
 
-    private Class<? extends SpyExtensionApi> spyInterceptorClass;
+    private Class<? extends SpyInterceptorApi> spyInterceptorApiClass;
 
-    public CachingPointcut(AgentSourceAttribute agentSourceAttribute, Boolean canRetransform) {
+    public CachingPointcut(AgentSourceAttribute agentSourceAttribute, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorApiClass) {
         this.agentSourceAttribute = agentSourceAttribute;
         this.canRetransform = canRetransform;
-        this.spyInterceptorClass = SpyExtensionApiImpl.class;
+        this.spyInterceptorApiClass = spyInterceptorApiClass;
+        Assert.notNull(spyInterceptorApiClass, "SpyInterceptorClass");
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
-import com.taobao.arthas.core.properties.AgentMethodTraceProperties;
+import com.taobao.arthas.core.properties.ClassMethodDesc;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -16,7 +16,7 @@ class BeanDefinitionRegistryUtils {
 
     public static final String ENABLED = "${spring.agent.flame-graph.high-precision}";
 
-    public static void registry(BeanDefinitionRegistry registry, AgentMethodTraceProperties.ClassMethodDesc classMethodDesc) {
+    public static void registry(BeanDefinitionRegistry registry, ClassMethodDesc classMethodDesc) {
         String beanName = getBeanName(classMethodDesc);
 
         if (registry.containsBeanDefinition(beanName)) {
@@ -28,11 +28,12 @@ class BeanDefinitionRegistryUtils {
                 .genericBeanDefinition(SimpleMethodInvokePointcutAdvisor.class);
         methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getMethodInfo());
         methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getCanRetransform());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(classMethodDesc.getSpyInterceptorApiClass());
         //
         registry.registerBeanDefinition(beanName, methodInvokeAdviceHandlerBuilder.getBeanDefinition());
     }
 
-    private static String getBeanName(AgentMethodTraceProperties.ClassMethodDesc classMethodDesc) {
+    private static String getBeanName(ClassMethodDesc classMethodDesc) {
         return SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + classMethodDesc;
     }
 

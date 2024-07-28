@@ -2,8 +2,8 @@ package com.taobao.arthas.core.configuration;
 
 import com.taobao.arthas.api.advisor.PointcutAdvisor;
 import com.taobao.arthas.api.spy.SpyExtensionApi;
-import com.taobao.arthas.api.spy.SpyExtensionApiImpl;
 import com.taobao.arthas.core.spy.CompositeSpyAPI;
+import com.taobao.arthas.core.spy.SpyExtensionApiImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

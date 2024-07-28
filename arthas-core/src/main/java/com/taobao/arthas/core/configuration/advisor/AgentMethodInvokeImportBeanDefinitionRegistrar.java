@@ -1,8 +1,9 @@
 package com.taobao.arthas.core.configuration.advisor;
 
+import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
 import com.taobao.arthas.core.annotation.MethodInvokeWatch;
-import com.taobao.arthas.core.properties.AgentMethodTraceProperties;
+import com.taobao.arthas.core.properties.ClassMethodDesc;
 import lombok.Setter;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
@@ -30,8 +31,13 @@ public class AgentMethodInvokeImportBeanDefinitionRegistrar implements ImportBea
                 .flatMap(Collection::stream)
                 .forEach(methodInvokeWatch -> {
 
-                    BeanDefinitionRegistryUtils.registry(registry,
-                            new AgentMethodTraceProperties.ClassMethodDesc(methodInvokeWatch.getString("value"), methodInvokeWatch.getBoolean("canRetransform"))
+                    BeanDefinitionRegistryUtils.registry(
+                            registry
+                            , new ClassMethodDesc(
+                                    methodInvokeWatch.getString("value")
+                                    , methodInvokeWatch.getBoolean("canRetransform")
+                                    , (Class<? extends SpyInterceptorApi>) methodInvokeWatch.getClass("spyInterceptorApiClass")
+                            )
                     );
 
                 });

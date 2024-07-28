@@ -2,6 +2,7 @@ package com.taobao.arthas.api.advisor;
 
 import com.taobao.arthas.api.advice.Advice;
 import com.taobao.arthas.api.interceptor.InvokeInterceptorAdapter;
+import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.pointcut.CachingPointcut;
 import com.taobao.arthas.api.pointcut.Pointcut;
 import com.taobao.arthas.api.source.AgentSourceAttribute;
@@ -42,8 +43,17 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
+        this(classMethodInfo, canRetransform, SpyInterceptorApi.class);
+    }
+
+    /**
+     * @param classMethodInfo
+     * @param canRetransform
+     * @param spyInterceptorClass 默认值是不会生成代理类的
+     */
+    public AbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
         agentSourceAttribute = new AgentSourceAttribute(classMethodInfo);
-        pointcut = new CachingPointcut(agentSourceAttribute, canRetransform);
+        pointcut = new CachingPointcut(agentSourceAttribute, canRetransform, spyInterceptorClass);
     }
 
     public boolean isReady() {

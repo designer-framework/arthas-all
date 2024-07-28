@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.advisor;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
@@ -35,8 +36,8 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
      * @param canRetransform
      * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
      */
-    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform) {
-        super(classMethodInfo, canRetransform);
+    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
+        super(classMethodInfo, canRetransform, spyInterceptorClass);
     }
 
     @Override

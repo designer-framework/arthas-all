@@ -1,6 +1,6 @@
 package com.taobao.arthas.api.pointcut;
 
-import com.taobao.arthas.api.spy.SpyExtensionApi;
+import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 
 /**
  * @description:
@@ -31,8 +31,8 @@ public interface Pointcut {
         }
 
         @Override
-        public Class<? extends SpyExtensionApi> getSpyInterceptorClass() {
-            return null;
+        public Class<? extends SpyInterceptorApi> getSpyInterceptorApiClass() {
+            return SpyInterceptorApi.class;
         }
 
     };
@@ -68,6 +68,6 @@ public interface Pointcut {
      * @return
      * @see com.taobao.arthas.core.interceptor.ExtensionSpyInterceptor
      */
-    Class<? extends SpyExtensionApi> getSpyInterceptorClass();
+    Class<? extends SpyInterceptorApi> getSpyInterceptorApiClass();
 
 }
