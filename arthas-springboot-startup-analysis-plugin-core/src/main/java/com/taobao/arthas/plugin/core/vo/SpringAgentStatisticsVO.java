@@ -16,14 +16,17 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
 
     private final List<InitializedComponent> initializedComponents = new LinkedList<>();
 
+    @Override
     public void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer) {
         consumer.accept(createdBeansMap.get(beanName));
     }
 
+    @Override
     public void addCreatedBean(BeanCreateVO beanCreateVO) {
         createdBeansMap.put(beanCreateVO.getName(), beanCreateVO);
     }
 
+    @Override
     public void addInitializedComponent(InitializedComponent initializedComponent) {
         initializedComponents.add(initializedComponent);
     }
@@ -44,28 +47,29 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
     }
 
     @JSONField(name = "initializedComponentDetailList")
-    public InitializedComponentMetric getInitializedComponentMetrics() {
-        BigDecimal totalCost = initializedComponents.stream().map(InitializedComponent::getCostTime)
+    public InitializedComponentsMetric getInitializedComponentsMetrics() {
+        BigDecimal totalCost = initializedComponents.stream().map(InitializedComponent::getDuration)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        InitializedComponentMetric initializedComponentMetric = new InitializedComponentMetric();
-        initializedComponentMetric.setValue(totalCost);
-        initializedComponentMetric.setName("ApplicationStartUpTotalCost");
+        InitializedComponentsMetric rootMetric = new InitializedComponentsMetric();
+        rootMetric.setDuration(totalCost);
+        rootMetric.setShowName("ApplicationStartUpTotalCost");
 
-        List<InitializedComponentMetric> children = initializedComponentMetric.getChildren();
+        List<InitializedComponentsMetric> children = rootMetric.getChildren();
 
         children.addAll(
                 initializedComponents.stream()
                         .map(initializedComponent -> {
-                            InitializedComponentMetric componentMetric = new InitializedComponentMetric();
-                            componentMetric.setName(initializedComponent.getComponentEnum().getName());
-                            componentMetric.setValue(initializedComponent.getCostTime());
+                            InitializedComponentsMetric componentMetric = new InitializedComponentsMetric();
+                            componentMetric.setShowName(initializedComponent.getShowName());
+                            componentMetric.setDuration(initializedComponent.getDuration());
                             return componentMetric;
                         }).collect(Collectors.toList())
         );
-        initializedComponentMetric.setChildren(children);
+        rootMetric.setChildren(children);
 
-        return initializedComponentMetric;
+        //todo 将AOP耗时统计进来
+        return rootMetric;
     }
 
     @JSONField(name = "methodInvokeDetailList")

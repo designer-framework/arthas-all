@@ -1,6 +1,7 @@
 package com.taobao.arthas.plugin.core.advisor;
 
 import com.taobao.arthas.api.lifecycle.AgentLifeCycle;
+import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.advisor.AbstractLifeCyclePointcutAdvisor;
 import com.taobao.arthas.core.vo.AgentStatistics;
 import lombok.extern.slf4j.Slf4j;
@@ -15,4 +16,14 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractLifeCycle
         super(agentLifeCycles, agentStatistics);
     }
 
+    @Override
+    public void atBefore(InvokeVO invokeVO) {
+        super.atBefore(invokeVO);
+    }
+
+    @Override
+    public void atExit(InvokeVO invokeVO) {
+        super.atExit(invokeVO);
+    }
+    
 }

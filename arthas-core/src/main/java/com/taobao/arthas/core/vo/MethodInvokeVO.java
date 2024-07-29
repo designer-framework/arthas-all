@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -10,11 +11,14 @@ import java.math.BigDecimal;
  * @date : 2024-07-01 21:05
  */
 @Data
+@Accessors(chain = true)
 public class MethodInvokeVO {
 
     private final String methodQualifier;
 
     private final BigDecimal startMillis;
+
+    private BigDecimal endMillis;
 
     private BigDecimal duration;
 
@@ -37,6 +41,12 @@ public class MethodInvokeVO {
             }
         }
         this.args = argStrList;
+    }
+
+    public MethodInvokeVO initialized() {
+        endMillis = DurationUtils.nowMillis();
+        duration = endMillis.subtract(startMillis);
+        return this;
     }
 
 }

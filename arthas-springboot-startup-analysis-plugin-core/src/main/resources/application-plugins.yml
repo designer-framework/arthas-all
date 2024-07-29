@@ -1,14 +1,14 @@
 spring:
+  profiles:
+    include: plugins-extension
   agent:
     #方法调用统计
     trace:
       #屏蔽类加载器增强
       method-invoke-advisors:
     turbo:
-      enabled-by-default: true
+      enabled-by-default: false
       swagger:
-        enabled: true
+        enabled: false
       open-feign:
-        enabled: true
-  profiles:
-    include: plugins-extension
+        enabled: false

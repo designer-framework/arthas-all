@@ -26,8 +26,6 @@ public class ComponentTurboProperties {
     @AllArgsConstructor
     static class Enabled {
 
-        static final Enabled disabled = new Enabled(false);
-
         private boolean enabled;
 
     }

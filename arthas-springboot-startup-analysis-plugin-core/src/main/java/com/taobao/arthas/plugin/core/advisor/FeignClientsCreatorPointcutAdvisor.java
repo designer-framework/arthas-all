@@ -29,8 +29,18 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreator
     }
 
     @Override
+    protected void atExit(InvokeVO invokeVO) {
+        super.atExit(invokeVO);
+    }
+
+    @Override
+    protected void atBefore(InvokeVO invokeVO) {
+        super.atBefore(invokeVO);
+    }
+
+    @Override
     protected InitializedComponent getCreatingComponent(InvokeVO invokeVO) {
-        return new InitializedComponent(componentEnum, ((Class<?>) getParams(invokeVO)[0]).getName());
+        return InitializedComponent.buildChildTreeItem(componentEnum, ((Class<?>) getParams(invokeVO)[0]).getName());
     }
 
     @Override
@@ -47,7 +57,7 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreator
         public static void atEnter(
                 @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
                 , @Binding.Field(name = "type") Object type
-        ) throws NoSuchFieldException {
+        ) {
             Map<String, Object> attach = new HashMap<>();
             attach.put("type", type);
             SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, attach);

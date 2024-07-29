@@ -5,6 +5,7 @@ import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
 import com.taobao.arthas.core.annotation.MethodInvokeWatch;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import com.taobao.arthas.plugin.core.advisor.ApolloCreatorPointcutAdvisor;
+import com.taobao.arthas.plugin.core.advisor.ApolloLoadNamespacePointcutAdvisor;
 import com.taobao.arthas.plugin.core.advisor.FeignClientsCreatorPointcutAdvisor;
 import com.taobao.arthas.plugin.core.advisor.SwaggerCreatorPointcutAdvisor;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
@@ -44,7 +45,7 @@ public class SpringComponentMethodInvokeAutoConfiguration {
     @Bean
     FeignClientsCreatorPointcutAdvisor feignClientsCreatorPointcutAdvisor() {
         return new FeignClientsCreatorPointcutAdvisor(
-                SpringComponentEnum.SWAGGER
+                SpringComponentEnum.OPEN_FEIGN
                 , ClassMethodInfo.create("org.springframework.cloud.openfeign.FeignClientFactoryBean#getTarget()")
                 , FeignClientsCreatorPointcutAdvisor.FeignClientSpyInterceptorApi.class
         );
@@ -74,7 +75,19 @@ public class SpringComponentMethodInvokeAutoConfiguration {
         return new ApolloCreatorPointcutAdvisor(
                 SpringComponentEnum.APOLLO
                 , ClassMethodInfo.create("com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer#initialize(org.springframework.core.env.ConfigurableEnvironment)")
-                , SimpleSpyInterceptorApi.class
+        );
+    }
+
+    /**
+     * Apollo配置加载耗时
+     *
+     * @return
+     * @see com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)
+     */
+    @Bean
+    ApolloLoadNamespacePointcutAdvisor apolloLoadNamespacePointcutAdvisor() {
+        return new ApolloLoadNamespacePointcutAdvisor(
+                ClassMethodInfo.create("com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)")
         );
     }
 

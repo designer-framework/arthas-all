@@ -1,17 +1,21 @@
 package com.taobao.arthas.plugin.core.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum SpringComponentEnum implements ComponentEnum {
 
-    APOLLO,
-    OPEN_FEIGN,
-    SWAGGER;
+    APOLLO("APOLLO", "Apollo"),
+    OPEN_FEIGN("OPEN_FEIGN", "OpenFeign"),
+    SWAGGER("SWAGGER", "Swagger");
 
-    SpringComponentEnum() {
-    }
+    private final String componentName;
 
-    @Override
-    public String getName() {
-        return toString();
+    private final String showName;
+
+    SpringComponentEnum(String componentName, String showName) {
+        this.componentName = componentName;
+        this.showName = showName;
     }
 
 }

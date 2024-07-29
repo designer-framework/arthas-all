@@ -5,9 +5,9 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
+import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
 import com.taobao.arthas.core.vo.AgentStatistics;
-import com.taobao.arthas.core.vo.DurationUtils;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,11 +31,17 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     private AgentStatistics agentStatistics;
 
+    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
+        super(classMethodInfo, Boolean.FALSE, SimpleSpyInterceptorApi.class);
+    }
+
     public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
         super(classMethodInfo, Boolean.FALSE, interceptor);
     }
 
     /**
+     * 动这个构造器之前先看注释
+     *
      * @param classMethodInfo
      * @param canRetransform
      * @see com.taobao.arthas.core.configuration.advisor.BeanDefinitionRegistryUtils#registry(BeanDefinitionRegistry, MethodInvokeAdvisor)
@@ -58,10 +64,15 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
         //出栈
         Map<String, MethodInvokeVO> methodInvokeMap = methodInvokeMapThreadLocal.get();
         if (methodInvokeMap.containsKey(getInvokeKey(invokeVO))) {
-            MethodInvokeVO invokeDetail = methodInvokeMap.get(getInvokeKey(invokeVO));
-            invokeDetail.setDuration(DurationUtils.nowMillis().subtract(invokeDetail.getStartMillis()));
+            //
+            MethodInvokeVO methodInvoke = methodInvokeMap.get(getInvokeKey(invokeVO)).initialized();
+            //
+            atExitAfter(invokeVO, methodInvoke);
         }
 
+    }
+
+    protected void atExitAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
     }
 
     protected Object[] getParams(InvokeVO invokeVO) {
