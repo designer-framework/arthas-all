@@ -27,7 +27,7 @@ public class AgentLifeCycleAutoConfiguration {
     }
 
     @Bean
-    AgentLifeCycleHook agentLifeCycleHook() {
+    AgentLifeCycleHook agentLifeCycleStopHook() {
         return new AgentLifeCycleStopHook();
     }
 

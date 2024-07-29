@@ -4,5 +4,8 @@ spring:
     trace:
       #屏蔽类加载器增强
       method-invoke-advisors:
+    turbo:
+      swagger:
+        enabled: true
   profiles:
     include: plugins-extension

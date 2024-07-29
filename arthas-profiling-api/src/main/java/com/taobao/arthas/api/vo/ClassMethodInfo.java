@@ -67,7 +67,7 @@ public class ClassMethodInfo {
 
     public boolean isCandidateMethod(String methodName, String[] methodArgumentTypes) {
         //
-        if (!antPathMatcher.match(this.methodName, methodName)) {
+        if (antPathMatcher.match(this.className, className) && !antPathMatcher.match(this.methodName, methodName)) {
             return false;
         }
 

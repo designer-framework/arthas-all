@@ -20,11 +20,8 @@ import java.util.Map;
 @Slf4j
 public class FeignClientsCreatorPointcutAdvisor extends SimpleMethodInvokePointcutAdvisor {
 
-    public FeignClientsCreatorPointcutAdvisor() {
-        super(
-                ClassMethodInfo.create("org.springframework.cloud.openfeign.FeignClientFactoryBean#getTarget()")
-                , FeignClientSpyInterceptorApi.class
-        );
+    public FeignClientsCreatorPointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
+        super(classMethodInfo, interceptor);
     }
 
     @Override

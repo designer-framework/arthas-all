@@ -14,6 +14,7 @@ public interface AgentLifeCycleHook {
     /**
      * 分析完毕
      */
-    void stop();
+    default void stop() {
+    }
 
 }
