@@ -31,7 +31,7 @@ public class InitializedComponent {
 
     public InitializedComponent initialized() {
         endTime = DurationUtils.nowMillis();
-        endTime = endTime.subtract(startTime);
+        costTime = endTime.subtract(startTime);
         return this;
     }
 
