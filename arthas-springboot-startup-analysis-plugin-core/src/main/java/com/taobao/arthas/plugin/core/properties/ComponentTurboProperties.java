@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
- * @see com.taobao.arthas.plugin.core.condition.OnTurboCondition
+ * @see com.taobao.arthas.plugin.core.configuration.SpringComponentTurboAutoConfiguration
  */
 @Data
 @ConfigurationProperties(prefix = "spring.agent.turbo")

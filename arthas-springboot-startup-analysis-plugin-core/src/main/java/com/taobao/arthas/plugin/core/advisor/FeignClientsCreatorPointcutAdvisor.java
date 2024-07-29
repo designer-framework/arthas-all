@@ -7,7 +7,8 @@ import com.alibaba.bytekit.asm.interceptor.annotation.AtExit;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
+import com.taobao.arthas.plugin.core.enums.ComponentEnum;
+import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.arthas.SpyAPI;
@@ -18,10 +19,18 @@ import java.util.Map;
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class FeignClientsCreatorPointcutAdvisor extends SimpleMethodInvokePointcutAdvisor {
+public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor {
 
-    public FeignClientsCreatorPointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
-        super(classMethodInfo, interceptor);
+    public FeignClientsCreatorPointcutAdvisor(
+            ComponentEnum componentEnum
+            , ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor
+    ) {
+        super(componentEnum, classMethodInfo, interceptor);
+    }
+
+    @Override
+    protected InitializedComponent getCreatingComponent(InvokeVO invokeVO) {
+        return new InitializedComponent(componentEnum, ((Class<?>) getParams(invokeVO)[0]).getName());
     }
 
     @Override

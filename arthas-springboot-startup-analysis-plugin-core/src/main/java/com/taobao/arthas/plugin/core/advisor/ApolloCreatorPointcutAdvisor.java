@@ -4,18 +4,19 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class SwaggerCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor {
+public class ApolloCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor {
 
     /**
      * @return
-     * @see springfox.documentation.spring.web.plugins.DocumentationPluginsBootstrapper#SPRINGFOX_DOCUMENTATION_AUTO_STARTUP
+     * @see com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer#initialize(ConfigurableEnvironment)
      */
-    public SwaggerCreatorPointcutAdvisor(
+    public ApolloCreatorPointcutAdvisor(
             ComponentEnum componentEnum,
             ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor
     ) {

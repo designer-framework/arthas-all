@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Conditional(OnTurboCondition.class)
-public @interface ConditionalOnTurboCondition {
+public @interface ConditionalOnTurboPropCondition {
 
     String pluginName();
 

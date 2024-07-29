@@ -1,7 +1,8 @@
 package com.taobao.arthas.plugin.core.configuration;
 
-import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
-import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboCondition;
+import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboPropCondition;
+import com.taobao.arthas.plugin.core.turbo.FeignClientsCreatorTurbo;
+import com.taobao.arthas.plugin.core.turbo.SwaggerTurbo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,29 +12,22 @@ import org.springframework.context.annotation.Configuration;
  * @description:
  * @author: Designer
  * @date : 2024-07-26 23:04
+ * @see com.taobao.arthas.plugin.core.condition.OnTurboCondition
+ * @see com.taobao.arthas.plugin.core.properties.ComponentTurboProperties
  */
 @Configuration(proxyBeanMethods = false)
 public class SpringComponentTurboAutoConfiguration {
 
     @Bean
-    @ConditionalOnTurboCondition(pluginName = "open-feign")
-    public AgentLifeCycleHook feignClientsCreatorPointcutAdvisor() {
-        return new AgentLifeCycleHook() {
-        };
+    @ConditionalOnTurboPropCondition(pluginName = "swagger")
+    public SwaggerTurbo swaggerTurbo() {
+        return new SwaggerTurbo();
     }
 
     @Bean
-    @ConditionalOnTurboCondition(pluginName = "swagger")
-    public AgentLifeCycleHook swaggerTubroAgentLifeCycleHook() {
-        return new AgentLifeCycleHook() {
-            private static final String SPRINGFOX_DOCUMENTATION_AUTO_STARTUP = "springfox.documentation.auto-startup";
-
-            @Override
-            public void start() {
-                System.setProperty(SPRINGFOX_DOCUMENTATION_AUTO_STARTUP, "false");
-            }
-
-        };
+    @ConditionalOnTurboPropCondition(pluginName = "open-feign")
+    public FeignClientsCreatorTurbo feignClientsCreatorTurbo() {
+        return new FeignClientsCreatorTurbo();
     }
 
 }

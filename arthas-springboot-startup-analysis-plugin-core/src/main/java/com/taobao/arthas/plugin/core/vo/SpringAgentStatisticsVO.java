@@ -10,9 +10,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class SpringAgentStatisticsVO extends AgentStatisticsVO {
+public class SpringAgentStatisticsVO extends AgentStatisticsVO implements SpringAgentStatistics {
 
     private final Map<String, BeanCreateVO> createdBeansMap = new LinkedHashMap<>();
+
+    private final List<InitializedComponent> initializedComponents = new LinkedList<>();
 
     public void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer) {
         consumer.accept(createdBeansMap.get(beanName));
@@ -20,6 +22,10 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO {
 
     public void addCreatedBean(BeanCreateVO beanCreateVO) {
         createdBeansMap.put(beanCreateVO.getName(), beanCreateVO);
+    }
+
+    public void addInitializedComponent(InitializedComponent initializedComponent) {
+        initializedComponents.add(initializedComponent);
     }
 
     public List<BeanCreateVO> getCreatedBeans() {
@@ -37,8 +43,33 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO {
         return createdBeansMap.values();
     }
 
+    @JSONField(name = "initializedComponentDetailList")
+    public InitializedComponentMetric getInitializedComponentMetrics() {
+        BigDecimal totalCost = initializedComponents.stream().map(InitializedComponent::getCostTime)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        InitializedComponentMetric initializedComponentMetric = new InitializedComponentMetric();
+        initializedComponentMetric.setValue(totalCost);
+        initializedComponentMetric.setName("ApplicationStartUpTotalCost");
+
+        List<InitializedComponentMetric> children = initializedComponentMetric.getChildren();
+
+        children.addAll(
+                initializedComponents.stream()
+                        .map(initializedComponent -> {
+                            InitializedComponentMetric componentMetric = new InitializedComponentMetric();
+                            componentMetric.setName(initializedComponent.getComponentEnum().getName());
+                            componentMetric.setValue(initializedComponent.getCostTime());
+                            return componentMetric;
+                        }).collect(Collectors.toList())
+        );
+        initializedComponentMetric.setChildren(children);
+
+        return initializedComponentMetric;
+    }
+
     @JSONField(name = "methodInvokeDetailList")
-    public List<MethodInvokeMetrics> getMethodInvokeDetailList() {
+    public List<MethodInvokeMetrics> getMethodInvokeMetrics() {
         List<MethodInvokeMetrics> metricsList = new ArrayList<>();
 
         //全限定方法名分组

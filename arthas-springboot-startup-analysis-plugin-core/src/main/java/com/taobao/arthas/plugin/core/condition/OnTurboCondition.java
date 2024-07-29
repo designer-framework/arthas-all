@@ -1,6 +1,6 @@
 package com.taobao.arthas.plugin.core.condition;
 
-import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboCondition;
+import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboPropCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
@@ -21,7 +21,7 @@ public class OnTurboCondition extends SpringBootCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return getEnablementOutcome(context, metadata, ConditionalOnTurboCondition.class);
+        return getEnablementOutcome(context, metadata, ConditionalOnTurboPropCondition.class);
     }
 
     protected ConditionOutcome getEnablementOutcome(ConditionContext context, AnnotatedTypeMetadata metadata,

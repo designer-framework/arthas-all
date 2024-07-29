@@ -5,7 +5,10 @@ spring:
       #屏蔽类加载器增强
       method-invoke-advisors:
     turbo:
+      enabled-by-default: true
       swagger:
+        enabled: true
+      open-feign:
         enabled: true
   profiles:
     include: plugins-extension
