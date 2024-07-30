@@ -1,8 +1,12 @@
 package com.taobao.arthas.plugin.core.vo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.taobao.arthas.core.vo.AgentStatisticsVO;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
+import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,6 +39,11 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
         return new ArrayList<>(createdBeansMap.values());
     }
 
+    /**
+     * 项目启动总耗时
+     *
+     * @return
+     */
     @Override
     @JSONField(name = "startUpTime")
     public BigDecimal getAgentTime() {
@@ -48,27 +57,21 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
 
     @JSONField(name = "initializedComponentDetailList")
     public InitializedComponentsMetric getInitializedComponentsMetrics() {
-        BigDecimal totalCost = initializedComponents.stream().map(InitializedComponent::getDuration)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        //构建报表
+        InitializedComponentsMetric rootMetric = ComponentsMetricUtils.createRootMetric(SpringComponentEnum.SPRING_APPLICATION, getAgentTime());
+        rootMetric.setRoot(true);
 
-        InitializedComponentsMetric rootMetric = new InitializedComponentsMetric();
-        rootMetric.setDuration(totalCost);
-        rootMetric.setShowName("ApplicationStartUpTotalCost");
+        //添加Aop耗时统计 TODO(取前10, 其他用Others统称)
+        rootMetric.addChildren(ComponentsMetricUtils.createAopProxyComponentMetric(createdBeansMap));
 
-        List<InitializedComponentsMetric> children = rootMetric.getChildren();
+        //各组件耗时统计, 如: Apollo, Swagger
+        rootMetric.addChildren(JSONObject.parseObject(
+                JSON.toJSONString(initializedComponents), new TypeReference<List<InitializedComponentsMetric>>() {
+                }
+        ));
 
-        children.addAll(
-                initializedComponents.stream()
-                        .map(initializedComponent -> {
-                            InitializedComponentsMetric componentMetric = new InitializedComponentsMetric();
-                            componentMetric.setShowName(initializedComponent.getShowName());
-                            componentMetric.setDuration(initializedComponent.getDuration());
-                            return componentMetric;
-                        }).collect(Collectors.toList())
-        );
-        rootMetric.setChildren(children);
+        ComponentsMetricUtils.fillComponentMetric(rootMetric);
 
-        //todo 将AOP耗时统计进来
         return rootMetric;
     }
 

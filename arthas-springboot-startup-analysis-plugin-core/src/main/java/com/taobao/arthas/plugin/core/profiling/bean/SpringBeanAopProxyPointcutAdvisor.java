@@ -12,7 +12,7 @@ import java.util.Stack;
 
 public class SpringBeanAopProxyPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
-    private static final ThreadLocal<Stack<AopInfo>> STACK_THREAD_LOCAL = ThreadLocal.withInitial(Stack::new);
+    private final ThreadLocal<Stack<AopInfo>> STACK_THREAD_LOCAL = ThreadLocal.withInitial(Stack::new);
 
     /**
      * 创建Bean, 入栈
@@ -29,8 +29,10 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractMethodInvokePoint
     protected void atExit(InvokeVO invokeVO) {
         //发布Bean创建成功事件
         AopInfo aopInfo = STACK_THREAD_LOCAL.get().pop();
-        if (!(invokeVO.getReturnObj() == invokeVO.getParams()[0])) {
-            applicationEventPublisher.publishEvent(new BeanAopProxyCreatedEvent(this, aopInfo.beanName, aopInfo.startTime));
+        if (invokeVO.getReturnObj() != null && !(invokeVO.getReturnObj() == invokeVO.getParams()[0])) {
+            applicationEventPublisher.publishEvent(
+                    new BeanAopProxyCreatedEvent(this, aopInfo.beanName, invokeVO.getReturnObj().getClass().getName(), aopInfo.startTime)
+            );
         }
     }
 

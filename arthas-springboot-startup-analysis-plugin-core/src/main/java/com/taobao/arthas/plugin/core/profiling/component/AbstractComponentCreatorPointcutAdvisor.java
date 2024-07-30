@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.advisor;
+package com.taobao.arthas.plugin.core.profiling.component;
 
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;

@@ -1,9 +1,12 @@
 package com.taobao.arthas.plugin.core.profiling.hook;
 
+import com.alibaba.fastjson.JSON;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
+import com.taobao.arthas.plugin.core.annotation.WebController;
+import com.taobao.arthas.plugin.core.annotation.WebMapping;
 import com.taobao.arthas.plugin.core.properties.ArthasServerProperties;
-import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,24 +16,38 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
+import lombok.Data;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 
 @Slf4j
-public class StartReporterServerHook implements DisposableBean, Ordered {
+public class StartReporterServerHook implements SmartInitializingSingleton, ApplicationContextAware, DisposableBean, Ordered {
+
+    private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final ArthasServerProperties arthasServerProperties;
 
-    private final ProfilingHtmlUtil profilingHtmlUtil;
+    private final Map<String, Handler> handlerMap = new HashMap<>();
 
-    public StartReporterServerHook(ArthasServerProperties arthasServerProperties, ProfilingHtmlUtil profilingHtmlUtil) {
+    @Setter
+    private ApplicationContext applicationContext;
+
+    public StartReporterServerHook(ArthasServerProperties arthasServerProperties) {
         this.arthasServerProperties = arthasServerProperties;
-        this.profilingHtmlUtil = profilingHtmlUtil;
     }
 
     /**
@@ -82,6 +99,44 @@ public class StartReporterServerHook implements DisposableBean, Ordered {
         return LifeCycleStopHookOrdered.START_REPORTER_SERVER;
     }
 
+    @Override
+    public void afterSingletonsInstantiated() {
+
+        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(WebController.class);
+        beansWithAnnotation.forEach((name, bean) -> {
+
+            ReflectionUtils.doWithMethods(bean.getClass(), method -> {
+
+                WebMapping webMapping = method.getAnnotation(WebMapping.class);
+
+                if (webMapping != null) {
+
+                    for (String mapping : webMapping.value()) {
+                        handlerMap.put(mapping, new Handler(bean, method));
+                    }
+
+                }
+
+            });
+
+        });
+
+    }
+
+    @Data
+    static class Handler {
+
+        private Object bean;
+
+        private Method method;
+
+        public Handler(Object bean, Method method) {
+            this.bean = bean;
+            this.method = method;
+        }
+
+    }
+
     class ProfilingHttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         @Override
@@ -98,34 +153,48 @@ public class StartReporterServerHook implements DisposableBean, Ordered {
             // 获取请求的uri
             String uri = req.uri();
 
-            //报表首页
-            if ("/".equals(uri) || ProfilingHtmlUtil.startupAnalysis_.equals(uri)) {
+            Handler handler = handlerMap.get(uri);
+            if (handler == null) {
 
-                response(ctx, profilingHtmlUtil.readOutputResourrceToString(ProfilingHtmlUtil.startupAnalysis_));
+                for (Map.Entry<String, Handler> handlerEntry : handlerMap.entrySet()) {
 
-                // 火焰图
-            } else if (ProfilingHtmlUtil.flameGraph_.equals(uri)) {
+                    if (antPathMatcher.match(handlerEntry.getKey(), uri)) {
 
-                response(ctx, profilingHtmlUtil.readOutputResourrceToString(uri));
+                        //bestMatch
+                        handler = handlerEntry.getValue();
+                        response(ctx, handler.method.invoke(handler.bean, uri));
+                        break;
 
-                // 静态资源
-            } else if (uri.lastIndexOf(".js") > -1) {
+                    }
 
-                response(ctx, profilingHtmlUtil.resourrceToString(uri));
+                }
+
+                response(ctx, null);
+
+            } else {
+
+                response(ctx, handler.method.invoke(handler.bean, uri));
 
             }
 
+
         }
 
-        private void response(ChannelHandlerContext ctx, String content) {
+        private void response(ChannelHandlerContext ctx, Object content) {
+            if (content instanceof String) {
+                response(ctx, (String) content, "text/html; charset=UTF-8");
+            } else {
+                response(ctx, JSON.toJSONString(content), "application/json; charset=UTF-8");
+            }
+        }
 
-            FullHttpResponse response = new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK
-                    , Unpooled.copiedBuffer(content, CharsetUtil.UTF_8)
-            );
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+        private void response(ChannelHandlerContext ctx, String content, String contentType) {
+            ByteBuf contentBuf = content == null ?
+                    Unpooled.EMPTY_BUFFER : Unpooled.copiedBuffer(content, CharsetUtil.UTF_8);
+
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, contentBuf);
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-
         }
 
     }

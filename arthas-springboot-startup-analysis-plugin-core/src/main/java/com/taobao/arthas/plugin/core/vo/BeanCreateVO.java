@@ -31,24 +31,28 @@ public class BeanCreateVO implements Serializable {
     /**
      * 随着当前bean的初始化而加载的子bean
      */
-    private final List<BeanCreateVO> children;
+    private List<BeanCreateVO> children;
 
     /**
      * parentId
      */
     private long parentId;
+
     /**
      * 创建时间
      */
     private BigDecimal startMillis;
+
     /**
      * 创建完成时间
      */
     private BigDecimal endMillis;
+
     /**
      * 加载耗时
      */
     private BigDecimal duration;
+
     /**
      * 实际加载耗时(减去依赖Bean的耗时)
      */

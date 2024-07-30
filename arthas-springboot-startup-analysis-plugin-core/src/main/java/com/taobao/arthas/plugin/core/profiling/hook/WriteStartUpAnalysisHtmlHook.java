@@ -43,6 +43,10 @@ public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
         ).get();
     }
 
+    public SpringAgentStatisticsVO getStatisticsVO() {
+        return springAgentStatisticsVO;
+    }
+
     private void writeIndexHtml() {
 
         profilingHtmlUtil.copyFileToOutputPath(ProfilingHtmlUtil.startupAnalysis_, content -> {

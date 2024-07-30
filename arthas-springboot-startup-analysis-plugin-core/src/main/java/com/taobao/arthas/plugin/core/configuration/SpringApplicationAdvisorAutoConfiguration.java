@@ -3,7 +3,7 @@ package com.taobao.arthas.plugin.core.configuration;
 import com.taobao.arthas.api.lifecycle.AgentLifeCycle;
 import com.taobao.arthas.core.configuration.advisor.AdvisorUtils;
 import com.taobao.arthas.core.vo.AgentStatistics;
-import com.taobao.arthas.plugin.core.advisor.SpringApplicationLifeCyclePointcutAdvisor;
+import com.taobao.arthas.plugin.core.profiling.lifecycle.SpringApplicationLifeCyclePointcutAdvisor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

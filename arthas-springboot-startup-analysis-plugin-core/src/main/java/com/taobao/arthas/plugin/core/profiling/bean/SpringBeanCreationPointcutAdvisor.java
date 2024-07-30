@@ -2,6 +2,7 @@ package com.taobao.arthas.plugin.core.profiling.bean;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
+import com.taobao.arthas.plugin.core.constants.BeanCreateTag;
 import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.plugin.core.events.BeanCreationEvent;
 import com.taobao.arthas.plugin.core.events.InstantiateSingletonOverEvent;
@@ -50,9 +51,9 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
     }
 
     private BeanCreateVO addBeanTags(InvokeVO invokeVO, BeanCreateVO creatingBean) {
-        creatingBean.addTag("threadName", Thread.currentThread().getName());
-        creatingBean.addTag("className", invokeVO.getReturnObj() == null ? null : invokeVO.getReturnObj().getClass().getName());
-        creatingBean.addTag("classLoader", getBeanClassLoader(invokeVO.getReturnObj()));
+        creatingBean.addTag(BeanCreateTag.threadName, Thread.currentThread().getName());
+        creatingBean.addTag(BeanCreateTag.classLoader, getBeanClassLoader(invokeVO.getReturnObj()));
+        creatingBean.addTag(BeanCreateTag.className, invokeVO.getReturnObj() == null ? null : invokeVO.getReturnObj().getClass().getName());
         return creatingBean;
     }
 
@@ -87,7 +88,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(instantiateSingletonOverEvent.getBeanName(), beanCreateVO -> {
 
-                beanCreateVO.addTag("smartInitializingDuration", instantiateSingletonOverEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, instantiateSingletonOverEvent.getCostTime());
 
             });
 
@@ -98,7 +99,8 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
 
-                beanCreateVO.addTag("createProxyDuration", beanAopProxyCreatedEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.proxiedClassName, beanAopProxyCreatedEvent.getProxiedClassName());
 
             });
 

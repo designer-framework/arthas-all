@@ -24,8 +24,8 @@ import org.springframework.context.annotation.Configuration;
 public class SpringApplicationReporterAutoConfiguration {
 
     @Bean
-    StartReporterServerHook startReporterServerHook(ArthasServerProperties arthasServerProperties, ProfilingHtmlUtil profilingHtmlUtil) {
-        return new StartReporterServerHook(arthasServerProperties, profilingHtmlUtil);
+    StartReporterServerHook startReporterServerHook(ArthasServerProperties arthasServerProperties) {
+        return new StartReporterServerHook(arthasServerProperties);
     }
 
     @Bean

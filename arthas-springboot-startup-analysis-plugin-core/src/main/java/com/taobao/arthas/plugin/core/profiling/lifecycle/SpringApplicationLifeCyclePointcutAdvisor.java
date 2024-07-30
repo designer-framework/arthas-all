@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.advisor;
+package com.taobao.arthas.plugin.core.profiling.lifecycle;
 
 import com.taobao.arthas.api.lifecycle.AgentLifeCycle;
 import com.taobao.arthas.api.vo.InvokeVO;
@@ -25,5 +25,5 @@ public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractLifeCycle
     public void atExit(InvokeVO invokeVO) {
         super.atExit(invokeVO);
     }
-    
+
 }

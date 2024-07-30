@@ -34,6 +34,7 @@
         <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <project.build.outputTimestamp>2020-09-27T15:10:43Z</project.build.outputTimestamp>
 
+        <lombok.version>1.18.30</lombok.version>
         <apollo.version>2.1.0</apollo.version>
         <xxljob.version>2.4.1</xxljob.version>
         <commons-io.version>2.16.1</commons-io.version>
@@ -70,6 +71,13 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <optional>true</optional>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>

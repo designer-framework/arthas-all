@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum SpringComponentEnum implements ComponentEnum {
 
+    SPRING_APPLICATION("SPRING_APPLICATION", "SpringApplication"),
+    AOP_PROXY_CREATOR("AOP_PROXY_CREATOR", "AopProxyCreator"),
     APOLLO("APOLLO", "Apollo"),
     OPEN_FEIGN("OPEN_FEIGN", "OpenFeign"),
     SWAGGER("SWAGGER", "Swagger");
