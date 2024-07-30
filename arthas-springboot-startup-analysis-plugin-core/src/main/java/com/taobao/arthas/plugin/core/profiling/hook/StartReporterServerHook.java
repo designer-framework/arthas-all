@@ -182,9 +182,9 @@ public class StartReporterServerHook implements SmartInitializingSingleton, Appl
 
         private void response(ChannelHandlerContext ctx, Object content) {
             if (content instanceof String) {
-                response(ctx, (String) content, "text/html; charset=UTF-8");
+                response(ctx, (String) content, HttpHeaderValues.TEXT_HTML.toString());
             } else {
-                response(ctx, JSON.toJSONString(content), "application/json; charset=UTF-8");
+                response(ctx, JSON.toJSONString(content), HttpHeaderValues.APPLICATION_JSON.toString());
             }
         }
 
@@ -193,7 +193,11 @@ public class StartReporterServerHook implements SmartInitializingSingleton, Appl
                     Unpooled.EMPTY_BUFFER : Unpooled.copiedBuffer(content, CharsetUtil.UTF_8);
 
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, contentBuf);
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+            response.headers()
+                    .set(HttpHeaderNames.CONTENT_TYPE, contentType)
+                    .set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                    .set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, true)
+            ;
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
 

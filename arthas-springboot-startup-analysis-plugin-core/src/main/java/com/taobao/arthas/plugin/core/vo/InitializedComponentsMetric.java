@@ -10,8 +10,6 @@ import java.util.List;
 @Data
 public class InitializedComponentsMetric {
 
-    private boolean isRoot;
-
     @JSONField(name = "name")
     private String showName;
 

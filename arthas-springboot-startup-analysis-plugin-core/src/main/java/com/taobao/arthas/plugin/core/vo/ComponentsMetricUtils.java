@@ -71,9 +71,9 @@ public class ComponentsMetricUtils {
      * @return
      */
 
-    static InitializedComponentsMetric fillComponentMetric(InitializedComponentsMetric rootMetric) {
+    static InitializedComponentsMetric fillComponentMetric(InitializedComponentsMetric rootMetric, boolean isRootMetric) {
         //根节点
-        if (rootMetric.isRoot()) {
+        if (isRootMetric) {
             rootMetric.fillOthersDuration();
         }
 
@@ -89,7 +89,7 @@ public class ComponentsMetricUtils {
                     child.fillOthersDuration();
 
                     //遍历孙级
-                    fillComponentMetric(child);
+                    fillComponentMetric(child, false);
 
                 }
 

@@ -13,10 +13,13 @@ public abstract class InvokeInterceptorAdapter implements InvokeInterceptor {
         //ignore
     }
 
+    @Override
     public abstract void before(InvokeVO invokeVO) throws Throwable;
 
+    @Override
     public abstract void afterReturning(InvokeVO invokeVO) throws Throwable;
 
+    @Override
     public abstract void afterThrowing(InvokeVO invokeVO) throws Throwable;
 
     @Override

@@ -59,7 +59,6 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
     public InitializedComponentsMetric getInitializedComponentsMetrics() {
         //构建报表
         InitializedComponentsMetric rootMetric = ComponentsMetricUtils.createRootMetric(SpringComponentEnum.SPRING_APPLICATION, getAgentTime());
-        rootMetric.setRoot(true);
 
         //添加Aop耗时统计 TODO(取前10, 其他用Others统称)
         rootMetric.addChildren(ComponentsMetricUtils.createAopProxyComponentMetric(createdBeansMap));
@@ -70,9 +69,7 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
                 }
         ));
 
-        ComponentsMetricUtils.fillComponentMetric(rootMetric);
-
-        return rootMetric;
+        return ComponentsMetricUtils.fillComponentMetric(rootMetric, true);
     }
 
     @JSONField(name = "methodInvokeDetailList")
