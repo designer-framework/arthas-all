@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * @date : 2024-07-14 12:28
  */
 @Getter
-public class InstantiateSingletonOverEvent extends BeanCreationEvent {
+public class BeanInitMethodInvokeEvent extends BeanCreationEvent {
 
     private final String beanName;
 
@@ -21,13 +21,13 @@ public class InstantiateSingletonOverEvent extends BeanCreationEvent {
 
     private BigDecimal costTime;
 
-    public InstantiateSingletonOverEvent(Object source, String beanName) {
+    public BeanInitMethodInvokeEvent(Object source, String beanName) {
         super(source);
         this.beanName = beanName;
         startTime = DurationUtils.nowMillis();
     }
 
-    public InstantiateSingletonOverEvent instantiated() {
+    public BeanInitMethodInvokeEvent instantiated() {
         endTime = DurationUtils.nowMillis();
         costTime = endTime.subtract(startTime);
         return this;

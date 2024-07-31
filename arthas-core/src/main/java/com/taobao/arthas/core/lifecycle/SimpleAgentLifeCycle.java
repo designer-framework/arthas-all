@@ -5,35 +5,27 @@ import com.taobao.arthas.api.state.AgentState;
 
 import java.util.List;
 
-public class SimpleAgentLifeCycle implements AgentLifeCycle, AgentState {
+public class SimpleAgentLifeCycle implements AgentLifeCycle {
 
     private final List<AgentLifeCycleHook> agentLifeCycleHooks;
 
-    /**
-     * -- GETTER --
-     * 开始性能分析
-     */
-    private volatile boolean started;
+    private final AgentState agentState;
 
-    public SimpleAgentLifeCycle(List<AgentLifeCycleHook> agentLifeCycleHooks) {
+    public SimpleAgentLifeCycle(List<AgentLifeCycleHook> agentLifeCycleHooks, AgentState agentState) {
         this.agentLifeCycleHooks = agentLifeCycleHooks;
+        this.agentState = agentState;
     }
 
     @Override
     public void start() {
         agentLifeCycleHooks.forEach(AgentLifeCycleHook::start);
-        started = true;
+        agentState.start();
     }
 
     @Override
     public void stop() {
-        started = false;
+        agentState.stop();
         agentLifeCycleHooks.forEach(AgentLifeCycleHook::stop);
-    }
-
-    @Override
-    public boolean isStarted() {
-        return started;
     }
 
 }

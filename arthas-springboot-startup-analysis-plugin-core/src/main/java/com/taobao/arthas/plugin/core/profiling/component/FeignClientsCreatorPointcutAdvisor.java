@@ -7,7 +7,11 @@ import com.alibaba.bytekit.asm.interceptor.annotation.AtExit;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.plugin.core.enums.ComponentEnum;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
+import com.taobao.arthas.core.vo.MethodInvokeVO;
+import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
+import com.taobao.arthas.plugin.core.events.ComponentInitializedEvent;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,28 +23,36 @@ import java.util.Map;
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor {
+public class FeignClientsCreatorPointcutAdvisor extends SimpleMethodInvokePointcutAdvisor implements AgentLifeCycleHook {
+
+    protected final ThreadLocal<InitializedComponent> componentChildren;
 
     public FeignClientsCreatorPointcutAdvisor(
-            ComponentEnum componentEnum
-            , ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor
+            SpringComponentEnum springComponentEnum, ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor
     ) {
-        super(componentEnum, classMethodInfo, interceptor);
+        super(classMethodInfo, interceptor);
+        this.componentChildren = ThreadLocal.withInitial(() -> InitializedComponent.root(springComponentEnum));
     }
 
     @Override
-    protected void atExit(InvokeVO invokeVO) {
-        super.atExit(invokeVO);
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
+        componentChildren.get().insertChildren(
+                new InitializedComponent.Children(
+                        ((Class<?>) getParams(invokeVO)[0]).getName(), invokeDetail.getDuration()
+                )
+        );
     }
 
     @Override
-    protected void atBefore(InvokeVO invokeVO) {
-        super.atBefore(invokeVO);
-    }
+    public void stop() {
 
-    @Override
-    protected InitializedComponent getCreatingComponent(InvokeVO invokeVO) {
-        return InitializedComponent.buildChildTreeItem(componentEnum, ((Class<?>) getParams(invokeVO)[0]).getName());
+        InitializedComponent initializedComponent = componentChildren.get();
+        if (!initializedComponent.getChildren().isEmpty()) {
+            applicationEventPublisher.publishEvent(
+                    new ComponentInitializedEvent(this, initializedComponent.updateDurationByChildren())
+            );
+        }
+
     }
 
     @Override
@@ -56,10 +68,10 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreator
         @AtEnter(inline = true)
         public static void atEnter(
                 @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
-                , @Binding.Field(name = "type") Object type
+                , @Binding.Field(name = TYPE) Object type
         ) {
             Map<String, Object> attach = new HashMap<>();
-            attach.put("type", type);
+            attach.put(TYPE, type);
             SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, attach);
         }
 
@@ -69,7 +81,7 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreator
                 , @Binding.Return Object returnObj, @Binding.Field(name = "type") Object type
         ) {
             Map<String, Object> attach = new HashMap<>();
-            attach.put("type", type);
+            attach.put(TYPE, type);
             SpyAPI.atExit(clazz, methodName, methodDesc, target, args, returnObj, attach);
         }
 
@@ -79,7 +91,7 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreator
                 , @Binding.Throwable Throwable throwable, @Binding.Field(name = "type") Object type
         ) {
             Map<String, Object> attach = new HashMap<>();
-            attach.put("type", type);
+            attach.put(TYPE, type);
             SpyAPI.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable, attach);
         }
 

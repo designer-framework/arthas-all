@@ -12,8 +12,6 @@ package com.taobao.arthas.plugin.core.constants;
  */
 public final class BeanCreateTag {
 
-    public static final String actualDuration = "actualDuration";
-
     public static final String threadName = "threadName";
 
     public static final String classLoader = "classLoader";
@@ -25,5 +23,7 @@ public final class BeanCreateTag {
     public static final String proxiedClassName = "proxiedClassName";
 
     public static final String smartInitializingDuration = "smartInitializingDuration";
+
+    public static final String initMethodDuration = "initMethodDuration";
 
 }

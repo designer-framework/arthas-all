@@ -2,7 +2,6 @@ package com.taobao.arthas.plugin.core.configuration;
 
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
-import com.taobao.arthas.core.annotation.MethodInvokeWatch;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.profiling.component.*;
@@ -23,7 +22,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @Configuration(proxyBeanMethods = false)
 @EnabledMethodInvokeWatch({
         //扫包耗时
-        @MethodInvokeWatch("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)"),
+        //@MethodInvokeWatch("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)"),
 })
 @EnableConfigurationProperties(value = ComponentTurboProperties.class)
 public class SpringComponentMethodInvokeAutoConfiguration {
@@ -84,6 +83,19 @@ public class SpringComponentMethodInvokeAutoConfiguration {
     ApolloLoadNamespacePointcutAdvisor apolloLoadNamespacePointcutAdvisor() {
         return new ApolloLoadNamespacePointcutAdvisor(
                 ClassMethodInfo.create("com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)")
+        );
+    }
+
+    /**
+     * Apollo配置加载耗时
+     *
+     * @return
+     * @see com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)
+     */
+    @Bean
+    ClassPathScanningCandidateComponentPointcutAdvisor classPathScanningCandidateComponentPointcutAdvisor() {
+        return new ClassPathScanningCandidateComponentPointcutAdvisor(
+                ClassMethodInfo.create("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)")
         );
     }
 

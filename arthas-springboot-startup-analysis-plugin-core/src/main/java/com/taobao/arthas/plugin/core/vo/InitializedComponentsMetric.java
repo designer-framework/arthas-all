@@ -11,7 +11,7 @@ import java.util.List;
 public class InitializedComponentsMetric {
 
     @JSONField(name = "name")
-    private String showName;
+    private String name;
 
     @JSONField(name = "value")
     private BigDecimal duration;
@@ -24,8 +24,8 @@ public class InitializedComponentsMetric {
     public InitializedComponentsMetric() {
     }
 
-    public InitializedComponentsMetric(String showName, BigDecimal duration) {
-        this.showName = showName;
+    public InitializedComponentsMetric(String name, BigDecimal duration) {
+        this.name = name;
         this.duration = duration;
     }
 
@@ -37,11 +37,13 @@ public class InitializedComponentsMetric {
         children.addAll(initializedComponentsMetrics);
     }
 
-    public InitializedComponentsMetric fillOthersDuration() {
+    public void fillOthersDuration() {
         BigDecimal childCostTime = children.stream().map(InitializedComponentsMetric::getDuration).reduce(BigDecimal.ZERO, BigDecimal::add);
-        //其他耗时统计
-        children.add(new InitializedComponentsMetric("Others", duration.subtract(childCostTime)));
-        return this;
+        BigDecimal otherCostTime = duration.subtract(childCostTime);
+        if (BigDecimal.ZERO.compareTo(otherCostTime) != 0) {
+            //其他耗时统计
+            children.add(new InitializedComponentsMetric("Others", otherCostTime));
+        }
     }
 
 }

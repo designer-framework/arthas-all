@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class AgentConfigFileEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
-    private static final String PROFILING_JAR_HOME = "spring.profiling.output.home";
+    private static final String allowOverridingDefaultProperties = "spring.agent.allow-overriding-default-properties";
 
     /**
      * 比系统环境变量配置加载更早
@@ -45,7 +45,7 @@ public class AgentConfigFileEnvironmentPostProcessor implements EnvironmentPostP
     }
 
     private void loadArthasConfigurationProperties(ConfigurableEnvironment environment, String agentHome) throws IOException {
-        File location = new File(agentHome, "application.yml");
+        File location = new File(agentHome, "application-agent.yml");
 
         if (location.exists()) {
 
@@ -62,7 +62,7 @@ public class AgentConfigFileEnvironmentPostProcessor implements EnvironmentPostP
                  *
                  * </pre>
                  */
-                String allowPropertiesOverriding = String.valueOf(propertySource.getProperty("spring.agent.allow-overriding-default-properties"));
+                String allowPropertiesOverriding = String.valueOf(propertySource.getProperty(allowOverridingDefaultProperties));
                 //允许重写默认配置
                 if (Boolean.parseBoolean(allowPropertiesOverriding)) {
                     environment.getPropertySources().addBefore("applicationConfig: [classpath:/application-agent.yml]", propertySource);

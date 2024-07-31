@@ -2,7 +2,7 @@ package com.taobao.arthas.plugin.core.profiling.bean;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.plugin.core.events.InstantiateSingletonOverEvent;
+import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonEvent;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -10,7 +10,7 @@ import java.util.Stack;
 
 public class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
-    private final ThreadLocal<Stack<InstantiateSingletonOverEvent>> eventThreadLocal = ThreadLocal.withInitial(Stack::new);
+    private final ThreadLocal<Stack<SmartInstantiateSingletonEvent>> eventThreadLocal = ThreadLocal.withInitial(Stack::new);
 
     private final InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2AdviceHandler;
 
@@ -31,7 +31,7 @@ public class InitializingSingletonsStep3PointcutAdvisor extends AbstractMethodIn
     @Override
     public void atBefore(InvokeVO invokeVO) {
         if (initializingSingletonsStep2AdviceHandler.hasSmartInitializingSingleton()) {
-            eventThreadLocal.get().push(new InstantiateSingletonOverEvent(this, initializingSingletonsStep2AdviceHandler.popBeanName()));
+            eventThreadLocal.get().push(new SmartInstantiateSingletonEvent(this, initializingSingletonsStep2AdviceHandler.popBeanName()));
         }
     }
 

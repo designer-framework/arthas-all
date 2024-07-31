@@ -22,18 +22,12 @@ public class ApolloLoadNamespacePointcutAdvisor extends SimpleMethodInvokePointc
         super(classMethodInfo);
     }
 
+    /**
+     * @param invokeVO
+     * @param invokeDetail
+     */
     @Override
-    protected void atBefore(InvokeVO invokeVO) {
-        super.atBefore(invokeVO);
-    }
-
-    @Override
-    protected void atExit(InvokeVO invokeVO) {
-        super.atExit(invokeVO);
-    }
-
-    @Override
-    protected void atExitAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
         InitializedComponent.Children children = new InitializedComponent
                 .Children(String.valueOf(invokeVO.getParams()[0]), invokeDetail.getDuration());
 

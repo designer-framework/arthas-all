@@ -7,6 +7,9 @@ public enum SpringComponentEnum implements ComponentEnum {
 
     SPRING_APPLICATION("SPRING_APPLICATION", "SpringApplication"),
     AOP_PROXY_CREATOR("AOP_PROXY_CREATOR", "AopProxyCreator"),
+    CLASS_PATH_SCANNING("CLASS_PATH_SCANNING", "ClassPathScanning"),
+    SMART_INITIALIZING_BEAN("SMART_INITIALIZING_BEAN", "SmartInitializingBean"),
+    INIT_ANNOTATION_BEAN("INIT_ANNOTATION_BEAN", "InitAnnotationBean"),
     APOLLO("APOLLO", "Apollo"),
     OPEN_FEIGN("OPEN_FEIGN", "OpenFeign"),
     SWAGGER("SWAGGER", "Swagger");

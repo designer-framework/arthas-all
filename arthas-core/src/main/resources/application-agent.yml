@@ -15,11 +15,12 @@ spring:
     class-loaders:
       enhance-loaders:
         - java.lang.ClassLoader
-    #火焰图数据采集
+    #火焰图数据采集, 默认不开启
     flame-graph:
+      enabled: false
       high-precision: false
       names: main
-      interval: 1
+      interval: 10
       #高精度模式下此配置无效
       skip-trace:
         - java.arthas

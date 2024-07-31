@@ -4,10 +4,13 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.events.ComponentInitializedEvent;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Spring项目启动耗时分析
@@ -18,6 +21,8 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
     protected final ComponentEnum componentEnum;
 
     protected final ThreadLocal<InitializedComponent> component = new ThreadLocal<>();
+
+    private final AtomicBoolean started = new AtomicBoolean(Boolean.FALSE);
 
     public AbstractComponentCreatorPointcutAdvisor(
             ComponentEnum componentEnum,
@@ -36,29 +41,18 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
     }
 
     @Override
-    protected void atBefore(InvokeVO invokeVO) {
-        super.atBefore(invokeVO);
-        component.set(getCreatingComponent(invokeVO));
-    }
-
-    /**
-     * 初始化图标依赖的数据
-     *
-     * @param invokeVO
-     * @return
-     */
-    protected InitializedComponent getCreatingComponent(InvokeVO invokeVO) {
-        return InitializedComponent.root(componentEnum);
+    protected void atMethodInvokeBefore(InvokeVO invokeVO) {
+        //首次启动组件
+        if (started.compareAndSet(false, true)) {
+            component.set(InitializedComponent.root(componentEnum));
+        }
     }
 
     @Override
-    protected void atExit(InvokeVO invokeVO) {
-        createComponentAfter(invokeVO);
-        super.atExit(invokeVO);
-    }
-
-    protected void createComponentAfter(InvokeVO invokeVO) {
-        applicationEventPublisher.publishEvent(new ComponentInitializedEvent(this, component.get().initialized()));
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
+        InitializedComponent initializedComponent = component.get();
+        initializedComponent.initialized();
+        applicationEventPublisher.publishEvent(new ComponentInitializedEvent(this, initializedComponent));
     }
 
     @Override

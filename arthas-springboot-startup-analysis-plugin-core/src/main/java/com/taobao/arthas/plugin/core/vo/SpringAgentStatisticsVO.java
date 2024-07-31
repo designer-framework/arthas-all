@@ -55,13 +55,16 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
         return createdBeansMap.values();
     }
 
-    @JSONField(name = "initializedComponentDetailList")
-    public InitializedComponentsMetric getInitializedComponentsMetrics() {
+    @JSONField(name = "componentsMetric")
+    public InitializedComponentsMetric getComponentsMetric() {
         //构建报表
         InitializedComponentsMetric rootMetric = ComponentsMetricUtils.createRootMetric(SpringComponentEnum.SPRING_APPLICATION, getAgentTime());
 
         //添加Aop耗时统计 TODO(取前10, 其他用Others统称)
         rootMetric.addChildren(ComponentsMetricUtils.createAopProxyComponentMetric(createdBeansMap));
+
+        //SmartBean
+        rootMetric.addChildren(ComponentsMetricUtils.createSmartInitializingBeanMetric(createdBeansMap));
 
         //各组件耗时统计, 如: Apollo, Swagger
         rootMetric.addChildren(JSONObject.parseObject(

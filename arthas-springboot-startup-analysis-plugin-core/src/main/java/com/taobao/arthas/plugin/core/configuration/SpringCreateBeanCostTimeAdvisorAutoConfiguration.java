@@ -59,4 +59,20 @@ public class SpringCreateBeanCostTimeAdvisorAutoConfiguration {
                 , "**#afterSingletonsInstantiated()");
     }
 
+    /**
+     * 对private类插装可以得到更加详细的结果, 但不稳定性较强。 所以选择拦截该方法
+     * <p>
+     * 不会统计加载时长小于10ms的字段
+     *
+     * @see org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
+     */
+    @Bean
+    public SpringInitAnnotationBeanPointcutAdvisor initAnnotationBeanPointcutAdvisor() {
+        return AdvisorUtils.build(
+                new SpringInitAnnotationBeanPointcutAdvisor()
+                , "org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)"
+                , SpringInitAnnotationBeanPointcutAdvisor.InitMethodSpyInterceptorApi.class
+        );
+    }
+
 }

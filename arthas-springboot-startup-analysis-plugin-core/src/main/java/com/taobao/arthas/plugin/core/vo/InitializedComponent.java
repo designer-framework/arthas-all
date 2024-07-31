@@ -1,19 +1,18 @@
 package com.taobao.arthas.plugin.core.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.taobao.arthas.core.vo.DurationUtils;
+import com.taobao.arthas.core.vo.DurationVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
-@Data
-@Accessors(chain = true)
-public class InitializedComponent {
+@Getter
+@Setter
+public class InitializedComponent extends DurationVO {
 
     /**
      * 组件名
@@ -24,22 +23,13 @@ public class InitializedComponent {
      * Echarts展示名
      */
     @JSONField(name = "name")
-    private final String showName;
+    private final String name;
 
-    private transient BigDecimal startMillis;
-
-    /**
-     * Echarts数字值
-     */
-    @JSONField(name = "value")
-    private BigDecimal duration;
-
-    private List<Children> children;
+    private List<Children> children = new LinkedList<>();
 
     private InitializedComponent(ComponentEnum componentName) {
         this.componentName = componentName.getComponentName();
-        this.showName = componentName.getShowName();
-        this.startMillis = DurationUtils.nowMillis();
+        this.name = componentName.getShowName();
     }
 
     /**
@@ -49,9 +39,7 @@ public class InitializedComponent {
      * @param childrenName
      */
     private InitializedComponent(ComponentEnum componentName, String childrenName) {
-        this.componentName = componentName.getComponentName();
-        this.showName = componentName.getShowName();
-        this.startMillis = DurationUtils.nowMillis();
+        this(componentName);
         this.children = buildChildren(childrenName, BigDecimal.ZERO);
     }
 
@@ -59,21 +47,11 @@ public class InitializedComponent {
         return new InitializedComponent(componentName);
     }
 
-    public static InitializedComponent buildChildTreeItem(ComponentEnum componentName, String childrenName) {
-        return new InitializedComponent(componentName, childrenName);
-    }
-
     public void insertChildren(Children children) {
-        if (this.children == null) {
-            List<Children> childrenList = new LinkedList<>();
-            childrenList.add(children);
-            this.children = childrenList;
-        } else {
-            this.children.add(children);
-        }
+        this.children.add(children);
     }
 
-    public List<Children> buildChildren(String childrenName, BigDecimal costTime) {
+    private List<Children> buildChildren(String childrenName, BigDecimal costTime) {
         if (this.children == null) {
             List<Children> childrenList = new LinkedList<>();
             childrenList.add(new Children(childrenName, costTime));
@@ -84,14 +62,14 @@ public class InitializedComponent {
         }
     }
 
-    public InitializedComponent initialized() {
-        duration = DurationUtils.nowMillis().subtract(startMillis);
+    public InitializedComponent updateDurationByChildren() {
+        setDuration((children == null ? BigDecimal.ZERO : children.stream().map(Children::getDuration).reduce(BigDecimal.ZERO, BigDecimal::add)));
         return this;
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class Children {
+    @Getter
+    @Setter
+    public static class Children extends DurationVO {
 
         /**
          * Echarts展示名
@@ -99,11 +77,14 @@ public class InitializedComponent {
         @JSONField(name = "name")
         private String showName;
 
-        /**
-         * Echarts数字值
-         */
-        @JSONField(name = "value")
-        private BigDecimal duration;
+        public Children(String showName, BigDecimal duration) {
+            super(duration);
+            this.showName = showName;
+        }
+
+        public Children(String showName) {
+            this.showName = showName;
+        }
 
     }
 

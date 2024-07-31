@@ -1,5 +1,7 @@
 package com.taobao.arthas.core.configuration.lifecycle;
 
+import com.taobao.arthas.api.state.AgentState;
+import com.taobao.arthas.api.state.SimpleAgentState;
 import com.taobao.arthas.core.hook.AgentLifeCycleStopHook;
 import com.taobao.arthas.core.hook.FlameGraphAgentLifeCycleHook;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
@@ -22,23 +24,28 @@ import java.util.List;
 public class AgentLifeCycleAutoConfiguration {
 
     @Bean
-    SimpleAgentLifeCycle simpleAgentLifeCycle(List<AgentLifeCycleHook> agentLifeCycleHooks) {
-        return new SimpleAgentLifeCycle(agentLifeCycleHooks);
+    SimpleAgentState simpleAgentState() {
+        return new SimpleAgentState();
     }
 
     @Bean
-    AgentLifeCycleHook agentLifeCycleStopHook() {
+    SimpleAgentLifeCycle simpleAgentLifeCycle(List<AgentLifeCycleHook> agentLifeCycleHooks, AgentState agentState) {
+        return new SimpleAgentLifeCycle(agentLifeCycleHooks, agentState);
+    }
+
+    @Bean
+    AgentLifeCycleStopHook agentLifeCycleStopHook() {
         return new AgentLifeCycleStopHook();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    AgentStatistics agentStatistics() {
+    AgentStatisticsVO agentStatisticsVO() {
         return new AgentStatisticsVO();
     }
 
     @Bean
-    FlameGraphAgentLifeCycleHook flameGraphLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, AgentStatistics agentStatistics) {
+    FlameGraphAgentLifeCycleHook flameGraphAgentLifeCycleHook(AgentFlameGraphProperties agentFlameGraphProperties, AgentStatistics agentStatistics) {
         return new FlameGraphAgentLifeCycleHook(agentFlameGraphProperties, agentStatistics);
     }
 

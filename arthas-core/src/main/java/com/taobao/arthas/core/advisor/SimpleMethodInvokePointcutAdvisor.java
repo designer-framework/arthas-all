@@ -1,5 +1,6 @@
 package com.taobao.arthas.core.advisor;
 
+import com.alibaba.fastjson.JSON;
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
@@ -52,6 +53,8 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     @Override
     protected void atBefore(InvokeVO invokeVO) {
+        atMethodInvokeBefore(invokeVO);
+
         //入栈
         MethodInvokeVO methodInvokeVO = new MethodInvokeVO(getClassMethodInfo().getFullyQualifiedMethodName(), getParams(invokeVO));
         methodInvokeMapThreadLocal.get().put(getInvokeKey(invokeVO), methodInvokeVO);
@@ -59,20 +62,30 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
         agentStatistics.addMethodInvoke(methodInvokeVO);
     }
 
+    protected void atMethodInvokeBefore(InvokeVO invokeVO) {
+    }
+
     @Override
-    protected void atExit(InvokeVO invokeVO) {
+    protected final void atExit(InvokeVO invokeVO) {
+
         //出栈
         Map<String, MethodInvokeVO> methodInvokeMap = methodInvokeMapThreadLocal.get();
         if (methodInvokeMap.containsKey(getInvokeKey(invokeVO))) {
             //
-            MethodInvokeVO methodInvoke = methodInvokeMap.get(getInvokeKey(invokeVO)).initialized();
-            //
-            atExitAfter(invokeVO, methodInvoke);
+            MethodInvokeVO methodInvoke = methodInvokeMap.get(getInvokeKey(invokeVO));
+            methodInvoke.initialized();
+
+            atMethodInvokeAfter(invokeVO, methodInvoke);
+
+        } else {
+
+            log.error("Predecessor node not found: {}", JSON.toJSONString(invokeVO));
+
         }
 
     }
 
-    protected void atExitAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
     }
 
     protected Object[] getParams(InvokeVO invokeVO) {

@@ -5,7 +5,8 @@ import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.plugin.core.constants.BeanCreateTag;
 import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
 import com.taobao.arthas.plugin.core.events.BeanCreationEvent;
-import com.taobao.arthas.plugin.core.events.InstantiateSingletonOverEvent;
+import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeEvent;
+import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonEvent;
 import com.taobao.arthas.plugin.core.utils.CreateBeanHolder;
 import com.taobao.arthas.plugin.core.vo.BeanCreateVO;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
@@ -43,6 +44,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
     protected void atExit(InvokeVO invokeVO) {
         //bean初始化结束, 出栈
         BeanCreateVO beanCreateVO = CreateBeanHolder.pop();
+        beanCreateVO.initialized();
 
         //完善已创建Bean的一些基本信息
         addBeanTags(invokeVO, beanCreateVO)
@@ -81,14 +83,14 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
      */
     @Override
     public void onApplicationEvent(BeanCreationEvent beanCreationEvent) {
-        if (beanCreationEvent instanceof InstantiateSingletonOverEvent) {
+        if (beanCreationEvent instanceof SmartInstantiateSingletonEvent) {
 
-            InstantiateSingletonOverEvent instantiateSingletonOverEvent = (InstantiateSingletonOverEvent) beanCreationEvent;
+            SmartInstantiateSingletonEvent smartInstantiateSingletonEvent = (SmartInstantiateSingletonEvent) beanCreationEvent;
 
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
-            springAgentStatisticsResult.fillBeanCreate(instantiateSingletonOverEvent.getBeanName(), beanCreateVO -> {
+            springAgentStatisticsResult.fillBeanCreate(smartInstantiateSingletonEvent.getBeanName(), beanCreateVO -> {
 
-                beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, instantiateSingletonOverEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, smartInstantiateSingletonEvent.getCostTime());
 
             });
 
@@ -101,6 +103,17 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
                 beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getCostTime());
                 beanCreateVO.addTag(BeanCreateTag.proxiedClassName, beanAopProxyCreatedEvent.getProxiedClassName());
+
+            });
+
+        } else if (beanCreationEvent instanceof BeanInitMethodInvokeEvent) {
+
+            BeanInitMethodInvokeEvent beanInitMethodInvokeEvent = (BeanInitMethodInvokeEvent) beanCreationEvent;
+
+            //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
+            springAgentStatisticsResult.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
+
+                beanCreateVO.addTag(BeanCreateTag.initMethodDuration, beanInitMethodInvokeEvent.getCostTime());
 
             });
 

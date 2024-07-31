@@ -55,14 +55,38 @@ public class ComponentsMetricUtils {
         //填充Aop创建代理Bean的所有明细
         aopProxyBean.forEach((beanCreateVO) -> {
 
-            Object originClassName = beanCreateVO.getTags().get(BeanCreateTag.className);
             Object proxiedClassName = beanCreateVO.getTags().get(BeanCreateTag.proxiedClassName);
             BigDecimal createProxyDuration = (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.createProxyDuration);
-            aopProxyCreatorMetric.addChildren(createMetricItem(originClassName + "-->" + proxiedClassName, createProxyDuration));
+            aopProxyCreatorMetric.addChildren(createMetricItem((String) proxiedClassName, createProxyDuration));
 
         });
 
         return aopProxyCreatorMetric;
+    }
+
+    static InitializedComponentsMetric createSmartInitializingBeanMetric(Map<String, BeanCreateVO> createdBeansMap) {
+        //SmartInitializingBean
+        List<BeanCreateVO> smartInitializingBean = createdBeansMap.values().stream()
+                .filter(beanCreateVO -> beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration) != null)
+                .collect(Collectors.toList());
+
+        //totalCost
+        BigDecimal totalCost = smartInitializingBean.stream()
+                .map(beanCreateVO -> (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        //构建SmartInitializingBean根节点
+        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.INIT_ANNOTATION_BEAN, totalCost);
+
+        smartInitializingBean.forEach((beanCreateVO) -> {
+
+            Object className = beanCreateVO.getTags().get(BeanCreateTag.className);
+            BigDecimal createProxyDuration = (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration);
+            initAnnotationBeanMetric.addChildren(createMetricItem((String) className, createProxyDuration));
+
+        });
+
+        return initAnnotationBeanMetric;
     }
 
     /**

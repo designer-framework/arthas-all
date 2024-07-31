@@ -17,6 +17,8 @@ import java.util.Set;
 @Slf4j
 public class AgentFlameGraphProperties implements InitializingBean {
 
+    private boolean enabled = false;
+
     private boolean highPrecision;
 
     /**

@@ -21,7 +21,7 @@ import java.util.Properties;
 @Slf4j
 public class AgentHomeEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
-    static final String PROFILING_JAR_HOME = "spring.profiling.output.home";
+    static final String PROFILING_JAR_HOME = "spring.agent.output.home";
     private static final String DEFAULT_PROPERTIES = "defaultProperties";
 
     /**

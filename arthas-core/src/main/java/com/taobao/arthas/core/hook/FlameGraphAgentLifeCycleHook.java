@@ -66,11 +66,15 @@ public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleH
 
     @Override
     public void start() {
+        //未启用
+        if (!agentFlameGraphProperties.isEnabled()) {
+            return;
+        }
 
         //寻找main线程
         sampledThreads = getTargetThreads();
 
-        //每10ms刷新一次main线程
+        //间隔采样
         SAMPLE_SCHEDULER.scheduleAtFixedRate(() -> {
 
             // refresh per second

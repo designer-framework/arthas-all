@@ -1,9 +1,9 @@
 package com.taobao.arthas.plugin.core.vo;
 
-import com.taobao.arthas.core.vo.DurationUtils;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.taobao.arthas.core.vo.DurationVO;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.Map;
  * @date : 2024-07-12 01:10
  */
 @Data
-public class BeanCreateVO implements Serializable {
+public class BeanCreateVO extends DurationVO {
 
     /**
      * 当前Bean的ID
@@ -37,27 +37,10 @@ public class BeanCreateVO implements Serializable {
      * parentId
      */
     private long parentId;
-
-    /**
-     * 创建时间
-     */
-    private BigDecimal startMillis;
-
-    /**
-     * 创建完成时间
-     */
-    private BigDecimal endMillis;
-
-    /**
-     * 加载耗时
-     */
-    private BigDecimal duration;
-
     /**
      * 实际加载耗时(减去依赖Bean的耗时)
      */
     private BigDecimal actualDuration;
-
     /**
      * 创建代理Bean耗时
      */
@@ -66,19 +49,20 @@ public class BeanCreateVO implements Serializable {
     public BeanCreateVO(long id, String name) {
         this.id = id;
         this.name = name;
-        startMillis = DurationUtils.nowMillis();
         children = new ArrayList<>();
         tags = new HashMap<>();
     }
 
+    @Override
+    @JSONField(name = "duration")
+    public BigDecimal getDuration() {
+        return super.getDuration();
+    }
 
     public void calcBeanLoadTime() {
-        endMillis = DurationUtils.nowMillis();
-        duration = endMillis.subtract(startMillis);
-
         BigDecimal childrenDuration = children.stream().map(BeanCreateVO::getDuration)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        actualDuration = duration.subtract(childrenDuration);
+        actualDuration = getDuration().subtract(childrenDuration);
     }
 
     public void addDependBean(BeanCreateVO dependBean) {
