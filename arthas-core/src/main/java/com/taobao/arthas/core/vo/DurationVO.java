@@ -29,6 +29,7 @@ public class DurationVO {
     }
 
     public void initialized() {
+        setEndMillis(DurationUtils.nowMillis());
         duration = DurationUtils.nowMillis().subtract(startMillis);
     }
 
