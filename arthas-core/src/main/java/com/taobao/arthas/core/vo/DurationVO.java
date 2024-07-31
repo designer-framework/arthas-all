@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 @Data
 public class DurationVO {
 
-    private transient BigDecimal startMillis;
+    private BigDecimal startMillis;
 
-    private transient BigDecimal endMillis;
+    private BigDecimal endMillis;
 
     /**
      * Echarts数字值
