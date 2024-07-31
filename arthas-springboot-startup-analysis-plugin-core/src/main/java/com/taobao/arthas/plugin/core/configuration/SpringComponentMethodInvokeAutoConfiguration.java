@@ -95,7 +95,8 @@ public class SpringComponentMethodInvokeAutoConfiguration {
     @Bean
     ClassPathScanningCandidateComponentPointcutAdvisor classPathScanningCandidateComponentPointcutAdvisor() {
         return new ClassPathScanningCandidateComponentPointcutAdvisor(
-                ClassMethodInfo.create("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)")
+                SpringComponentEnum.CLASS_PATH_SCANNING
+                , ClassMethodInfo.create("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)")
         );
     }
 

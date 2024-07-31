@@ -1,10 +1,10 @@
 package com.taobao.arthas.plugin.core.configuration;
 
-import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboPropCondition;
-import com.taobao.arthas.plugin.core.turbo.FeignClientsCreatorTurbo;
-import com.taobao.arthas.plugin.core.turbo.SwaggerTurbo;
-import org.springframework.context.annotation.Bean;
+import com.taobao.arthas.plugin.core.turbo.ApolloTurboAutoConfiguration;
+import com.taobao.arthas.plugin.core.turbo.FeignClientTurboAutoConfiguration;
+import com.taobao.arthas.plugin.core.turbo.SwaggerTurboAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * list.{ ?#this == 99999}
@@ -16,18 +16,10 @@ import org.springframework.context.annotation.Configuration;
  * @see com.taobao.arthas.plugin.core.properties.ComponentTurboProperties
  */
 @Configuration(proxyBeanMethods = false)
+@Import({
+        ApolloTurboAutoConfiguration.class,
+        SwaggerTurboAutoConfiguration.class,
+        FeignClientTurboAutoConfiguration.class
+})
 public class SpringComponentTurboAutoConfiguration {
-
-    @Bean
-    @ConditionalOnTurboPropCondition(pluginName = "swagger")
-    public SwaggerTurbo swaggerTurbo() {
-        return new SwaggerTurbo();
-    }
-
-    @Bean
-    @ConditionalOnTurboPropCondition(pluginName = "open-feign")
-    public FeignClientsCreatorTurbo feignClientsCreatorTurbo() {
-        return new FeignClientsCreatorTurbo();
-    }
-
 }

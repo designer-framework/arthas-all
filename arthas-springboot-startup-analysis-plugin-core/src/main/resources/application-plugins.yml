@@ -9,6 +9,8 @@ spring:
     turbo:
       enabled-by-default: false
       swagger:
-        enabled: false
+        enabled: true
+      apollo:
+        enabled: true
       open-feign:
         enabled: false

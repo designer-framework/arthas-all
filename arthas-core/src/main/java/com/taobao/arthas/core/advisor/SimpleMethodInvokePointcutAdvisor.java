@@ -28,7 +28,7 @@ import java.util.Map;
 @Slf4j
 public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered {
 
-    private final ThreadLocal<Map<String, MethodInvokeVO>> methodInvokeMapThreadLocal = ThreadLocal.withInitial(HashMap::new);
+    private final ThreadLocal<Map<String, MethodInvokeVO>> methodInvokeMap = ThreadLocal.withInitial(HashMap::new);
 
     private AgentStatistics agentStatistics;
 
@@ -52,24 +52,26 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
     }
 
     @Override
-    protected void atBefore(InvokeVO invokeVO) {
-        atMethodInvokeBefore(invokeVO);
+    protected final void atBefore(InvokeVO invokeVO) {
 
         //入栈
         MethodInvokeVO methodInvokeVO = new MethodInvokeVO(getClassMethodInfo().getFullyQualifiedMethodName(), getParams(invokeVO));
-        methodInvokeMapThreadLocal.get().put(getInvokeKey(invokeVO), methodInvokeVO);
+        methodInvokeMap.get().put(getInvokeKey(invokeVO), methodInvokeVO);
+
+        atMethodInvokeBefore(invokeVO, methodInvokeVO);
 
         agentStatistics.addMethodInvoke(methodInvokeVO);
+
     }
 
-    protected void atMethodInvokeBefore(InvokeVO invokeVO) {
+    protected void atMethodInvokeBefore(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
     }
 
     @Override
     protected final void atExit(InvokeVO invokeVO) {
 
         //出栈
-        Map<String, MethodInvokeVO> methodInvokeMap = methodInvokeMapThreadLocal.get();
+        Map<String, MethodInvokeVO> methodInvokeMap = this.methodInvokeMap.get();
         if (methodInvokeMap.containsKey(getInvokeKey(invokeVO))) {
             //
             MethodInvokeVO methodInvoke = methodInvokeMap.get(getInvokeKey(invokeVO));
@@ -85,6 +87,12 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     }
 
+    /**
+     * 组件加载完毕
+     *
+     * @param invokeVO
+     * @param invokeDetail
+     */
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
     }
 
@@ -105,7 +113,8 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     @Override
     public void destroy() {
-        methodInvokeMapThreadLocal.remove();
+        super.destroy();
+        methodInvokeMap.remove();
     }
 
     @Override

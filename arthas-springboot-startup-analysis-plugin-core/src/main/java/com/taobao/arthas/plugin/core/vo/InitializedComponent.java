@@ -5,6 +5,7 @@ import com.taobao.arthas.core.vo.DurationVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -27,6 +28,8 @@ public class InitializedComponent extends DurationVO {
 
     private List<Children> children = new LinkedList<>();
 
+    private transient volatile Children lastChild;
+
     private InitializedComponent(ComponentEnum componentName) {
         this.componentName = componentName.getComponentName();
         this.name = componentName.getShowName();
@@ -47,8 +50,13 @@ public class InitializedComponent extends DurationVO {
         return new InitializedComponent(componentName);
     }
 
+    public static InitializedComponent.Children child(String showName, BigDecimal duration) {
+        return new InitializedComponent.Children(showName, duration);
+    }
+
     public void insertChildren(Children children) {
         this.children.add(children);
+        this.lastChild = children;
     }
 
     private List<Children> buildChildren(String childrenName, BigDecimal costTime) {
@@ -63,7 +71,10 @@ public class InitializedComponent extends DurationVO {
     }
 
     public InitializedComponent updateDurationByChildren() {
-        setDuration((children == null ? BigDecimal.ZERO : children.stream().map(Children::getDuration).reduce(BigDecimal.ZERO, BigDecimal::add)));
+        if (!CollectionUtils.isEmpty(children)) {
+            //setEndMillis(children.get(children.size() - 1).getEndMillis());
+            setDuration(children.stream().map(Children::getDuration).reduce(BigDecimal.ZERO, BigDecimal::add));
+        }
         return this;
     }
 

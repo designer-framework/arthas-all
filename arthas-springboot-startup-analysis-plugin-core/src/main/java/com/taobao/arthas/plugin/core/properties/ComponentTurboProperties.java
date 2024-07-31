@@ -21,6 +21,12 @@ public class ComponentTurboProperties {
     @NestedConfigurationProperty
     private Enabled openFeign;
 
+    @NestedConfigurationProperty
+    private Enabled apollo;
+
+    @NestedConfigurationProperty
+    private Enabled aop;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

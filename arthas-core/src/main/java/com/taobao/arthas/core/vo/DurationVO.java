@@ -2,10 +2,12 @@ package com.taobao.arthas.core.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
 @Data
+@Accessors(chain = true)
 public class DurationVO {
 
     private BigDecimal startMillis;
@@ -23,14 +25,16 @@ public class DurationVO {
     }
 
     public DurationVO(BigDecimal duration) {
-        this.startMillis = BigDecimal.ZERO;
-        this.endMillis = BigDecimal.ZERO;
+        this.startMillis = DurationUtils.nowMillis();
+        this.endMillis = DurationUtils.nowMillis();
         this.duration = duration;
     }
 
     public void initialized() {
-        setEndMillis(DurationUtils.nowMillis());
-        duration = DurationUtils.nowMillis().subtract(startMillis);
+        //结束时间
+        setEndMillis(DurationUtils.nowMillis())
+                //耗时
+                .setDuration(getEndMillis().subtract(startMillis));
     }
 
 }

@@ -28,11 +28,12 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
     @Setter
     protected ApplicationEventPublisher applicationEventPublisher;
-
-    protected AgentState agentState;
-
+    
     @Setter
     protected ApplicationContext applicationContext;
+
+    @Getter
+    private AgentState agentState;
 
     @Setter
     private Pointcut pointcut = Pointcut.FALSE;
@@ -55,7 +56,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
     }
 
     public boolean isReady() {
-        return agentState.isStarted();
+        return getAgentState().isStarted();
     }
 
     protected abstract void atBefore(InvokeVO invokeVO);

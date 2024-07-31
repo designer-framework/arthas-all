@@ -7,12 +7,7 @@ import com.alibaba.bytekit.asm.interceptor.annotation.AtExit;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
-import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
-import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
-import com.taobao.arthas.plugin.core.events.ComponentInitializedEvent;
-import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.arthas.SpyAPI;
@@ -23,36 +18,18 @@ import java.util.Map;
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class FeignClientsCreatorPointcutAdvisor extends SimpleMethodInvokePointcutAdvisor implements AgentLifeCycleHook {
-
-    protected final ThreadLocal<InitializedComponent> componentChildren;
+public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor {
 
     public FeignClientsCreatorPointcutAdvisor(
             SpringComponentEnum springComponentEnum, ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor
     ) {
-        super(classMethodInfo, interceptor);
-        this.componentChildren = ThreadLocal.withInitial(() -> InitializedComponent.root(springComponentEnum));
+        super(springComponentEnum, classMethodInfo, interceptor);
     }
 
     @Override
-    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
-        componentChildren.get().insertChildren(
-                new InitializedComponent.Children(
-                        ((Class<?>) getParams(invokeVO)[0]).getName(), invokeDetail.getDuration()
-                )
-        );
-    }
-
-    @Override
-    public void stop() {
-
-        InitializedComponent initializedComponent = componentChildren.get();
-        if (!initializedComponent.getChildren().isEmpty()) {
-            applicationEventPublisher.publishEvent(
-                    new ComponentInitializedEvent(this, initializedComponent.updateDurationByChildren())
-            );
-        }
-
+    protected String childItemName(InvokeVO invokeVO) {
+        Map<String, Object> attach = invokeVO.getAttach();
+        return ((Class<?>) attach.get(FeignClientSpyInterceptorApi.TYPE)).getName();
     }
 
     @Override

@@ -11,23 +11,16 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Spring项目启动耗时分析
+ * Apollo加载配置耗时统计
  */
 @Slf4j
 public class ApolloCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor implements ApplicationListener<LoadApolloNamespaceEvent> {
 
-    /**
-     * 避免多线程访问
-     */
-    private static final Lock lock = new ReentrantLock(true);
+    private final AtomicBoolean started = new AtomicBoolean(Boolean.FALSE);
 
-    private static final AtomicBoolean started = new AtomicBoolean(Boolean.FALSE);
-
-    private static final AtomicBoolean loadingNameSpace = new AtomicBoolean(Boolean.FALSE);
+    private final AtomicBoolean loadingNameSpace = new AtomicBoolean(Boolean.FALSE);
 
     /**
      * @return
@@ -43,33 +36,24 @@ public class ApolloCreatorPointcutAdvisor extends AbstractComponentCreatorPointc
     }
 
     /**
-     * 1. 初始化ApolloApplicationContextInitializer#initialize(ConfigurableEnvironment)
+     * 1. ApolloApplicationContextInitializer#initialize(ConfigurableEnvironment) 初始化完毕
      *
      * @param invokeVO
+     * @param invokeDetail
      */
-    @Override
-    protected void atMethodInvokeBefore(InvokeVO invokeVO) {
-        lock.lock();
-        super.atMethodInvokeBefore(invokeVO);
-    }
-
     @Override
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
         super.atMethodInvokeAfter(invokeVO, invokeDetail);
-        //1. ApolloApplicationContextInitializer#initialize(ConfigurableEnvironment) 初始化完毕
         if (loadingNameSpace.get()) {
             started.compareAndSet(false, true);
-            component.remove();
         }
-        lock.unlock();
     }
 
     @Override
     public void onApplicationEvent(LoadApolloNamespaceEvent event) {
-        if (component.get() != null) {
-            //2. 初始化Apollo命名空间
+        if (getInitializedComponent() != null) {
             loadingNameSpace.compareAndSet(false, true);
-            InitializedComponent initializedComponent = component.get();
+            InitializedComponent initializedComponent = getInitializedComponent();
             initializedComponent.insertChildren(event.getLoadedNamespace());
         }
     }

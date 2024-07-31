@@ -44,7 +44,7 @@ public abstract class AbstractLifeCyclePointcutAdvisor extends AbstractMethodInv
         agentLifeCycle.start();
 
         //标记开始分析
-        agentState.start();
+        getAgentState().start();
 
         //性能分析起始时间
         startTime = DurationUtils.nowMillis();
@@ -62,7 +62,7 @@ public abstract class AbstractLifeCyclePointcutAdvisor extends AbstractMethodInv
         agentStatistics.setAgentTime(DurationUtils.nowMillis().subtract(startTime));
 
         //标记分析完毕
-        agentState.stop();
+        getAgentState().stop();
 
         //分析完毕, 通知释放资源,关闭容器,上报分析数据...
         agentLifeCycle.stop();
