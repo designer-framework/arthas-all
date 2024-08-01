@@ -7,4 +7,4 @@ spring:
       #屏蔽类加载器增强
       method-invoke-advisors:
     turbo:
-      enabled-by-default: true
+      enabled-by-default: false

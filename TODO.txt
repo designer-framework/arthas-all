@@ -6,3 +6,12 @@
 5. 动态报表
 6. netty服务器改成jdk服务器
 7. 打包插件问题
+
+
+1. AOP及切面提示
+2. InitBean
+3. SmartBean ?
+4. Apollo
+5. OpenFeign -
+6. Scanner
+7. Swagger ?
