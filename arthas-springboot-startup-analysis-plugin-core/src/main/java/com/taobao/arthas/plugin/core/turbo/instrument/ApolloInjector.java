@@ -14,37 +14,25 @@ public class ApolloInjector {
      * @see com.ctrip.framework.apollo.build.ApolloInjector#getInstance(Class)
      */
     public static <T> T getInstance(Class<T> clazz) {
-        T instance = InstrumentApi.invokeOrigin();
 
-        if (instance instanceof Class && TurboConstants.ConfigManager.equals(clazz.getName())) {
+        if (TurboConstants.ConfigManager.equals(clazz.getName())) {
 
-            if (TurboConstants.DefaultConfigManager.equals(((Class<?>) instance).getName())) {
+            try {
 
-                return instance;
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                Class<T> defaultConfigManager = (Class<T>) Class.forName(TurboConstants.DefaultConfigManager, true, classLoader);
+                return defaultConfigManager.newInstance();
 
-                //不是默认实现, 则改为默认实现
-            } else {
-
-                try {
-
-                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                    T defaultConfigManager = (T) Class.forName(TurboConstants.DefaultConfigManager, true, classLoader);
-                    System.err.println(String.format(((Class<?>) instance).getName()) + " is replaced with " + TurboConstants.DefaultConfigManager);
-                    return defaultConfigManager;
-
-                } catch (Exception e) {
-                    //替换失败
-                    return instance;
-                }
-
+            } catch (Exception e) {
+                //替换失败
+                return InstrumentApi.invokeOrigin();
             }
 
         } else {
 
-            return instance;
+            return InstrumentApi.invokeOrigin();
 
         }
-
     }
 
 }

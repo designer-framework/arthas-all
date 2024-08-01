@@ -29,14 +29,14 @@ public class DefaultConfigManager {
 
         if (config == null) {
             synchronized (namespace.intern()) {
-                System.out.println("getConfig: " + namespace);
+
                 config = m_configs.get(namespace);
 
                 if (config == null) {
-                    ConfigFactory factory = m_factoryManager.getFactory(namespace);
 
-                    config = factory.create(namespace);
-                    m_configs.put(namespace, config);
+                    ConfigFactory factory = m_factoryManager.getFactory(namespace);
+                    m_configs.put(namespace, config = factory.create(namespace));
+
                 }
             }
         }

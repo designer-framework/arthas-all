@@ -4,22 +4,51 @@ import com.alibaba.bytekit.asm.instrument.InstrumentParseResult;
 import com.alibaba.bytekit.asm.instrument.InstrumentTemplate;
 import com.alibaba.bytekit.asm.instrument.InstrumentTransformer;
 import com.alibaba.bytekit.utils.IOUtils;
+import com.ctrip.framework.apollo.Config;
 import com.taobao.arthas.asm.apollo.ApolloInjector_;
 import com.taobao.arthas.asm.apollo.DefaultConfigManager_;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.junit.Test;
 
 import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author hengyunabc 2020-11-30
  */
 public class ClassLoader_Retransform_Test {
+
     public static final String ApolloInjector = "com.ctrip.framework.apollo.build.ApolloInjector";
 
     public static final String ConfigManager = "com.ctrip.framework.apollo.internals.DefaultConfigManager";
 
-    private static final String NewDefaultConfigManager = "com.taobao.arthas.asm.apollo.DefaultConfigManager";
+    public static void main(String[] args) {
+        List<CompletableFuture<Void>> collect = IntStream.range(0, 10).mapToObj(operand -> {
+
+            return CompletableFuture.runAsync(() -> {
+                System.out.println("In: " + operand);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println("Out: " + operand);
+            });
+
+        }).collect(Collectors.toList());
+
+        collect.forEach(voidCompletableFuture -> {
+            try {
+                voidCompletableFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
     @Test
     public void test() throws Exception {
@@ -36,18 +65,21 @@ public class ClassLoader_Retransform_Test {
         template.addInstrumentClass(classBytes_);
 
         InstrumentParseResult instrumentParseResult = template.build();
-        InstrumentTransformer instrumentTransformer = null;
+        InstrumentTransformer instrumentTransformer;
         try {
 
             instrumentTransformer = new InstrumentTransformer(instrumentParseResult);
             instrumentation.addTransformer(instrumentTransformer, true);
 
-            instrumentation.retransformClasses(cl.loadClass(ConfigManager));
-            instrumentation.retransformClasses(cl.loadClass(ApolloInjector));
+            instrumentation.retransformClasses(cl.loadClass(ApolloInjector), cl.loadClass(ConfigManager));
+            instrumentation.removeTransformer(instrumentTransformer);
 
+            com.ctrip.framework.apollo.internals.ConfigManager instance = com.ctrip.framework.apollo.build.ApolloInjector.getInstance(com.ctrip.framework.apollo.internals.ConfigManager.class);
+            Config config = instance.getConfig("B");
+
+            System.out.println(123);
         } finally {
 
-            instrumentation.removeTransformer(instrumentTransformer);
 
         }
     }

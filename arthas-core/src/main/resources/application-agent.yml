@@ -38,6 +38,5 @@ logging:
   file:
     path: ./logs
   level:
-    root: warn
-    com.taobao.arthas.core.profiling: info
-    com.taobao.arthas.core.advisor: info
+    root: info
+    com.taobao.arthas.core: info

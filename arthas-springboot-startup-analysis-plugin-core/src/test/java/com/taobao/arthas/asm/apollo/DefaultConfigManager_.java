@@ -16,6 +16,7 @@ import java.util.Map;
 /**
  * @see com.ctrip.framework.apollo.internals.DefaultConfigManager
  */
+
 @Instrument(Class = "com.ctrip.framework.apollo.internals.DefaultConfigManager")
 public class DefaultConfigManager_ implements ConfigManager {
 
@@ -29,11 +30,18 @@ public class DefaultConfigManager_ implements ConfigManager {
         m_factoryManager = ApolloInjector.getInstance(ConfigFactoryManager.class);
     }
 
+    /**
+     * @param namespace the namespace
+     * @return
+     * @see com.ctrip.framework.apollo.internals.DefaultConfigManager#getConfig(String)
+     */
     @Override
     public Config getConfig(String namespace) {
         Config config = m_configs.get(namespace);
 
+        System.out.println(10);
         if (config == null) {
+            System.out.println(11);
             synchronized (namespace.intern()) {
                 config = m_configs.get(namespace);
 
@@ -44,6 +52,7 @@ public class DefaultConfigManager_ implements ConfigManager {
                     m_configs.put(namespace, config);
                 }
             }
+            System.out.println(12);
         }
 
         return config;

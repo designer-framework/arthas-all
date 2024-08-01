@@ -76,21 +76,24 @@ public class ApolloCreatorTurboPointcutAdvisor extends ApolloCreatorPointcutAdvi
 
                 try {
 
-                    log.info("Loader Apollo Namespace: {}", namespace);
+                    log.info("Load Apollo Namespace: {}", namespace);
                     /**
                      * @see ConfigService#getConfig(String)
                      */
                     Method getConfig = Class.forName("com.ctrip.framework.apollo.ConfigService", true, invokeVO.getLoader())
                             .getMethod("getConfig", String.class);
-                    ReflectionUtils.invokeMethod(getConfig, null);
+                    ReflectionUtils.invokeMethod(getConfig, null, namespace);
                     log.info("Apollo namespace load success: {}", namespace);
 
                 } catch (Exception e) {
 
-                    throw new IllegalStateException("Apollo namespace load error: {}", e);
+                    Thread.currentThread().interrupt();
+                    log.error("Apollo namespace load error: " + namespace, e);
 
                 } finally {
+
                     countDownLatch.countDown();
+
                 }
 
             });
