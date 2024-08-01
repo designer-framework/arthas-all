@@ -1,7 +1,5 @@
 package com.taobao.arthas.plugin.core.annotation;
 
-import com.taobao.arthas.plugin.core.condition.OnTurboCondition;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.*;
@@ -10,7 +8,6 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Conditional(OnTurboCondition.class)
 public @interface WebMapping {
 
     String[] value();

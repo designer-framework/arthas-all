@@ -42,6 +42,7 @@
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
 
         <arthas.deps.package>com.alibaba.arthas.deps</arthas.deps.package>
+        <apollo.package>com.ctrip.framework.apollo</apollo.package>
     </properties>
 
     <modules>

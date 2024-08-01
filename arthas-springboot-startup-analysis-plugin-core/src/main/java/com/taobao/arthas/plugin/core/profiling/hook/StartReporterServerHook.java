@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
 import com.taobao.arthas.plugin.core.annotation.WebController;
 import com.taobao.arthas.plugin.core.annotation.WebMapping;
-import com.taobao.arthas.plugin.core.properties.ArthasServerProperties;
+import com.taobao.arthas.plugin.core.properties.AgentServerProperties;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -39,15 +39,15 @@ public class StartReporterServerHook implements SmartInitializingSingleton, Appl
 
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private final ArthasServerProperties arthasServerProperties;
+    private final AgentServerProperties agentServerProperties;
 
     private final Map<String, Handler> handlerMap = new HashMap<>();
 
     @Setter
     private ApplicationContext applicationContext;
 
-    public StartReporterServerHook(ArthasServerProperties arthasServerProperties) {
-        this.arthasServerProperties = arthasServerProperties;
+    public StartReporterServerHook(AgentServerProperties agentServerProperties) {
+        this.agentServerProperties = agentServerProperties;
     }
 
     /**
@@ -55,7 +55,7 @@ public class StartReporterServerHook implements SmartInitializingSingleton, Appl
      */
     @Override
     public void destroy() throws Exception {
-        new Thread(() -> start(arthasServerProperties.getPort()))
+        new Thread(() -> start(agentServerProperties.getPort()))
                 .start();
     }
 

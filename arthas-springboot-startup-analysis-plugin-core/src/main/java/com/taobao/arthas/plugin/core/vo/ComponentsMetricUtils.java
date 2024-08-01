@@ -50,7 +50,7 @@ public class ComponentsMetricUtils {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         //构建AOP组件根节点
-        InitializedComponentsMetric aopProxyCreatorMetric = createRootMetric(SpringComponentEnum.AOP_PROXY_CREATOR, totalCost);
+        InitializedComponentsMetric aopProxyCreatorMetric = createRootMetric(SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, totalCost);
 
         //填充Aop创建代理Bean的所有明细
         aopProxyBean.forEach((beanCreateVO) -> {

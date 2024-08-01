@@ -1,13 +1,36 @@
 package com.taobao.arthas.plugin.core.configuration;
 
+import com.alibaba.bytekit.asm.binding.Binding;
+import com.alibaba.bytekit.asm.interceptor.annotation.AtInvoke;
 import com.taobao.arthas.core.configuration.advisor.AdvisorUtils;
-import com.taobao.arthas.plugin.core.profiling.bean.*;
+import com.taobao.arthas.plugin.core.profiling.bean.InitializingSingletonsPointcutAdvisor;
+import com.taobao.arthas.plugin.core.profiling.bean.SpringBeanAopProxyPointcutAdvisor;
+import com.taobao.arthas.plugin.core.profiling.bean.SpringBeanCreationPointcutAdvisor;
+import com.taobao.arthas.plugin.core.profiling.bean.SpringInitAnnotationBeanPointcutAdvisor;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.arthas.SpyAPI;
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration(proxyBeanMethods = false)
 public class SpringCreateBeanCostTimeAdvisorAutoConfiguration {
+
+    @AtInvoke(name = "findLifecycleMetadata", inline = true, whenComplete = true)
+    public static void atInvoke(
+            @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
+            , @Binding.Field(name = "lifecycleMetadataCache") Object lifecycleMetadataCache
+            , @Binding.Field(name = "emptyLifecycleMetadata") Object emptyLifecycleMetadata
+            , @Binding.InvokeReturn Object invokeReturn
+            , @Binding.InvokeMethodDeclaration String declaration
+    ) {
+        Map<String, Object> attach = new HashMap<>();
+        attach.put("invokeReturn", lifecycleMetadataCache);
+        attach.put("declaration", emptyLifecycleMetadata);
+        SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, attach);
+    }
 
     /**
      * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
@@ -23,40 +46,10 @@ public class SpringCreateBeanCostTimeAdvisorAutoConfiguration {
      * @see org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)
      */
     @Bean
-    public SpringBeanAopProxyPointcutAdvisor springBeanAopProxyPointcutAdvisor(InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2PointcutAdvisor) {
+    public SpringBeanAopProxyPointcutAdvisor springBeanAopProxyPointcutAdvisor() {
         return AdvisorUtils.build(
                 new SpringBeanAopProxyPointcutAdvisor()
                 , "org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)");
-    }
-
-    /**
-     * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()
-     */
-    @Bean
-    public InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1PointcutAdvisor() {
-        return AdvisorUtils.build(
-                new InitializingSingletonsStep1PointcutAdvisor()
-                , "org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()");
-    }
-
-    /**
-     * @see org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(String)
-     */
-    @Bean
-    public InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2PointcutAdvisor(InitializingSingletonsStep1PointcutAdvisor initializingSingletonsStep1PointcutAdvisor) {
-        return AdvisorUtils.build(
-                new InitializingSingletonsStep2PointcutAdvisor(initializingSingletonsStep1PointcutAdvisor)
-                , "org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(java.lang.String)");
-    }
-
-    /**
-     * @see org.springframework.beans.factory.SmartInitializingSingleton#afterSingletonsInstantiated()
-     */
-    @Bean
-    public InitializingSingletonsStep3PointcutAdvisor initializingSingletonsStep3PointcutAdvisor(InitializingSingletonsStep2PointcutAdvisor initializingSingletonsStep2PointcutAdvisor) {
-        return AdvisorUtils.build(
-                new InitializingSingletonsStep3PointcutAdvisor(initializingSingletonsStep2PointcutAdvisor)
-                , "**#afterSingletonsInstantiated()");
     }
 
     /**
@@ -72,6 +65,15 @@ public class SpringCreateBeanCostTimeAdvisorAutoConfiguration {
                 new SpringInitAnnotationBeanPointcutAdvisor()
                 , "org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)"
                 , SpringInitAnnotationBeanPointcutAdvisor.InitMethodSpyInterceptorApi.class
+        );
+    }
+
+    @Bean
+    public InitializingSingletonsPointcutAdvisor initializingSingletonsPointcutAdvisor() {
+        return AdvisorUtils.build(
+                new InitializingSingletonsPointcutAdvisor()
+                , "org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()"
+                , InitializingSingletonsPointcutAdvisor.AfterSingletonsInstantiatedSpyInterceptorApi.class
         );
     }
 

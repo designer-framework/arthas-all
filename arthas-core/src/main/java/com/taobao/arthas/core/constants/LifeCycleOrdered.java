@@ -9,7 +9,7 @@ public class LifeCycleOrdered {
     /**
      * 0. 开始性能分析
      */
-    //public static final Integer STARTING_PROFILING = Ordered.LOWEST_PRECEDENCE;
+    public static final Integer AGENT_RETRANSFORM = Ordered.HIGHEST_PRECEDENCE;
 
 
     //------STOP------//

@@ -24,7 +24,9 @@ import java.util.Stack;
 public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
     public static final String lifecycleMetadataCache = "lifecycleMetadataCache";
+
     public static final String emptyLifecycleMetadata = "emptyLifecycleMetadata";
+
     private final ThreadLocal<Stack<BeanInitMethodInvokeEvent>> eventThreadLocal = ThreadLocal.withInitial(Stack::new);
 
     /**
@@ -43,9 +45,10 @@ public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractMethodInvok
     @Override
     protected void atExit(InvokeVO invokeVO) {
         if (!eventThreadLocal.get().isEmpty()) {
-            BeanInitMethodInvokeEvent instantiated = eventThreadLocal.get().pop().instantiated();
-            if (instantiated.getCostTime().compareTo(BigDecimal.valueOf(100)) > 0) {
-                applicationEventPublisher.publishEvent(instantiated);
+            BeanInitMethodInvokeEvent invokeEvent = eventThreadLocal.get().pop();
+            invokeEvent.instantiated();
+            if (invokeEvent.getDuration().compareTo(BigDecimal.valueOf(10)) > 0) {
+                applicationEventPublisher.publishEvent(invokeEvent);
             }
         }
     }
@@ -76,6 +79,7 @@ public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractMethodInvok
         public static void atExceptionExit(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args, @Binding.Throwable Throwable throwable) {
             SpyAPI.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable, null);
         }
+
     }
 
 }

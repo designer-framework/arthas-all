@@ -7,8 +7,4 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnTurboPropCondition(pluginName = "open-feign")
 public class FeignClientTurboAutoConfiguration {
-
-    public FeignClientTurboAutoConfiguration() {
-    }
-
 }

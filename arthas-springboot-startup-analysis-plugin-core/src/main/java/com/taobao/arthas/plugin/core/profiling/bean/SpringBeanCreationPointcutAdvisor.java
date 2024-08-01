@@ -10,10 +10,12 @@ import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonEvent;
 import com.taobao.arthas.plugin.core.utils.CreateBeanHolder;
 import com.taobao.arthas.plugin.core.vo.BeanCreateVO;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 
+@Slf4j
 public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean, InitializingBean {
 
     private final SpringAgentStatisticsVO springAgentStatisticsResult;
@@ -90,7 +92,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(smartInstantiateSingletonEvent.getBeanName(), beanCreateVO -> {
 
-                beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, smartInstantiateSingletonEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, smartInstantiateSingletonEvent.getDuration());
 
             });
 
@@ -101,7 +103,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
 
-                beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getDuration());
                 beanCreateVO.addTag(BeanCreateTag.proxiedClassName, beanAopProxyCreatedEvent.getProxiedClassName());
 
             });
@@ -113,9 +115,13 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
 
-                beanCreateVO.addTag(BeanCreateTag.initMethodDuration, beanInitMethodInvokeEvent.getCostTime());
+                beanCreateVO.addTag(BeanCreateTag.initMethodDuration, beanInitMethodInvokeEvent.getDuration());
 
             });
+
+        } else {
+
+            log.warn("Source: {}, BeanName: {}", beanCreationEvent.getSource(), beanCreationEvent.getBeanName());
 
         }
     }

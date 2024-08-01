@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum SpringComponentEnum implements ComponentEnum {
 
     SPRING_APPLICATION("SPRING_APPLICATION", "SpringApplication"),
-    AOP_PROXY_CREATOR("AOP_PROXY_CREATOR", "AopProxyCreator"),
+    ABSTRACT_AUTO_PROXY_CREATOR("ABSTRACT_AUTO_PROXY_CREATOR", "AbstractAutoProxyCreator"),
     CLASS_PATH_SCANNING("CLASS_PATH_SCANNING", "ClassPathScanning"),
     SMART_INITIALIZING_BEAN("SMART_INITIALIZING_BEAN", "SmartInitializingBean"),
     INIT_ANNOTATION_BEAN("INIT_ANNOTATION_BEAN", "InitAnnotationBean"),

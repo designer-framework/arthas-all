@@ -10,6 +10,7 @@ import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.events.ComponentInitializedEvent;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
@@ -27,6 +28,7 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
 
     private final ThreadLocal<InitializedComponent> component = new ThreadLocal<>();
 
+    @Getter
     private final AtomicBoolean started = new AtomicBoolean(Boolean.FALSE);
 
     public AbstractComponentCreatorPointcutAdvisor(
@@ -46,7 +48,7 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
     }
 
     @Override
-    protected final void atMethodInvokeBefore(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
+    protected void atMethodInvokeBefore(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
         //首次启动组件
         if (started.compareAndSet(false, true)) {
             component.set(InitializedComponent.root(componentEnum));
@@ -90,15 +92,11 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
         //继承方法调用的耗时
         InitializedComponent initializedComponent = getInitializedComponent();
+        initializedComponent.setEndMillis(invokeDetail.getEndMillis());
+        initializedComponent.setDuration(invokeDetail.getDuration());
 
-        //当前组件Root节点初始化完毕
-        if (CollectionUtils.isEmpty(initializedComponent.getChildren())) {
-
-            initializedComponent.setEndMillis(invokeDetail.getEndMillis());
-            initializedComponent.setDuration(invokeDetail.getDuration());
-
-            //组件子条目
-        } else {
+        //子节点耗时
+        if (!CollectionUtils.isEmpty(initializedComponent.getChildren())) {
 
             List<InitializedComponent.Children> children = initializedComponent.getChildren();
             InitializedComponent.Children child = children.get(children.size() - 1);
@@ -106,6 +104,7 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
             child.setDuration(invokeDetail.getDuration());
 
         }
+
     }
 
     @Override

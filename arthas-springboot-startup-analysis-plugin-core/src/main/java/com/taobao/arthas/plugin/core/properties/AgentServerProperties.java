@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties(prefix = "server")
-public class ArthasServerProperties {
+public class AgentServerProperties {
 
     private Integer port;
 

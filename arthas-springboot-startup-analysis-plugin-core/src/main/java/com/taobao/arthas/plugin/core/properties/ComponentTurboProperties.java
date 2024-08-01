@@ -26,6 +26,9 @@ public class ComponentTurboProperties {
 
     @NestedConfigurationProperty
     private Enabled aop;
+    
+    @NestedConfigurationProperty
+    private Enabled forkJoin;
 
     @Data
     @NoArgsConstructor

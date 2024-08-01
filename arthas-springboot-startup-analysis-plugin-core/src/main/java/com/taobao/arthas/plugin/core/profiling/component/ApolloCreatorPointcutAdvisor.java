@@ -35,6 +35,11 @@ public class ApolloCreatorPointcutAdvisor extends AbstractComponentCreatorPointc
         return !started.get();
     }
 
+    @Override
+    public void atMethodInvokeBefore(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
+        super.atMethodInvokeBefore(invokeVO, methodInvokeVO);
+    }
+
     /**
      * 1. ApolloApplicationContextInitializer#initialize(ConfigurableEnvironment) 初始化完毕
      *

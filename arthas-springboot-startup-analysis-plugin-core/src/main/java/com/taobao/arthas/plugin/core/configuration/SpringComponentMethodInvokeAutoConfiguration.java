@@ -7,6 +7,7 @@ import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.profiling.component.*;
 import com.taobao.arthas.plugin.core.properties.ComponentTurboProperties;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,6 +67,7 @@ public class SpringComponentMethodInvokeAutoConfiguration {
      * @see com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer#initialize(ConfigurableEnvironment)
      */
     @Bean
+    @ConditionalOnMissingBean(ApolloCreatorPointcutAdvisor.class)
     ApolloCreatorPointcutAdvisor apolloCreatorPointcutAdvisor() {
         return new ApolloCreatorPointcutAdvisor(
                 SpringComponentEnum.APOLLO
