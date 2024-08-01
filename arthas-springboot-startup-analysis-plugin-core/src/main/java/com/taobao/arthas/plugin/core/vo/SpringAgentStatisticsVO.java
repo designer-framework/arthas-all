@@ -66,6 +66,9 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
         //SmartBean
         rootMetric.addChildren(ComponentsMetricUtils.createSmartInitializingBeanMetric(createdBeansMap));
 
+        //InitDestroyBean
+        rootMetric.addChildren(ComponentsMetricUtils.createInitMethodDurationBeanMetric(createdBeansMap));
+
         //各组件耗时统计, 如: Apollo, Swagger
         rootMetric.addChildren(JSONObject.parseObject(
                 JSON.toJSONString(initializedComponents), new TypeReference<List<InitializedComponentsMetric>>() {

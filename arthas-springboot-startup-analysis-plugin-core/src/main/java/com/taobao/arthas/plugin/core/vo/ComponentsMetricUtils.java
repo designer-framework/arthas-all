@@ -67,6 +67,31 @@ public class ComponentsMetricUtils {
     static InitializedComponentsMetric createSmartInitializingBeanMetric(Map<String, BeanCreateVO> createdBeansMap) {
         //SmartInitializingBean
         List<BeanCreateVO> smartInitializingBean = createdBeansMap.values().stream()
+                .filter(beanCreateVO -> beanCreateVO.getTags().get(BeanCreateTag.smartInitializingDuration) != null)
+                .collect(Collectors.toList());
+
+        //totalCost
+        BigDecimal totalCost = smartInitializingBean.stream()
+                .map(beanCreateVO -> (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.smartInitializingDuration))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        //构建SmartInitializingBean根节点
+        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.SMART_INITIALIZING_BEAN, totalCost);
+
+        smartInitializingBean.forEach((beanCreateVO) -> {
+
+            Object className = beanCreateVO.getTags().get(BeanCreateTag.className);
+            BigDecimal createProxyDuration = (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.smartInitializingDuration);
+            initAnnotationBeanMetric.addChildren(createMetricItem((String) className, createProxyDuration));
+
+        });
+
+        return initAnnotationBeanMetric;
+    }
+
+    static InitializedComponentsMetric createInitMethodDurationBeanMetric(Map<String, BeanCreateVO> createdBeansMap) {
+        //SmartInitializingBean
+        List<BeanCreateVO> smartInitializingBean = createdBeansMap.values().stream()
                 .filter(beanCreateVO -> beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration) != null)
                 .collect(Collectors.toList());
 
