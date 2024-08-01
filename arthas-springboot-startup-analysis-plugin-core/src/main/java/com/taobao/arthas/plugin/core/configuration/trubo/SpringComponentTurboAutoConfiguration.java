@@ -1,9 +1,6 @@
-package com.taobao.arthas.plugin.core.configuration;
+package com.taobao.arthas.plugin.core.configuration.trubo;
 
-import com.taobao.arthas.plugin.core.turbo.ApolloTurboAutoConfiguration;
-import com.taobao.arthas.plugin.core.turbo.FeignClientTurboAutoConfiguration;
-import com.taobao.arthas.plugin.core.turbo.ForkJoinTurboAutoConfiguration;
-import com.taobao.arthas.plugin.core.turbo.SwaggerTurboAutoConfiguration;
+import com.taobao.arthas.plugin.core.configuration.SpringComponentMethodInvokeAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -19,10 +16,10 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration(proxyBeanMethods = false)
 @Import({
-        ApolloTurboAutoConfiguration.class,
-        SwaggerTurboAutoConfiguration.class,
-        FeignClientTurboAutoConfiguration.class,
-        ForkJoinTurboAutoConfiguration.class
+        ApolloTurboConfiguration.class,
+        SwaggerTurboConfiguration.class,
+        FeignClientTurboConfiguration.class,
+        ForkJoinTurboConfiguration.class
 })
 @AutoConfigureBefore(SpringComponentMethodInvokeAutoConfiguration.class)
 public class SpringComponentTurboAutoConfiguration {

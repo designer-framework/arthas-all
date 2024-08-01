@@ -12,10 +12,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.arthas.SpyAPI;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * @see org.springframework.beans.factory.InitializingBean
@@ -23,11 +20,13 @@ import java.util.Stack;
  */
 public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
 
-    public static final String lifecycleMetadataCache = "lifecycleMetadataCache";
-
-    public static final String emptyLifecycleMetadata = "emptyLifecycleMetadata";
-
     private final ThreadLocal<Stack<BeanInitMethodInvokeEvent>> eventThreadLocal = ThreadLocal.withInitial(Stack::new);
+
+
+    @Override
+    public boolean isReady(InvokeVO invokeVO) {
+        return super.isReady(invokeVO) && "true".equals(String.valueOf(invokeVO.getAttach().get("initMethods")));
+    }
 
     /**
      * 入栈
@@ -47,9 +46,7 @@ public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractMethodInvok
         if (!eventThreadLocal.get().isEmpty()) {
             BeanInitMethodInvokeEvent invokeEvent = eventThreadLocal.get().pop();
             invokeEvent.instantiated();
-            if (invokeEvent.getDuration().compareTo(BigDecimal.valueOf(10)) > 0) {
-                applicationEventPublisher.publishEvent(invokeEvent);
-            }
+            applicationEventPublisher.publishEvent(invokeEvent);
         }
     }
 
@@ -62,22 +59,29 @@ public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractMethodInvok
 
         @AtEnter(inline = true)
         public static void atEnter(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
-                , @Binding.Field(name = "lifecycleMetadataCache") Object lifecycleMetadataCache, @Binding.Field(name = "emptyLifecycleMetadata") Object emptyLifecycleMetadata
+                , @Binding.Field(name = "initMethods") Collection initMethods
         ) {
             Map<String, Object> attach = new HashMap<>();
-            attach.put(SpringInitAnnotationBeanPointcutAdvisor.lifecycleMetadataCache, lifecycleMetadataCache);
-            attach.put(SpringInitAnnotationBeanPointcutAdvisor.emptyLifecycleMetadata, emptyLifecycleMetadata);
+            attach.put("initMethods", !initMethods.isEmpty());
             SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, attach);
         }
 
         @AtExit(inline = true)
-        public static void atExit(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args, @Binding.Return Object returnObj) {
-            SpyAPI.atExit(clazz, methodName, methodDesc, target, args, returnObj, null);
+        public static void atExit(
+                @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
+                , @Binding.Return Object returnObj, @Binding.Field(name = "initMethods") Collection initMethods
+        ) {
+            Map<String, Object> attach = new HashMap<>();
+            attach.put("initMethods", !initMethods.isEmpty());
+            SpyAPI.atExit(clazz, methodName, methodDesc, target, args, returnObj, attach);
         }
 
         @AtExceptionExit(inline = true)
-        public static void atExceptionExit(@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args, @Binding.Throwable Throwable throwable) {
-            SpyAPI.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable, null);
+        public static void atExceptionExit(
+                @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
+                , @Binding.Throwable Throwable throwable
+        ) {
+            SpyAPI.atExceptionExit(clazz, methodName, methodDesc, target, args, throwable, Collections.emptyMap());
         }
 
     }

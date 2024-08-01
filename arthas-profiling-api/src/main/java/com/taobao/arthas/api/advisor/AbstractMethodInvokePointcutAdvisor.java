@@ -28,7 +28,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
     @Setter
     protected ApplicationEventPublisher applicationEventPublisher;
-    
+
     @Setter
     protected ApplicationContext applicationContext;
 
@@ -55,7 +55,7 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         pointcut = new CachingPointcut(agentSourceAttribute, canRetransform, interceptor);
     }
 
-    public boolean isReady() {
+    public boolean isReady(InvokeVO invokeVO) {
         return getAgentState().isStarted();
     }
 
@@ -63,21 +63,21 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
 
     @Override
     public void before(InvokeVO invokeVO) throws Throwable {
-        if (isReady()) {
+        if (isReady(invokeVO)) {
             atBefore(invokeVO);
         }
     }
 
     @Override
     public void afterReturning(InvokeVO invokeVO) throws Throwable {
-        if (isReady()) {
+        if (isReady(invokeVO)) {
             atAfterReturning(invokeVO);
         }
     }
 
     @Override
     public void afterThrowing(InvokeVO invokeVO) throws Throwable {
-        if (isReady()) {
+        if (isReady(invokeVO)) {
             atAfterThrowing(invokeVO);
         }
     }

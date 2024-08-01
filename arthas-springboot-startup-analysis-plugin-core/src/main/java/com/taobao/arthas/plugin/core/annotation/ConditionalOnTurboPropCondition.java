@@ -11,6 +11,11 @@ import java.lang.annotation.*;
 @Conditional(OnTurboCondition.class)
 public @interface ConditionalOnTurboPropCondition {
 
+    /**
+     * 插件名
+     *
+     * @return
+     */
     String pluginName();
 
 }

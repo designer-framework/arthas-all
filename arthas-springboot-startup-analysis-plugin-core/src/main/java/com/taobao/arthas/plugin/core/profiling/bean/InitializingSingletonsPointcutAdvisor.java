@@ -11,6 +11,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.arthas.SpyAPI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -56,11 +57,15 @@ public class InitializingSingletonsPointcutAdvisor extends AbstractMethodInvokeP
                 @Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
                 , @Binding.LocalVars Object[] vars, @Binding.LocalVarNames String[] varNames
         ) {
-            Map<String, Object> attach = new HashMap<>();
-            for (int i = 0; i < varNames.length; i++) {
-                attach.put(varNames[i], vars[i]);
+            if (varNames != null && varNames.length > 0) {
+                Map<String, Object> attach = new HashMap<>();
+                for (int i = 0; i < varNames.length; i++) {
+                    attach.put(varNames[i], vars[i]);
+                }
+                SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, attach);
+            } else {
+                SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, Collections.emptyMap());
             }
-            SpyAPI.atEnter(clazz, methodName, methodDesc, target, args, attach);
         }
 
         @AtInvoke(whenComplete = true, inline = true, name = "afterSingletonsInstantiated")

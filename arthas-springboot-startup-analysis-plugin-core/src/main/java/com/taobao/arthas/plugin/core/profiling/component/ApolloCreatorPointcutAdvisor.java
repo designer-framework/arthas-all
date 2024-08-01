@@ -31,7 +31,7 @@ public class ApolloCreatorPointcutAdvisor extends AbstractComponentCreatorPointc
     }
 
     @Override
-    public boolean isReady() {
+    public boolean isReady(InvokeVO invokeVO) {
         return !started.get();
     }
 

@@ -15,9 +15,16 @@ import java.util.Map;
 
 public class OnTurboCondition extends SpringBootCondition {
 
-    protected static final String PREFIX = "spring.agent.turbo";
+    private static final String PREFIX = "spring.agent.turbo";
+
     private static final String ENABLED_BY_DEFAULT_KEY = PREFIX + ".enabled-by-default";
-    private static final String ENABLED_PLUGIN_KEY = "spring.agent.turbo.{0}.enabled";
+
+    private static final String ENABLED_PLUGIN_KEY = PREFIX + ".{0}.enabled";
+
+    /**
+     * @see ConditionalOnTurboPropCondition#pluginName()
+     */
+    private static final String PLUGIN_NAME = "pluginName";
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -60,7 +67,7 @@ public class OnTurboCondition extends SpringBootCondition {
             return null;
         }
 
-        String pluginName = (String) attributes.get("pluginName");
+        String pluginName = (String) attributes.get(PLUGIN_NAME);
 
         if (StringUtils.isNotBlank(pluginName)) {
 

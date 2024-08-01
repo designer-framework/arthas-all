@@ -1,5 +1,6 @@
 package com.taobao.arthas.plugin.core.properties;
 
+import com.taobao.arthas.plugin.core.configuration.trubo.SpringComponentTurboAutoConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
- * @see com.taobao.arthas.plugin.core.configuration.SpringComponentTurboAutoConfiguration
+ * @see SpringComponentTurboAutoConfiguration
  */
 @Data
 @ConfigurationProperties(prefix = "spring.agent.turbo")
@@ -26,7 +27,7 @@ public class ComponentTurboProperties {
 
     @NestedConfigurationProperty
     private Enabled aop;
-    
+
     @NestedConfigurationProperty
     private Enabled forkJoin;
 

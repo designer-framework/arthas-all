@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.turbo;
+package com.taobao.arthas.plugin.core.configuration.trubo;
 
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.core.annotation.EnabledInstrument;
@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
 })
 @ConditionalOnClass(value = ApolloInjector.class)
 @ConditionalOnTurboPropCondition(pluginName = "apollo")
-public class ApolloTurboAutoConfiguration {
+public class ApolloTurboConfiguration {
 
     /**
      * @return

@@ -1,7 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.taobao.arthas.plugin.core.configuration.SpringCreateBeanCostTimeAdvisorAutoConfiguration,\
+  com.taobao.arthas.plugin.core.configuration.SpringCreateBeanDurationAdvisorAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringApplicationReporterAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringApplicationAdvisorAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringMethodInvokeAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringComponentMethodInvokeAutoConfiguration,\
-  com.taobao.arthas.plugin.core.configuration.SpringComponentTurboAutoConfiguration
+  com.taobao.arthas.plugin.core.configuration.trubo.SpringComponentTurboAutoConfiguration

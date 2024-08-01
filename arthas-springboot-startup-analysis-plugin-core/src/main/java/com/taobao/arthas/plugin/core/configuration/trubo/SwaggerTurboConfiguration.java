@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.turbo;
+package com.taobao.arthas.plugin.core.configuration.trubo;
 
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboPropCondition;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnTurboPropCondition(pluginName = "swagger")
-public class SwaggerTurboAutoConfiguration {
+public class SwaggerTurboConfiguration {
 
     private static final String SPRINGFOX_DOCUMENTATION_AUTO_STARTUP = "springfox.documentation.auto-startup";
 

@@ -29,7 +29,7 @@ public abstract class AbstractLifeCyclePointcutAdvisor extends AbstractMethodInv
     }
 
     @Override
-    public boolean isReady() {
+    public boolean isReady(InvokeVO invokeVO) {
         return true;
     }
 
