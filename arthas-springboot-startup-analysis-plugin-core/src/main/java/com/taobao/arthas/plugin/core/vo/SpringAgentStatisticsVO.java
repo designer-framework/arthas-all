@@ -11,12 +11,13 @@ import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class SpringAgentStatisticsVO extends AgentStatisticsVO implements SpringAgentStatistics {
 
-    private final Map<String, BeanCreateVO> createdBeansMap = new LinkedHashMap<>();
+    private final Map<String, BeanCreateVO> createdBeansMap = new ConcurrentHashMap<>();
 
     private final List<InitializedComponent> initializedComponents = new LinkedList<>();
 
@@ -33,6 +34,11 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
     @Override
     public void addInitializedComponent(InitializedComponent initializedComponent) {
         initializedComponents.add(initializedComponent);
+    }
+
+    @Override
+    public void addInitializedComponent(Collection<InitializedComponent> initializedComponents) {
+        this.initializedComponents.addAll(initializedComponents);
     }
 
     public List<BeanCreateVO> getCreatedBeans() {

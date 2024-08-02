@@ -1,7 +1,9 @@
 package com.taobao.arthas.plugin.core.configuration.trubo;
 
 import com.taobao.arthas.plugin.core.configuration.SpringComponentMethodInvokeAutoConfiguration;
+import com.taobao.arthas.plugin.core.properties.ComponentTurboProperties;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.Import;
         FeignClientTurboConfiguration.class,
         ForkJoinTurboConfiguration.class
 })
+@EnableConfigurationProperties(value = ComponentTurboProperties.class)
 @AutoConfigureBefore(SpringComponentMethodInvokeAutoConfiguration.class)
 public class SpringComponentTurboAutoConfiguration {
 }

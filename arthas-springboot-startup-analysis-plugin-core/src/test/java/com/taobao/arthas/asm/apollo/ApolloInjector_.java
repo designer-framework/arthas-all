@@ -19,26 +19,20 @@ public class ApolloInjector_ {
 
             try {
 
-                System.out.println("3: " + clazz.getName());
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 Class<T> defaultConfigManager = (Class<T>) Class.forName(TurboConstants.DefaultConfigManager, true, classLoader);
-                System.err.println("is replaced with " + TurboConstants.DefaultConfigManager);
-                System.out.println(4);
                 return defaultConfigManager.newInstance();
 
             } catch (Exception e) {
                 //替换失败
-                System.out.println(5);
                 return InstrumentApi.invokeOrigin();
             }
 
         } else {
 
-            System.out.println("6: " + clazz.getName());
             return InstrumentApi.invokeOrigin();
 
         }
-
     }
 
 }

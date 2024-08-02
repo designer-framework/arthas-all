@@ -1,14 +1,11 @@
 package com.taobao.arthas.asm.apollo;
 
 import com.alibaba.bytekit.agent.inst.Instrument;
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.ConfigFile;
-import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.internals.ConfigManager;
-import com.ctrip.framework.apollo.spi.ConfigFactory;
-import com.ctrip.framework.apollo.spi.ConfigFactoryManager;
-import com.google.common.collect.Maps;
+import com.taobao.arthas.plugin.core.turbo.instrument.apollo.Config;
+import com.taobao.arthas.plugin.core.turbo.instrument.apollo.ConfigFile;
+import com.taobao.arthas.plugin.core.turbo.instrument.apollo.core.enums.ConfigFileFormat;
+import com.taobao.arthas.plugin.core.turbo.instrument.apollo.spi.ConfigFactory;
+import com.taobao.arthas.plugin.core.turbo.instrument.apollo.spi.ConfigFactoryManager;
 
 import java.util.Map;
 
@@ -18,53 +15,42 @@ import java.util.Map;
  */
 
 @Instrument(Class = "com.ctrip.framework.apollo.internals.DefaultConfigManager")
-public class DefaultConfigManager_ implements ConfigManager {
+public class DefaultConfigManager_ {
 
     private ConfigFactoryManager m_factoryManager;
 
-    private Map<String, Config> m_configs = Maps.newConcurrentMap();
+    private Map<String, Config> m_configs;
 
-    private Map<String, ConfigFile> m_configFiles = Maps.newConcurrentMap();
+    private Map<String, ConfigFile> m_configFiles;
 
-    public DefaultConfigManager_() {
-        m_factoryManager = ApolloInjector.getInstance(ConfigFactoryManager.class);
-    }
-
-    /**
-     * @param namespace the namespace
-     * @return
-     * @see com.ctrip.framework.apollo.internals.DefaultConfigManager#getConfig(String)
-     */
-    @Override
     public Config getConfig(String namespace) {
+
         Config config = m_configs.get(namespace);
 
-        System.out.println(10);
         if (config == null) {
-            System.out.println(11);
             synchronized (namespace.intern()) {
+
                 config = m_configs.get(namespace);
 
                 if (config == null) {
-                    ConfigFactory factory = m_factoryManager.getFactory(namespace);
 
-                    config = factory.create(namespace);
-                    m_configs.put(namespace, config);
+                    ConfigFactory factory = m_factoryManager.getFactory(namespace);
+                    m_configs.put(namespace, config = factory.create(namespace));
+
                 }
             }
-            System.out.println(12);
         }
 
         return config;
     }
 
-    @Override
     public ConfigFile getConfigFile(String namespace, ConfigFileFormat configFileFormat) {
         String namespaceFileName = String.format("%s.%s", namespace, configFileFormat.getValue());
         ConfigFile configFile = m_configFiles.get(namespaceFileName);
 
         if (configFile == null) {
             synchronized (namespace.intern()) {
+                System.out.println("getConfigFile: " + namespace);
                 configFile = m_configFiles.get(namespaceFileName);
 
                 if (configFile == null) {
@@ -80,4 +66,3 @@ public class DefaultConfigManager_ implements ConfigManager {
     }
 
 }
-

@@ -66,22 +66,17 @@ public class ClassLoader_Retransform_Test {
 
         InstrumentParseResult instrumentParseResult = template.build();
         InstrumentTransformer instrumentTransformer;
-        try {
 
-            instrumentTransformer = new InstrumentTransformer(instrumentParseResult);
-            instrumentation.addTransformer(instrumentTransformer, true);
+        instrumentTransformer = new InstrumentTransformer(instrumentParseResult);
+        instrumentation.addTransformer(instrumentTransformer, true);
 
-            instrumentation.retransformClasses(cl.loadClass(ApolloInjector), cl.loadClass(ConfigManager));
-            instrumentation.removeTransformer(instrumentTransformer);
+        instrumentation.retransformClasses(cl.loadClass(ApolloInjector), cl.loadClass(ConfigManager));
+        instrumentation.removeTransformer(instrumentTransformer);
 
-            com.ctrip.framework.apollo.internals.ConfigManager instance = com.ctrip.framework.apollo.build.ApolloInjector.getInstance(com.ctrip.framework.apollo.internals.ConfigManager.class);
-            Config config = instance.getConfig("B");
+        com.ctrip.framework.apollo.internals.ConfigManager instance = com.ctrip.framework.apollo.build.ApolloInjector.getInstance(com.ctrip.framework.apollo.internals.ConfigManager.class);
+        Config config = instance.getConfig("B");
 
-            System.out.println(123);
-        } finally {
-
-
-        }
+        System.out.println(123);
     }
 
     @Test

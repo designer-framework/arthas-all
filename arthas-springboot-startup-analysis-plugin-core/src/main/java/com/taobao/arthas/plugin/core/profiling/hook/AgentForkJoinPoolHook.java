@@ -13,7 +13,7 @@ public class AgentForkJoinPoolHook implements AgentLifeCycleHook {
 
     @Override
     public void start() {
-        //最少启用2*CPU个线程
+        //最少启用2*CPU + 1个线程
         System.setProperty(parallelism,
                 String.valueOf(
                         Math.max(Integer.parseInt(System.getProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "-1")), Runtime.getRuntime().availableProcessors() * 2 + 1)

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -77,11 +77,11 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
         if (childItemName != null) {
 
             getInitializedComponent()
-                    .insertChildren(new InitializedComponent.Children(childItemName, startMillis));
+                    .insertChildren(new InitializedComponent.Children(getInitializedComponent().getComponentName(), childItemName, startMillis));
 
         }
 
-        return new InitializedComponent.Children(childItemName, startMillis);
+        return new InitializedComponent.Children(getInitializedComponent().getComponentName(), childItemName, startMillis);
     }
 
     protected String childItemName(InvokeVO invokeVO) {
@@ -98,8 +98,8 @@ public abstract class AbstractComponentCreatorPointcutAdvisor extends SimpleMeth
         //子节点耗时
         if (!CollectionUtils.isEmpty(initializedComponent.getChildren())) {
 
-            List<InitializedComponent.Children> children = initializedComponent.getChildren();
-            InitializedComponent.Children child = children.get(children.size() - 1);
+            ConcurrentLinkedDeque<InitializedComponent.Children> children = initializedComponent.getChildren();
+            InitializedComponent.Children child = children.peekLast();
             child.setEndMillis(invokeDetail.getEndMillis());
             child.setDuration(invokeDetail.getDuration());
 

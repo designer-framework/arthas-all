@@ -4,6 +4,7 @@ import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
+import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.events.LoadApolloNamespaceEvent;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class ApolloLoadNamespacePointcutAdvisor extends SimpleMethodInvokePointc
     @Override
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
         InitializedComponent.Children children = new InitializedComponent
-                .Children(String.valueOf(invokeVO.getParams()[0]), invokeDetail.getDuration());
+                .Children(SpringComponentEnum.APOLLO, String.valueOf(invokeVO.getParams()[0]), invokeDetail.getDuration());
 
         applicationEventPublisher.publishEvent(new LoadApolloNamespaceEvent(this, children));
     }

@@ -1,4 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.taobao.arthas.plugin.core.configuration.SpringPluginsPropertiesAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringCreateBeanDurationAdvisorAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringApplicationReporterAutoConfiguration,\
   com.taobao.arthas.plugin.core.configuration.SpringApplicationAdvisorAutoConfiguration,\
