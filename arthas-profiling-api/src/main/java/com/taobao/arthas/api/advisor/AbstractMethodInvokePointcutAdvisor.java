@@ -1,7 +1,7 @@
 package com.taobao.arthas.api.advisor;
 
 import com.taobao.arthas.api.advice.Advice;
-import com.taobao.arthas.api.interceptor.InvokeInterceptorAdapter;
+import com.taobao.arthas.api.interceptor.AbstractMethodInvokeInterceptor;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.pointcut.CachingPointcut;
 import com.taobao.arthas.api.pointcut.Pointcut;
@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
  * {@link com.taobao.arthas.core.command.monitor200.StackAdviceListener}
  */
 @Slf4j
-public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeInterceptorAdapter implements ApplicationContextAware, ApplicationEventPublisherAware, PointcutAdvisor, InitializingBean {
+public abstract class AbstractMethodInvokePointcutAdvisor extends AbstractMethodInvokeInterceptor implements PointcutAdvisor, ApplicationContextAware, ApplicationEventPublisherAware, InitializingBean {
 
     @Setter
     protected ApplicationEventPublisher applicationEventPublisher;
@@ -55,42 +55,10 @@ public abstract class AbstractMethodInvokePointcutAdvisor extends InvokeIntercep
         pointcut = new CachingPointcut(agentSourceAttribute, canRetransform, interceptor);
     }
 
+    @Override
     public boolean isReady(InvokeVO invokeVO) {
         return getAgentState().isStarted();
     }
-
-    protected abstract void atBefore(InvokeVO invokeVO);
-
-    @Override
-    public void before(InvokeVO invokeVO) throws Throwable {
-        if (isReady(invokeVO)) {
-            atBefore(invokeVO);
-        }
-    }
-
-    @Override
-    public void afterReturning(InvokeVO invokeVO) throws Throwable {
-        if (isReady(invokeVO)) {
-            atAfterReturning(invokeVO);
-        }
-    }
-
-    @Override
-    public void afterThrowing(InvokeVO invokeVO) throws Throwable {
-        if (isReady(invokeVO)) {
-            atAfterThrowing(invokeVO);
-        }
-    }
-
-    protected void atAfterReturning(InvokeVO invokeVO) {
-        atExit(invokeVO);
-    }
-
-    protected void atAfterThrowing(InvokeVO invokeVO) {
-        atExit(invokeVO);
-    }
-
-    protected abstract void atExit(InvokeVO invokeVO);
 
     @Override
     public Pointcut getPointcut() {

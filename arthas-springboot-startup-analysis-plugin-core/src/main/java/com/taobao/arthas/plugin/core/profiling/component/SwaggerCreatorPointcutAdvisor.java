@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class SwaggerCreatorPointcutAdvisor extends AbstractComponentCreatorPointcutAdvisor {
+public class SwaggerCreatorPointcutAdvisor extends AbstractComponentRootCreatorPointcutAdvisor {
 
     /**
      * @return

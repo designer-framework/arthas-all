@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.profiling.component;
+package com.taobao.arthas.plugin.core.turbo.advisor;
 
 import com.alibaba.bytekit.utils.ReflectionUtils;
 import com.ctrip.framework.apollo.ConfigService;
@@ -6,11 +6,8 @@ import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
-import com.taobao.arthas.plugin.core.events.ComponentInitializedEvent;
-import com.taobao.arthas.plugin.core.events.LoadApolloNamespaceEvent;
-import com.taobao.arthas.plugin.core.vo.InitializedComponent;
+import com.taobao.arthas.plugin.core.profiling.component.ApolloCreatorPointcutAdvisor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.lang.reflect.Method;
@@ -23,9 +20,14 @@ import java.util.stream.Collectors;
 
 /**
  * Apollo加载配置耗时统计
+ *
+ * @description:
+ * @author: Designer
+ * @date : 2024-08-01 01:10
+ * @see com.ctrip.framework.apollo.build.ApolloInjector#getInstance(java.lang.Class)
  */
 @Slf4j
-public class ApolloCreatorTurboPointcutAdvisor extends ApolloCreatorPointcutAdvisor implements ApplicationListener<LoadApolloNamespaceEvent> {
+public class ApolloCreatorTurboPointcutAdvisor extends ApolloCreatorPointcutAdvisor {
 
     /**
      * @see com.ctrip.framework.apollo.spring.config.PropertySourcesConstants#APOLLO_BOOTSTRAP_NAMESPACES
@@ -80,7 +82,7 @@ public class ApolloCreatorTurboPointcutAdvisor extends ApolloCreatorPointcutAdvi
                     /**
                      * @see ConfigService#getConfig(String)
                      */
-                    Method getConfig = Class.forName("com.ctrip.framework.apollo.ConfigService", true, invokeVO.getLoader())
+                    Method getConfig = Class.forName("com.ctrip.framework.apollo.ConfigService", false, invokeVO.getLoader())
                             .getMethod("getConfig", String.class);
                     ReflectionUtils.invokeMethod(getConfig, null, namespace);
                     log.info("Apollo namespace load success: {}", namespace);
@@ -88,7 +90,7 @@ public class ApolloCreatorTurboPointcutAdvisor extends ApolloCreatorPointcutAdvi
                 } catch (Exception e) {
 
                     Thread.currentThread().interrupt();
-                    log.error("Apollo namespace load error: " + namespace, e);
+                    log.error("Apollo namespace load error: {}", namespace, e);
 
                 } finally {
 
@@ -107,15 +109,6 @@ public class ApolloCreatorTurboPointcutAdvisor extends ApolloCreatorPointcutAdvi
             throw new IllegalStateException("Apollo namespace async load failed", e);
         }
 
-    }
-
-    @Override
-    public void stop() {
-        if (getStarted().get()) {
-            InitializedComponent initializedComponent = getInitializedComponent();
-            //initializedComponent.updateDurationByChildren();
-            applicationEventPublisher.publishEvent(new ComponentInitializedEvent(this, initializedComponent));
-        }
     }
 
 }

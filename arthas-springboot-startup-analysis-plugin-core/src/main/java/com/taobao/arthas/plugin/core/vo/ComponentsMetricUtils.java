@@ -26,11 +26,11 @@ public class ComponentsMetricUtils {
      * 组件子节点
      *
      * @param showName
-     * @param itemCost
+     * @param duration
      * @return
      */
-    static InitializedComponentsMetric createMetricItem(String showName, BigDecimal itemCost) {
-        return new InitializedComponentsMetric(showName, itemCost);
+    static InitializedComponentsMetric createMetricItem(String showName, BigDecimal duration) {
+        return new InitializedComponentsMetric(showName, duration);
     }
 
     /**
@@ -76,7 +76,7 @@ public class ComponentsMetricUtils {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         //构建SmartInitializingBean根节点
-        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.SMART_INITIALIZING_BEAN, totalCost);
+        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.SMART_INITIALIZING_SINGLETON, totalCost);
 
         smartInitializingBean.forEach((beanCreateVO) -> {
 
@@ -101,13 +101,13 @@ public class ComponentsMetricUtils {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         //构建SmartInitializingBean根节点
-        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.INIT_ANNOTATION_BEAN, totalCost);
-
+        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.INIT_DESTROY_ANNOTATION_BEAN, totalCost);
         smartInitializingBean.forEach((beanCreateVO) -> {
 
             Object className = beanCreateVO.getTags().get(BeanCreateTag.className);
+            Object initMethods = beanCreateVO.getTags().get(BeanCreateTag.initMethodName);
             BigDecimal createProxyDuration = (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration);
-            initAnnotationBeanMetric.addChildren(createMetricItem((String) className, createProxyDuration));
+            initAnnotationBeanMetric.addChildren(createMetricItem(className + "," + initMethods, createProxyDuration));
 
         });
 
@@ -135,7 +135,7 @@ public class ComponentsMetricUtils {
                 if (!CollectionUtils.isEmpty(child.getChildren())) {
 
                     //明细耗时统计
-                    child.fillOthersDuration();
+                    //child.fillOthersDuration();
 
                     //遍历孙级
                     fillComponentMetric(child, false);

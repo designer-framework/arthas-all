@@ -115,6 +115,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
             //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
 
+                beanCreateVO.addTag(BeanCreateTag.initMethodName, beanInitMethodInvokeEvent.getInitMethods());
                 beanCreateVO.addTag(BeanCreateTag.initMethodDuration, beanInitMethodInvokeEvent.getDuration());
 
             });

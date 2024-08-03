@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.configuration.advisor;
 
-import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
-import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -16,24 +16,24 @@ class BeanDefinitionRegistryUtils {
 
     public static final String ENABLED = "${spring.agent.flame-graph.high-precision}";
 
-    public static void registry(BeanDefinitionRegistry registry, MethodInvokeAdvisor methodInvokeAdvisor) {
-        String beanName = getBeanName(methodInvokeAdvisor);
+    public static void registry(BeanDefinitionRegistry registry, MethodInvokeWatchProperties methodInvokeWatchProperties) {
+        String beanName = getBeanName(methodInvokeWatchProperties);
 
         if (registry.containsBeanDefinition(beanName)) {
-            log.warn("Repeated method call statistics, ignored: {}", methodInvokeAdvisor.getMethodInfo().getFullyQualifiedMethodName());
+            log.warn("Repeated method call statistics, ignored: {}", methodInvokeWatchProperties.getMethodInfo().getFullyQualifiedMethodName());
             return;
         }
 
-        BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder.genericBeanDefinition(methodInvokeAdvisor.getPointcutAdvisor());
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeAdvisor.getMethodInfo());
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeAdvisor.getCanRetransform());
-        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeAdvisor.getInterceptor());
+        BeanDefinitionBuilder methodInvokeAdviceHandlerBuilder = BeanDefinitionBuilder.genericBeanDefinition(methodInvokeWatchProperties.getPointcutAdvisor());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeWatchProperties.getMethodInfo());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeWatchProperties.getCanRetransform());
+        methodInvokeAdviceHandlerBuilder.addConstructorArgValue(methodInvokeWatchProperties.getInterceptor());
         //
         registry.registerBeanDefinition(beanName, methodInvokeAdviceHandlerBuilder.getBeanDefinition());
     }
 
-    private static String getBeanName(MethodInvokeAdvisor methodInvokeAdvisor) {
-        return SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + methodInvokeAdvisor;
+    private static String getBeanName(MethodInvokeWatchProperties methodInvokeWatchProperties) {
+        return SimpleMethodAbstractMethodInvokePointcutAdvisor.class.getSimpleName() + "." + methodInvokeWatchProperties;
     }
 
 }

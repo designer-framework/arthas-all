@@ -10,8 +10,11 @@ import lombok.Getter;
 @Getter
 public class BeanInitMethodInvokeEvent extends BeanCreationEvent {
 
-    public BeanInitMethodInvokeEvent(Object source, String beanName) {
+    private final String initMethods;
+
+    public BeanInitMethodInvokeEvent(Object source, String beanName, String initMethods) {
         super(source, beanName);
+        this.initMethods = initMethods;
     }
 
 }

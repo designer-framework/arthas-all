@@ -30,8 +30,11 @@ spring:
       method-invoke-advisors:
         - method: java.net.URLClassLoader#findResource(java.lang.String)
           can-retransform: true
-        - method: sun.misc.Launcher$AppClassLoader#loadClass(java.lang.String, boolean)
-          can-retransform: true
+        #- method: sun.misc.Launcher$AppClassLoader#loadClass(java.lang.String, boolean)
+        #  can-retransform: true
+    #启动速度优化
+    turbo:
+      enabled-by-default: false
 
 logging:
   config: 'classpath:logback.xml'

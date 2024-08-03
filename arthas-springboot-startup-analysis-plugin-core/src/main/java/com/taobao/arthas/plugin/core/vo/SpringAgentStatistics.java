@@ -15,4 +15,8 @@ public interface SpringAgentStatistics extends AgentStatistics {
 
     void addInitializedComponent(Collection<InitializedComponent> initializedComponents);
 
+    Object applicationContext();
+
+    void setApplicationContext(Object applicationContext);
+
 }

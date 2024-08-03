@@ -8,9 +8,9 @@ import java.util.List;
 @Getter
 public class ComponentChildInitializedEvent extends ComponentEvent {
 
-    private final List<InitializedComponent.Children> children;
+    private final List<InitializedComponent> children;
 
-    public ComponentChildInitializedEvent(Object source, List<InitializedComponent.Children> children) {
+    public ComponentChildInitializedEvent(Object source, List<InitializedComponent> children) {
         super(source);
         this.children = children;
     }

@@ -39,7 +39,12 @@ public class AgentFlameGraphProperties implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         if (highPrecision) {
-            log.warn("火焰图启用高精度采样模式, 已关闭方法调用统计功能");
+            if (interval != 1) {
+                log.warn("Flame map with high-precision sampling mode enabled, method call statistics turned off. & interval: {} -> 1", interval);
+                interval = 1;
+            } else {
+                log.warn("Flame map with high-precision sampling mode enabled, method call statistics turned off.");
+            }
         }
     }
 

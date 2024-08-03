@@ -7,6 +7,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.taobao.arthas.core.vo.AgentStatisticsVO;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
+import lombok.Setter;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,9 +24,24 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
 
     private final List<InitializedComponent> initializedComponents = new LinkedList<>();
 
+    private final List<StartUpLabelVO> startUpLabels = new LinkedList<>();
+
+    @Setter
+    private Object applicationContext;
+
     @Override
     public void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer) {
         consumer.accept(createdBeansMap.get(beanName));
+    }
+
+    @JSONField(name = "statisticsList")
+    public List<StartUpLabelVO> getStartUpLabels() {
+        AnnotationAwareOrderComparator.sort(this.startUpLabels);
+        return this.startUpLabels;
+    }
+
+    public void addStartUpLabels(StartUpLabelVO startUpLabels) {
+        this.startUpLabels.add(startUpLabels);
     }
 
     @Override
@@ -41,6 +59,20 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
         this.initializedComponents.addAll(initializedComponents);
     }
 
+    /**
+     * String methodName = "";
+     * Object[] args = new Object[]{};
+     * Method method = ClassUtils.getMethod(applicationContext.getClass(), methodName, Arrays.stream(args).map(Object::getClass).toArray(Class[]::new));
+     * return method.invoke(applicationContext, args);
+     *
+     * @return
+     */
+    @Override
+    public Object applicationContext() {
+        return applicationContext;
+    }
+
+
     public List<BeanCreateVO> getCreatedBeans() {
         return new ArrayList<>(createdBeansMap.values());
     }
@@ -54,6 +86,12 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
     @JSONField(name = "startUpTime")
     public BigDecimal getAgentTime() {
         return super.getAgentTime();
+    }
+
+    @Override
+    public void setAgentTime(BigDecimal agentTime) {
+        super.setAgentTime(agentTime);
+        startUpLabels.add(new StartUpLabelVO(Ordered.HIGHEST_PRECEDENCE, "StartUp Time/ms", agentTime.toPlainString()));
     }
 
     @JSONField(name = "beanInitResultList")
@@ -76,10 +114,17 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
         rootMetric.addChildren(ComponentsMetricUtils.createInitMethodDurationBeanMetric(createdBeansMap));
 
         //各组件耗时统计, 如: Apollo, Swagger
+        initializedComponents.forEach(initializedComponent -> {
+            if (initializedComponent.isLazyRoot()) {
+                initializedComponent.updateDurationByChildren();
+            }
+        });
         rootMetric.addChildren(JSONObject.parseObject(
                 JSON.toJSONString(initializedComponents), new TypeReference<List<InitializedComponentsMetric>>() {
                 }
         ));
+
+        startUpLabels.add(new StartUpLabelVO(Ordered.HIGHEST_PRECEDENCE, "Num of Bean", createdBeansMap.size()));
 
         return ComponentsMetricUtils.fillComponentMetric(rootMetric, true);
     }

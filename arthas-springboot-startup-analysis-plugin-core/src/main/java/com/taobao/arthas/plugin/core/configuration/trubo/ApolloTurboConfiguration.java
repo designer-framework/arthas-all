@@ -6,7 +6,7 @@ import com.taobao.arthas.core.annotation.Retransform;
 import com.taobao.arthas.plugin.core.annotation.ConditionalOnTurboPropCondition;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.profiling.component.ApolloCreatorPointcutAdvisor;
-import com.taobao.arthas.plugin.core.profiling.component.ApolloCreatorTurboPointcutAdvisor;
+import com.taobao.arthas.plugin.core.turbo.advisor.ApolloCreatorTurboPointcutAdvisor;
 import com.taobao.arthas.plugin.core.turbo.constants.TurboConstants;
 import com.taobao.arthas.plugin.core.turbo.instrument.ApolloInjector;
 import com.taobao.arthas.plugin.core.turbo.instrument.DefaultConfigManager;
@@ -35,7 +35,7 @@ public class ApolloTurboConfiguration {
     @ConditionalOnMissingBean(ApolloCreatorPointcutAdvisor.class)
     public ApolloCreatorTurboPointcutAdvisor apolloCreatorTurboPointcutAdvisor() {
         return new ApolloCreatorTurboPointcutAdvisor(
-                SpringComponentEnum.APOLLO
+                SpringComponentEnum.APOLLO_APPLICATION_CONTEXT_INITIALIZER
                 , ClassMethodInfo.create("com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer#initialize(org.springframework.core.env.ConfigurableEnvironment)")
         );
 

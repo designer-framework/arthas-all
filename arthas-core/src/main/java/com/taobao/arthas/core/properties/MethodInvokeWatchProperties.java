@@ -2,7 +2,7 @@ package com.taobao.arthas.core.properties;
 
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
-import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class MethodInvokeAdvisor {
+public class MethodInvokeWatchProperties {
 
     /**
      * 全限定方法名
@@ -32,13 +32,13 @@ public class MethodInvokeAdvisor {
     /**
      * 只能继承该类
      */
-    private Class<? extends SimpleMethodInvokePointcutAdvisor> pointcutAdvisor = SimpleMethodInvokePointcutAdvisor.class;
+    private Class<? extends SimpleMethodAbstractMethodInvokePointcutAdvisor> pointcutAdvisor = SimpleMethodAbstractMethodInvokePointcutAdvisor.class;
 
-    public MethodInvokeAdvisor(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor) {
-        this(method, canRetransform, interceptor, SimpleMethodInvokePointcutAdvisor.class);
+    public MethodInvokeWatchProperties(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor) {
+        this(method, canRetransform, interceptor, SimpleMethodAbstractMethodInvokePointcutAdvisor.class);
     }
 
-    public MethodInvokeAdvisor(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor, Class<? extends SimpleMethodInvokePointcutAdvisor> pointcutAdvisor) {
+    public MethodInvokeWatchProperties(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor, Class<? extends SimpleMethodAbstractMethodInvokePointcutAdvisor> pointcutAdvisor) {
         this.method = method;
         this.canRetransform = canRetransform;
         this.interceptor = interceptor;
@@ -52,7 +52,9 @@ public class MethodInvokeAdvisor {
     @Override
     public String toString() {
         return "{\"method\": \"" + method + '\"' +
-                ", \"canRetransform\": \"" + canRetransform + "\"}";
+                ", \"canRetransform\": \"" + canRetransform + "\"" +
+                ", \"interceptor\": \"" + interceptor.getName() + "\"" +
+                "}";
     }
 
 }

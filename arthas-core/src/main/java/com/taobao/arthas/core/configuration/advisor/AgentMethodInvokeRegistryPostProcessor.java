@@ -1,8 +1,8 @@
 package com.taobao.arthas.core.configuration.advisor;
 
-import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.AgentMethodTraceProperties;
-import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
+import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
 import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -25,7 +25,7 @@ public class AgentMethodInvokeRegistryPostProcessor implements BeanDefinitionReg
     /**
      * @param registry the bean definition registry used by the application context
      * @throws BeansException
-     * @see SimpleMethodInvokePointcutAdvisor
+     * @see SimpleMethodAbstractMethodInvokePointcutAdvisor
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -39,8 +39,8 @@ public class AgentMethodInvokeRegistryPostProcessor implements BeanDefinitionReg
                 .ifBound(arthasMethodTraceProperties -> {
 
                     //将性能分析Bean的Definition注入到容器中
-                    for (MethodInvokeAdvisor methodInvokeAdvisor : arthasMethodTraceProperties.getMethodInvokeAdvisors()) {
-                        BeanDefinitionRegistryUtils.registry(registry, methodInvokeAdvisor);
+                    for (MethodInvokeWatchProperties methodInvokeWatchProperties : arthasMethodTraceProperties.getMethodInvokeWatchProperties()) {
+                        BeanDefinitionRegistryUtils.registry(registry, methodInvokeWatchProperties);
                     }
 
                 });

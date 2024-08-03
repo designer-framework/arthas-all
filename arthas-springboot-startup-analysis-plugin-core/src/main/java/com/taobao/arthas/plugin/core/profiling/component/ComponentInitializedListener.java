@@ -5,7 +5,7 @@ import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.events.ComponentChildInitializedEvent;
 import com.taobao.arthas.plugin.core.events.ComponentEvent;
-import com.taobao.arthas.plugin.core.events.ComponentInitializedEvent;
+import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import lombok.SneakyThrows;
@@ -32,7 +32,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
 
     private final Object childComponentLock = new Object();
 
-    private final Map<ComponentEnum, List<InitializedComponent.Children>> childrenWaitRootReady = new ConcurrentHashMap<>();
+    private final Map<ComponentEnum, List<InitializedComponent>> childrenWaitRootReady = new ConcurrentHashMap<>();
 
     private final Object eventQueue = new Object();
 
@@ -78,6 +78,9 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
         }
     }
 
+    /**
+     * 将子组件和父组件的耗时统计进行解耦
+     */
     @Override
     public void start() {
         //
@@ -112,7 +115,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
                     }
                 }
             } catch (Exception e) {
-                throw new IllegalStateException(e);
+                log.error("EventProcessor thread has an error, please check", e);
             }
 
         }, "EventProcessor");
@@ -175,10 +178,10 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
         while ((componentEvent = componentEvents.pollFirst()) != null) {
 
             //新组件被创建
-            if (componentEvent instanceof ComponentInitializedEvent) {
+            if (componentEvent instanceof ComponentRootInitializedEvent) {
 
                 synchronized (componentRoot) {
-                    InitializedComponent initializedComponent = ((ComponentInitializedEvent) componentEvent).getInitializedComponent();
+                    InitializedComponent initializedComponent = ((ComponentRootInitializedEvent) componentEvent).getInitializedComponent();
                     componentRoot.put(initializedComponent.getComponentName(), initializedComponent);
                     //有些数据在组件未启动时已经采集好. 所以有新的组件创建时要及时通知
                     synchronized (childComponentLock) {
@@ -190,7 +193,13 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
             } else if (componentEvent instanceof ComponentChildInitializedEvent) {
 
                 synchronized (childrenWaitRootReady) {
-                    List<InitializedComponent.Children> children = ((ComponentChildInitializedEvent) componentEvent).getChildren();
+                    List<InitializedComponent> children = ((ComponentChildInitializedEvent) componentEvent).getChildren();
+
+                    //没采集到数据则跳过
+                    if (children.isEmpty()) {
+                        return;
+                    }
+
                     ComponentEnum parentComponent = children.get(0).getParent();
 
                     //1. 组件Root尚未创建, 则将其推送到等候队列.  当有新的组件被创建时, 会收到唤醒通知.

@@ -7,7 +7,7 @@ import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.constants.LifeCycleStopHookOrdered;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
-import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
+import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
 import com.taobao.arthas.core.vo.AgentStatistics;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +16,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @description:
@@ -26,17 +26,17 @@ import java.util.Map;
  * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
  */
 @Slf4j
-public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered {
+public class SimpleMethodAbstractMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered {
 
-    private final ThreadLocal<Map<String, MethodInvokeVO>> methodInvokeMap = ThreadLocal.withInitial(HashMap::new);
+    private final Map<String, MethodInvokeVO> methodInvokeMap = new ConcurrentHashMap<>();
 
     private AgentStatistics agentStatistics;
 
-    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
+    public SimpleMethodAbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
         super(classMethodInfo, Boolean.FALSE, SimpleSpyInterceptorApi.class);
     }
 
-    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
+    public SimpleMethodAbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
         super(classMethodInfo, Boolean.FALSE, interceptor);
     }
 
@@ -45,9 +45,9 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
      *
      * @param classMethodInfo
      * @param canRetransform
-     * @see com.taobao.arthas.core.configuration.advisor.BeanDefinitionRegistryUtils#registry(BeanDefinitionRegistry, MethodInvokeAdvisor)
+     * @see com.taobao.arthas.core.configuration.advisor.BeanDefinitionRegistryUtils#registry(BeanDefinitionRegistry, MethodInvokeWatchProperties)
      */
-    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
+    public SimpleMethodAbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
         super(classMethodInfo, canRetransform, spyInterceptorClass);
     }
 
@@ -56,7 +56,7 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
         //入栈
         MethodInvokeVO methodInvokeVO = new MethodInvokeVO(getClassMethodInfo().getFullyQualifiedMethodName(), getParams(invokeVO));
-        methodInvokeMap.get().put(getInvokeKey(invokeVO), methodInvokeVO);
+        methodInvokeMap.put(getInvokeKey(invokeVO), methodInvokeVO);
 
         atMethodInvokeBefore(invokeVO, methodInvokeVO);
 
@@ -71,7 +71,6 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
     protected final void atExit(InvokeVO invokeVO) {
 
         //出栈
-        Map<String, MethodInvokeVO> methodInvokeMap = this.methodInvokeMap.get();
         if (methodInvokeMap.containsKey(getInvokeKey(invokeVO))) {
             //
             MethodInvokeVO methodInvoke = methodInvokeMap.get(getInvokeKey(invokeVO));
@@ -91,9 +90,9 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
      * 组件加载完毕
      *
      * @param invokeVO
-     * @param invokeDetail
+     * @param methodInvokeVO
      */
-    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO invokeDetail) {
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
     }
 
     protected Object[] getParams(InvokeVO invokeVO) {
@@ -113,8 +112,7 @@ public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePoint
 
     @Override
     public void destroy() {
-        super.destroy();
-        methodInvokeMap.remove();
+        methodInvokeMap.clear();
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
-import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
 import com.taobao.arthas.core.annotation.MethodInvokeWatch;
-import com.taobao.arthas.core.properties.MethodInvokeAdvisor;
+import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
 import lombok.Setter;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
@@ -33,11 +33,11 @@ public class AgentMethodInvokeImportBeanDefinitionRegistrar implements ImportBea
                 .forEach(methodInvokeWatch -> {
 
                     BeanDefinitionRegistryUtils.registry(registry
-                            , new MethodInvokeAdvisor(
+                            , new MethodInvokeWatchProperties(
                                     methodInvokeWatch.getString("value")
                                     , methodInvokeWatch.getBoolean("canRetransform")
                                     , (Class<? extends SpyInterceptorApi>) methodInvokeWatch.getClass("interceptor")
-                                    , (Class<? extends SimpleMethodInvokePointcutAdvisor>) methodInvokeWatch.getClass("pointcutAdvisor")
+                                    , (Class<? extends SimpleMethodAbstractMethodInvokePointcutAdvisor>) methodInvokeWatch.getClass("pointcutAdvisor")
                             )
                     );
 

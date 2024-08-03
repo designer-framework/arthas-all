@@ -15,95 +15,60 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Setter
 public class InitializedComponent extends DurationVO {
 
+    private transient boolean lazyRoot;
+
+    private transient ComponentEnum parent;
+
     /**
      * 组件名
      */
-    private final ComponentEnum componentName;
+    private ComponentEnum componentName;
 
     /**
      * Echarts展示名
      */
     @JSONField(name = "name")
-    private final String name;
+    private String name;
 
-    private ConcurrentLinkedDeque<Children> children = new ConcurrentLinkedDeque<>();
-
-
-    private transient ComponentEnum parent;
+    private ConcurrentLinkedDeque<InitializedComponent> children = new ConcurrentLinkedDeque<>();
 
     private InitializedComponent(ComponentEnum componentName) {
+        super();
         this.componentName = componentName;
-        this.name = componentName.getShowName();
     }
 
-    /**
-     * 两层结构, 便于Echarts展示
-     *
-     * @param componentName
-     * @param childrenName
-     */
-    private InitializedComponent(ComponentEnum componentName, String childrenName) {
-        this(componentName);
-        this.children = buildChildren(componentName, childrenName, BigDecimal.ZERO);
+    public static InitializedComponent root(ComponentEnum componentName, BigDecimal startMillis) {
+        InitializedComponent child = new InitializedComponent(componentName);
+        child.setName(componentName.getShowName());
+        child.setStartMillis(startMillis);
+        return root(componentName, startMillis, false);
     }
 
-    public static InitializedComponent root(ComponentEnum componentName) {
-        return new InitializedComponent(componentName);
+    public static InitializedComponent root(ComponentEnum componentName, BigDecimal startMillis, boolean lazyRoot) {
+        InitializedComponent child = new InitializedComponent(componentName);
+        child.setLazyRoot(lazyRoot);
+        child.setName(componentName.getShowName());
+        child.setStartMillis(startMillis);
+        return child;
     }
 
-    public static InitializedComponent.Children child(ComponentEnum parent, String showName, BigDecimal duration) {
-        return new InitializedComponent.Children(parent, showName, duration);
+    public static InitializedComponent child(ComponentEnum parent, String showName, BigDecimal startMillis) {
+        InitializedComponent child = new InitializedComponent(parent);
+        child.setParent(parent);
+        child.setName(showName);
+        child.setStartMillis(startMillis);
+        return child;
     }
 
-    public void insertChildren(Children children) {
-        this.children.add(children);
-    }
-
-    public void insertChildren(List<Children> children) {
+    public void insertChildren(List<InitializedComponent> children) {
         this.children.addAll(children);
     }
 
-    private ConcurrentLinkedDeque<Children> buildChildren(ComponentEnum parent, String childrenName, BigDecimal costTime) {
-        if (this.children == null) {
-            ConcurrentLinkedDeque<Children> childrenList = new ConcurrentLinkedDeque<>();
-            childrenList.add(new Children(parent, childrenName, costTime));
-            return childrenList;
-        } else {
-            this.children.add(new Children(parent, childrenName, costTime));
-            return this.children;
-        }
-    }
-
-    public InitializedComponent updateDurationByChildren() {
+    public void updateDurationByChildren() {
         if (!CollectionUtils.isEmpty(children)) {
-            //setEndMillis(children.get(children.size() - 1).getEndMillis());
-            setDuration(children.stream().map(Children::getDuration).reduce(BigDecimal.ZERO, BigDecimal::add));
+            setEndMillis(BigDecimal.ZERO);
+            setDuration(children.stream().map(InitializedComponent::getDuration).reduce(BigDecimal.ZERO, BigDecimal::add));
         }
-        return this;
-    }
-
-    @Getter
-    @Setter
-    public static class Children extends DurationVO {
-
-        private ComponentEnum parent;
-
-        /**
-         * Echarts展示名
-         */
-        @JSONField(name = "name")
-        private String showName;
-
-        public Children(ComponentEnum parent, String showName, BigDecimal duration) {
-            super(duration);
-            this.parent = parent;
-            this.showName = showName;
-        }
-
-        public Children(String showName) {
-            this.showName = showName;
-        }
-
     }
 
 }

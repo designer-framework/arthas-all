@@ -2,8 +2,12 @@ package com.taobao.arthas.plugin.core.configuration;
 
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
+import com.taobao.arthas.core.configuration.advisor.AdvisorUtils;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
+import com.taobao.arthas.plugin.core.profiling.bean.InitializingSingletonsPointcutAdvisor;
+import com.taobao.arthas.plugin.core.profiling.bean.SpringBeanAopProxyPointcutAdvisor;
+import com.taobao.arthas.plugin.core.profiling.bean.SpringInitAnnotationBeanPointcutAdvisor;
 import com.taobao.arthas.plugin.core.profiling.component.*;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -38,7 +42,7 @@ public class SpringComponentMethodInvokeAutoConfiguration {
     @Bean
     FeignClientsCreatorPointcutAdvisor feignClientsCreatorPointcutAdvisor() {
         return new FeignClientsCreatorPointcutAdvisor(
-                SpringComponentEnum.OPEN_FEIGN
+                SpringComponentEnum.FEIGN_CLIENT_FACTORY_BEAN
                 , ClassMethodInfo.create("org.springframework.cloud.openfeign.FeignClientFactoryBean#getTarget()")
                 , FeignClientsCreatorPointcutAdvisor.FeignClientSpyInterceptorApi.class
         );
@@ -67,7 +71,7 @@ public class SpringComponentMethodInvokeAutoConfiguration {
     @ConditionalOnMissingBean(ApolloCreatorPointcutAdvisor.class)
     ApolloCreatorPointcutAdvisor apolloCreatorPointcutAdvisor() {
         return new ApolloCreatorPointcutAdvisor(
-                SpringComponentEnum.APOLLO
+                SpringComponentEnum.APOLLO_APPLICATION_CONTEXT_INITIALIZER
                 , ClassMethodInfo.create("com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer#initialize(org.springframework.core.env.ConfigurableEnvironment)")
         );
     }
@@ -81,22 +85,60 @@ public class SpringComponentMethodInvokeAutoConfiguration {
     @Bean
     ApolloLoadNamespacePointcutAdvisor apolloLoadNamespacePointcutAdvisor() {
         return new ApolloLoadNamespacePointcutAdvisor(
-                ClassMethodInfo.create("com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)")
+                SpringComponentEnum.APOLLO_APPLICATION_CONTEXT_INITIALIZER
+                , ClassMethodInfo.create("com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)")
         );
     }
 
     /**
-     * Apollo配置加载耗时
+     * 扫包耗时
      *
      * @return
-     * @see com.ctrip.framework.apollo.ConfigService#getConfig(java.lang.String)
+     * @see org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)
      */
     @Bean
     ClassPathScanningCandidateComponentPointcutAdvisor classPathScanningCandidateComponentPointcutAdvisor(SpringAgentStatistics springAgentStatistics) {
         return new ClassPathScanningCandidateComponentPointcutAdvisor(
-                SpringComponentEnum.CLASS_PATH_SCANNING
+                SpringComponentEnum.CLASS_PATH_SCANNING_CANDIDATE
                 , ClassMethodInfo.create("org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)")
                 , springAgentStatistics
+        );
+    }
+
+    /**
+     * @see org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)
+     */
+    @Bean
+    public SpringBeanAopProxyPointcutAdvisor springBeanAopProxyPointcutAdvisor() {
+        return new SpringBeanAopProxyPointcutAdvisor(
+                SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR,
+                ClassMethodInfo.create("org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#wrapIfNecessary(java.lang.Object, java.lang.String, java.lang.Object)")
+        );
+    }
+
+    /**
+     * 对private类插装可以得到更加详细的结果, 但不稳定性较强。 所以选择拦截该方法
+     * <p>
+     * 不会统计加载时长小于10ms的Bean
+     *
+     * @see org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
+     * @see org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.LifecycleMetadata#invokeInitMethods(java.lang.Object, java.lang.String)
+     */
+    @Bean
+    public SpringInitAnnotationBeanPointcutAdvisor initAnnotationBeanPointcutAdvisor() {
+        return new SpringInitAnnotationBeanPointcutAdvisor(
+                SpringComponentEnum.INIT_DESTROY_ANNOTATION_BEAN
+                , ClassMethodInfo.create("org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata#invokeInitMethods(java.lang.Object, java.lang.String)")
+                , SpringInitAnnotationBeanPointcutAdvisor.InitMethodSpyInterceptorApi.class
+        );
+    }
+
+    @Bean
+    public InitializingSingletonsPointcutAdvisor initializingSingletonsPointcutAdvisor() {
+        return AdvisorUtils.build(
+                new InitializingSingletonsPointcutAdvisor()
+                , "org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()"
+                , InitializingSingletonsPointcutAdvisor.AfterSingletonsInstantiatedSpyInterceptorApi.class
         );
     }
 

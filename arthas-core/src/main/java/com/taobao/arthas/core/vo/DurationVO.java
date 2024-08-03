@@ -24,10 +24,8 @@ public class DurationVO {
         this.startMillis = DurationUtils.nowMillis();
     }
 
-    public DurationVO(BigDecimal duration) {
-        this.startMillis = DurationUtils.nowMillis();
-        this.endMillis = DurationUtils.nowMillis();
-        this.duration = duration;
+    public DurationVO(BigDecimal startMillis) {
+        this.startMillis = startMillis;
     }
 
     public void initialized() {

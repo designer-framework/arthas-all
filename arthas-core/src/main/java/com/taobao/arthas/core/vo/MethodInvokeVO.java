@@ -1,7 +1,10 @@
 package com.taobao.arthas.core.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 /**
  * @description:
@@ -32,6 +35,12 @@ public class MethodInvokeVO extends DurationVO {
             }
         }
         this.args = argStrList;
+    }
+
+    @Override
+    @JSONField(name = "duration")
+    public BigDecimal getDuration() {
+        return super.getDuration();
     }
 
 }

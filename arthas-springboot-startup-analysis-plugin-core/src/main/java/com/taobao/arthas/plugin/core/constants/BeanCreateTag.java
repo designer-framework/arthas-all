@@ -24,6 +24,8 @@ public final class BeanCreateTag {
 
     public static final String smartInitializingDuration = "smartInitializingDuration";
 
+    public static final String initMethodName = "initMethodName";
+
     public static final String initMethodDuration = "initMethodDuration";
 
 }
