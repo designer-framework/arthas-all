@@ -10,15 +10,12 @@ import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 只是为了统计加载了哪些名命空间
  */
 @Slf4j
 public class ClassPathScanningCandidateComponentPointcutAdvisor extends AbstractComponentChildCreatorPointcutAdvisor implements AgentLifeCycleHook {
-
-    private final AtomicBoolean rootCreated = new AtomicBoolean(false);
 
     /**
      * @return
@@ -34,12 +31,9 @@ public class ClassPathScanningCandidateComponentPointcutAdvisor extends Abstract
     @Override
     public void start() {
         super.start();
-
-        if (rootCreated.compareAndSet(false, true)) {
-            applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(
-                    this, InitializedComponent.root(SpringComponentEnum.CLASS_PATH_SCANNING_CANDIDATE, BigDecimal.ZERO, true)
-            ));
-        }
+        applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(
+                this, InitializedComponent.root(SpringComponentEnum.CLASS_PATH_SCANNING_CANDIDATE, BigDecimal.ZERO, true)
+        ));
 
     }
 

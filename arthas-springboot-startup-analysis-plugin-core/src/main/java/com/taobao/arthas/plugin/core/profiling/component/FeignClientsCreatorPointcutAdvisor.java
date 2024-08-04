@@ -8,9 +8,12 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
+import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
+import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.arthas.SpyAPI;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +21,7 @@ import java.util.Map;
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentRootCreatorPointcutAdvisor {
+public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentChildCreatorPointcutAdvisor {
 
     private static final String TYPE = "type";
 
@@ -29,9 +32,22 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentRootCre
     }
 
     @Override
+    public void start() {
+        super.start();
+        applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(
+                this, InitializedComponent.root(SpringComponentEnum.FEIGN_CLIENT_FACTORY_BEAN, BigDecimal.ZERO, true)
+        ));
+    }
+
+    @Override
     protected Object[] getParams(InvokeVO invokeVO) {
         Map<String, Object> attach = invokeVO.getAttach();
         return new Object[]{((Class<?>) attach.get(TYPE)).getName()};
+    }
+
+    @Override
+    protected String childName(InvokeVO invokeVO) {
+        return ((Class<?>) invokeVO.getAttach().get(TYPE)).getName();
     }
 
     public static class FeignClientSpyInterceptorApi implements SpyInterceptorApi {
