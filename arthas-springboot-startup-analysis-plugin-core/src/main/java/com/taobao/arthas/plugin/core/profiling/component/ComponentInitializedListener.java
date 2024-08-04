@@ -28,7 +28,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
      */
     private final ConcurrentLinkedDeque<ComponentEvent> componentEvents = new ConcurrentLinkedDeque<>();
 
-    private final Map<ComponentEnum, InitializedComponent> componentRoot = new ConcurrentHashMap<>();
+    private final Map<ComponentEnum, InitializedComponent> componentsRoot = new ConcurrentHashMap<>();
 
     private final Object childComponentLock = new Object();
 
@@ -54,7 +54,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
         childrenWaitRootReady.forEach((componentEvent, children) -> {
 
             //父组件已准备好
-            InitializedComponent initializedComponent = componentRoot.computeIfPresent(componentEvent, (key, value) -> {
+            InitializedComponent initializedComponent = componentsRoot.computeIfPresent(componentEvent, (key, value) -> {
                 value.insertChildren(children);
                 return value;
             });
@@ -132,7 +132,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
                         childComponentLock.wait();
                     }
                     //
-                    synchronized (componentRoot) {
+                    synchronized (componentsRoot) {
                         synchronized (childrenWaitRootReady) {
                             fillComponentRootData();
                         }
@@ -180,9 +180,9 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
             //新组件被创建
             if (componentEvent instanceof ComponentRootInitializedEvent) {
 
-                synchronized (componentRoot) {
+                synchronized (componentsRoot) {
                     InitializedComponent initializedComponent = ((ComponentRootInitializedEvent) componentEvent).getInitializedComponent();
-                    componentRoot.put(initializedComponent.getComponentName(), initializedComponent);
+                    componentsRoot.put(initializedComponent.getComponentName(), initializedComponent);
                     //有些数据在组件未启动时已经采集好. 所以有新的组件创建时要及时通知
                     synchronized (childComponentLock) {
                         childComponentLock.notifyAll();
@@ -204,7 +204,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
 
                     //1. 组件Root尚未创建, 则将其推送到等候队列.  当有新的组件被创建时, 会收到唤醒通知.
                     //2. 如果等待队列中采集到的数据刚好属于新组件, 那么采集到的数据会被设置到新组建, 然后将自身从等待队列中移除
-                    InitializedComponent parentComponentObj = componentRoot.get(parentComponent);
+                    InitializedComponent parentComponentObj = componentsRoot.get(parentComponent);
                     if (parentComponentObj == null) {
                         childrenWaitRootReady.put(parentComponent, children);
                         //将采集到的数据设置到组件中
@@ -232,7 +232,7 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
         }
         eventProcessed.await();
         //
-        springAgentStatistics.addInitializedComponent(componentRoot.values());
+        springAgentStatistics.addInitializedComponents(componentsRoot.values());
     }
 
 }

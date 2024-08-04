@@ -55,7 +55,14 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
         //被AOP代理过才发布事件
         if (invokeVO.getReturnObj() != null && !(invokeVO.getReturnObj() == invokeVO.getParams()[0])) {
             super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
-            //完善Bean信息
+
+            //Bean耗时统计
+            InitializedComponent child = InitializedComponent.child(
+                    SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, invokeVO.getReturnObj().getClass().getName(), methodInvokeVO.getStartMillis()
+            );
+            applicationEventPublisher.publishEvent(new ComponentChildInitializedEvent(this, Collections.singletonList(child)));
+
+            //为Bean添加标签
             applicationEventPublisher.publishEvent(
                     new BeanAopProxyCreatedEvent(this, childName(invokeVO), invokeVO.getReturnObj().getClass().getName(), methodInvokeVO.getStartMillis())
             );
@@ -69,12 +76,10 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
 
     @Override
     public void start() {
-
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-        CompletableFuture.runAsync(() -> {
-            applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(this, InitializedComponent.root(SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, BigDecimal.ZERO, true)));
-        });
+        applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(this, InitializedComponent.root(SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, BigDecimal.ZERO, true)));
+
         CompletableFuture.runAsync(() -> {
 
             try {

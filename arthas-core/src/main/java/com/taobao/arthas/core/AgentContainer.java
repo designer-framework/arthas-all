@@ -46,8 +46,9 @@ public class AgentContainer implements ProfilingContainer, DisposableBean, Order
      *
      * @param argsMap jvm配置
      * @return
+     * @see SpringApplication#deduceMainApplicationClass()
      */
-    public static ConfigurableApplicationContext instance(Map<String, String> argsMap) {
+    public static ConfigurableApplicationContext main(Map<String, String> argsMap) {
         if (argsMap != null) {
             return SpringApplication.run(AgentContainer.class, getCommandLineArgs(argsMap));
         } else {

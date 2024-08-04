@@ -12,17 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SpringApplicationLifeCyclePointcutAdvisor extends AbstractLifeCyclePointcutAdvisor {
 
-    private final SpringAgentStatistics springAgentStatistics;
-
     public SpringApplicationLifeCyclePointcutAdvisor(AgentLifeCycle agentLifeCycles, SpringAgentStatistics springAgentStatistics) {
         super(agentLifeCycles, springAgentStatistics);
-        this.springAgentStatistics = springAgentStatistics;
     }
 
     @Override
     public void atExit(InvokeVO invokeVO) {
         super.atExit(invokeVO);
-        springAgentStatistics.setApplicationContext(invokeVO.getReturnObj());
+        //用户的SpringBoot项目实例
+        //springAgentStatistics.setApplicationContext(invokeVO.getReturnObj());
     }
 
 }

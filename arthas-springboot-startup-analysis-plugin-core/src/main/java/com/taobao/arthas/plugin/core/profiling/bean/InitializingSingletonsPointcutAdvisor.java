@@ -3,51 +3,42 @@ package com.taobao.arthas.plugin.core.profiling.bean;
 import com.alibaba.bytekit.asm.binding.Binding;
 import com.alibaba.bytekit.asm.interceptor.annotation.AtExceptionExit;
 import com.alibaba.bytekit.asm.interceptor.annotation.AtInvoke;
-import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
+import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonEvent;
+import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
+import com.taobao.arthas.plugin.core.enums.ComponentEnum;
+import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
+import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
+import com.taobao.arthas.plugin.core.profiling.component.AbstractComponentChildCreatorPointcutAdvisor;
+import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.arthas.SpyAPI;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
-public class InitializingSingletonsPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, InitializingBean {
+public class InitializingSingletonsPointcutAdvisor extends AbstractComponentChildCreatorPointcutAdvisor implements DisposableBean, InitializingBean, AgentLifeCycleHook {
 
     private static final String beanName = "beanName";
 
-    private final ThreadLocal<Stack<SmartInstantiateSingletonEvent>> eventThreadLocal = ThreadLocal.withInitial(Stack::new);
-
-    /**
-     * 创建Bean, 入栈
-     *
-     * @param invokeVO
-     */
-    @Override
-    public void atBefore(InvokeVO invokeVO) {
-        eventThreadLocal.get().push(new SmartInstantiateSingletonEvent(this, String.valueOf(invokeVO.getAttach().get(beanName))));
-    }
-
-    /**
-     * 创建Bean成功, 出栈
-     */
-    @Override
-    protected void atExit(InvokeVO invokeVO) {
-        //正在加载SmartInitializingSingleton Bean
-        if (!eventThreadLocal.get().isEmpty()) {
-            SmartInstantiateSingletonEvent singletonEvent = eventThreadLocal.get().pop();
-            singletonEvent.instantiated();
-            applicationEventPublisher.publishEvent(singletonEvent);
-        }
+    public InitializingSingletonsPointcutAdvisor(ComponentEnum componentEnum, ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
+        super(componentEnum, classMethodInfo, interceptor);
     }
 
     @Override
-    public void destroy() {
-        eventThreadLocal.remove();
+    public void start() {
+        applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(
+                this, InitializedComponent.root(SpringComponentEnum.SMART_INITIALIZING_SINGLETON, BigDecimal.ZERO, true)
+        ));
+    }
+
+    @Override
+    protected String childName(InvokeVO invokeVO) {
+        return String.valueOf(invokeVO.getAttach().get(beanName));
     }
 
     public static class AfterSingletonsInstantiatedSpyInterceptorApi implements SpyInterceptorApi {

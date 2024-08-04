@@ -2,8 +2,8 @@ package com.taobao.arthas.plugin.core.profiling.hook;
 
 import com.alibaba.fastjson.JSON;
 import com.taobao.arthas.core.flamegraph.FlameGraph;
+import com.taobao.arthas.plugin.core.profiling.statistics.StatisticsAggregation;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
-import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -14,17 +14,17 @@ public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
 
     protected final ProfilingHtmlUtil profilingHtmlUtil;
 
-    protected final SpringAgentStatisticsVO springAgentStatisticsVO;
+    protected final StatisticsAggregation statisticsAggregation;
 
     protected final FlameGraph flameGraph;
 
     public WriteStartUpAnalysisHtmlHook(
             ProfilingHtmlUtil profilingHtmlUtil
-            , SpringAgentStatisticsVO springAgentStatisticsVO
+            , StatisticsAggregation statisticsAggregation
             , FlameGraph flameGraph
     ) {
         this.profilingHtmlUtil = profilingHtmlUtil;
-        this.springAgentStatisticsVO = springAgentStatisticsVO;
+        this.statisticsAggregation = statisticsAggregation;
         this.flameGraph = flameGraph;
     }
 
@@ -43,16 +43,12 @@ public class WriteStartUpAnalysisHtmlHook implements DisposableBean {
         ).get();
     }
 
-    public SpringAgentStatisticsVO getStatisticsVO() {
-        return springAgentStatisticsVO;
-    }
-
     private void writeIndexHtml() {
 
         profilingHtmlUtil.copyFileToOutputPath(ProfilingHtmlUtil.startupAnalysis_, content -> {
 
             //替换性能分析对象占位符0
-            content = content.replace("/*startupVO:*/{}", JSON.toJSONString(springAgentStatisticsVO));
+            content = content.replace("/*startupVO:*/{}", JSON.toJSONString(statisticsAggregation.statisticsAggregation()));
 
             //替换火焰图Path占位符
             content = content.replace("/*flameGraphUrl*/''", "'." + ProfilingHtmlUtil.flameGraph_ + "'");

@@ -89,7 +89,6 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
             SmartInstantiateSingletonEvent smartInstantiateSingletonEvent = (SmartInstantiateSingletonEvent) beanCreationEvent;
 
-            //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(smartInstantiateSingletonEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, smartInstantiateSingletonEvent.getDuration());
@@ -100,7 +99,6 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
             BeanAopProxyCreatedEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedEvent) beanCreationEvent;
 
-            //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getDuration());
@@ -112,7 +110,6 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
             BeanInitMethodInvokeEvent beanInitMethodInvokeEvent = (BeanInitMethodInvokeEvent) beanCreationEvent;
 
-            //多个同名Bean, 后面的会覆盖前面的, 所以取最后一个
             springAgentStatisticsResult.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag(BeanCreateTag.initMethodName, beanInitMethodInvokeEvent.getInitMethods());

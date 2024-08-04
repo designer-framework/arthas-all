@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Getter
 public class AgentStatisticsVO implements AgentStatistics {
 
     protected final List<MethodInvokeVO> methodInvokes = new LinkedList<>();
 
-    protected final Map<String, Integer> invokeStackTraceMap = new ConcurrentHashMap<>();
+    protected final Map<String, Integer> invokeStackTrace = new ConcurrentHashMap<>();
 
-    @Getter
     @Setter
     protected volatile BigDecimal agentTime;
 
@@ -26,12 +26,12 @@ public class AgentStatisticsVO implements AgentStatistics {
 
     @Override
     public void addInvokeTrace(String stackTraceElements) {
-        invokeStackTraceMap.put(stackTraceElements, invokeStackTraceMap.getOrDefault(stackTraceElements, 0) + 1);
+        invokeStackTrace.put(stackTraceElements, invokeStackTrace.getOrDefault(stackTraceElements, 0) + 1);
     }
 
     @Override
-    public Map<String, Integer> invokeStackTraceMap() {
-        return invokeStackTraceMap;
+    public Map<String, Integer> getInvokeStackTrace() {
+        return invokeStackTrace;
     }
 
 }

@@ -5,13 +5,19 @@ import com.taobao.arthas.core.flamegraph.FlameGraph;
 import com.taobao.arthas.core.properties.AgentOutputProperties;
 import com.taobao.arthas.plugin.core.profiling.hook.StartReporterServerHook;
 import com.taobao.arthas.plugin.core.profiling.hook.WriteStartUpAnalysisHtmlHook;
+import com.taobao.arthas.plugin.core.profiling.loader.ClassLoaderLoadJarStatisticsBuilder;
+import com.taobao.arthas.plugin.core.profiling.statistics.*;
 import com.taobao.arthas.plugin.core.properties.AgentServerProperties;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.lang.instrument.Instrumentation;
+import java.util.List;
 
 /**
  * @description:
@@ -31,10 +37,10 @@ public class SpringApplicationReporterAutoConfiguration {
     @Bean
     WriteStartUpAnalysisHtmlHook writeStartUpAnalysisHtmlHook(
             ProfilingHtmlUtil profilingHtmlUtil
-            , SpringAgentStatisticsVO springAgentStatisticsVO
+            , StatisticsAggregation statisticsAggregation
             , FlameGraph flameGraph
     ) {
-        return new WriteStartUpAnalysisHtmlHook(profilingHtmlUtil, springAgentStatisticsVO, flameGraph);
+        return new WriteStartUpAnalysisHtmlHook(profilingHtmlUtil, statisticsAggregation, flameGraph);
     }
 
     @Bean
@@ -43,8 +49,38 @@ public class SpringApplicationReporterAutoConfiguration {
     }
 
     @Bean
-    SpringAgentStatisticsVO springAgentStatisticsVO() {
+    SpringApplicationStatisticsAggregation springApplicationStatisticsAggregation(SpringAgentStatistics springAgentStatistics, List<StatisticsBuilder> statisticsBuilders) {
+        return new SpringApplicationStatisticsAggregation(springAgentStatistics, statisticsBuilders);
+    }
+
+    @Bean
+    SpringAgentStatistics springAgentStatisticsVO() {
         return new SpringAgentStatisticsVO();
+    }
+
+    @Bean
+    StatisticsBuilder startUpLabelStatisticsBuilder() {
+        return new StartUpLabelStatisticsBuilder();
+    }
+
+    @Bean
+    StatisticsBuilder createdBeansStatisticsBuilder() {
+        return new CreatedBeansStatisticsBuilder();
+    }
+
+    @Bean
+    StatisticsBuilder methodInvokeMetricsStatisticsBuilder() {
+        return new MethodInvokeMetricsStatisticsBuilder();
+    }
+
+    @Bean
+    StatisticsBuilder classLoaderLoadJarStatisticsBuilder(Instrumentation instrumentation, SpringAgentStatistics springAgentStatistics) {
+        return new ClassLoaderLoadJarStatisticsBuilder(instrumentation);
+    }
+
+    @Bean
+    StatisticsBuilder componentsMetricStatisticsBuilder() {
+        return new ComponentsMetricStatisticsBuilder();
     }
 
 }

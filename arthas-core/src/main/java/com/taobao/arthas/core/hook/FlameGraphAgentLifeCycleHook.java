@@ -193,7 +193,7 @@ public class FlameGraphAgentLifeCycleHook implements FlameGraph, AgentLifeCycleH
         //导出火焰图
         try (InputStream inputStream = classPathResource.getInputStream()) {
             FlameGraphUtil flameGraphUtil = new FlameGraphUtil();
-            flameGraphUtil.parse(IOUtils.toString(inputStream, StandardCharsets.UTF_8), outputFile, agentStatistics.invokeStackTraceMap());
+            flameGraphUtil.parse(IOUtils.toString(inputStream, StandardCharsets.UTF_8), outputFile, agentStatistics.getInvokeStackTrace());
         }
     }
 

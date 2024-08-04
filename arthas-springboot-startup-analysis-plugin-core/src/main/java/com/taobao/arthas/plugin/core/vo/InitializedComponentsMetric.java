@@ -16,6 +16,9 @@ public class InitializedComponentsMetric {
     @JSONField(name = "value")
     private BigDecimal duration;
 
+    @JSONField(name = "percent")
+    private BigDecimal percent;
+
     private List<InitializedComponentsMetric> children = new ArrayList<>();
 
     /**

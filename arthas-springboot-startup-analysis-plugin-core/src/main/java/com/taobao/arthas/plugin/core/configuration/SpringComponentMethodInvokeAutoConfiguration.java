@@ -2,7 +2,6 @@ package com.taobao.arthas.plugin.core.configuration;
 
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
-import com.taobao.arthas.core.configuration.advisor.AdvisorUtils;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.profiling.bean.InitializingSingletonsPointcutAdvisor;
@@ -135,9 +134,9 @@ public class SpringComponentMethodInvokeAutoConfiguration {
 
     @Bean
     public InitializingSingletonsPointcutAdvisor initializingSingletonsPointcutAdvisor() {
-        return AdvisorUtils.build(
-                new InitializingSingletonsPointcutAdvisor()
-                , "org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()"
+        return new InitializingSingletonsPointcutAdvisor(
+                SpringComponentEnum.SMART_INITIALIZING_SINGLETON
+                , ClassMethodInfo.create("org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()")
                 , InitializingSingletonsPointcutAdvisor.AfterSingletonsInstantiatedSpyInterceptorApi.class
         );
     }

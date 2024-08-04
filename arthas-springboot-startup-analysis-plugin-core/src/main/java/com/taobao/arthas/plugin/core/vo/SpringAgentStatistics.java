@@ -9,14 +9,12 @@ public interface SpringAgentStatistics extends AgentStatistics {
 
     void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer);
 
+    Collection<BeanCreateVO> getCreatedBeans();
+
     void addCreatedBean(BeanCreateVO beanCreateVO);
 
-    void addInitializedComponent(InitializedComponent initializedComponent);
+    void addInitializedComponents(Collection<InitializedComponent> initializedComponents);
 
-    void addInitializedComponent(Collection<InitializedComponent> initializedComponents);
-
-    Object applicationContext();
-
-    void setApplicationContext(Object applicationContext);
+    Collection<InitializedComponent> getInitializedComponents();
 
 }

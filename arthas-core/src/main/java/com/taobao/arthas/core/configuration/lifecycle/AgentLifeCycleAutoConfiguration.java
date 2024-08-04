@@ -40,7 +40,7 @@ public class AgentLifeCycleAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    AgentStatisticsVO agentStatisticsVO() {
+    AgentStatistics agentStatisticsVO() {
         return new AgentStatisticsVO();
     }
 

@@ -1,6 +1,7 @@
 package com.taobao.arthas.core.vo;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +22,8 @@ public interface AgentStatistics {
 
     void addMethodInvoke(MethodInvokeVO methodInvokeVO);
 
+    List<MethodInvokeVO> getMethodInvokes();
+
     /**
      * 可以同时分析多个线程的火焰图
      *
@@ -28,6 +31,6 @@ public interface AgentStatistics {
      */
     void addInvokeTrace(String stackTraceElements);
 
-    Map<String, Integer> invokeStackTraceMap();
+    Map<String, Integer> getInvokeStackTrace();
 
 }

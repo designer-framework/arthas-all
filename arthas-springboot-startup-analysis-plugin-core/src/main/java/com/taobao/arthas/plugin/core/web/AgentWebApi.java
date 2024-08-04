@@ -2,15 +2,17 @@ package com.taobao.arthas.plugin.core.web;
 
 import com.taobao.arthas.plugin.core.annotation.WebController;
 import com.taobao.arthas.plugin.core.annotation.WebMapping;
+import com.taobao.arthas.plugin.core.profiling.statistics.StatisticsAggregation;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
-import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
 
 @WebController
 public class AgentWebApi {
 
     @Autowired
-    private SpringAgentStatisticsVO springAgentStatisticsVO;
+    private StatisticsAggregation statisticsAggregation;
 
     @Autowired
     private ProfilingHtmlUtil profilingHtmlUtil;
@@ -55,8 +57,8 @@ public class AgentWebApi {
      * @return
      */
     @WebMapping({"/analysis/json"})
-    public SpringAgentStatisticsVO springAgentStatisticsVO(String uri) {
-        return springAgentStatisticsVO;
+    public Map<String, Object> springAgentStatisticsVO(String uri) {
+        return statisticsAggregation.statisticsAggregation();
     }
 
 }
