@@ -9,7 +9,7 @@ import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeEvent;
 import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonEvent;
 import com.taobao.arthas.plugin.core.utils.CreateBeanHolder;
 import com.taobao.arthas.plugin.core.vo.BeanCreateVO;
-import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -18,10 +18,10 @@ import org.springframework.context.ApplicationListener;
 @Slf4j
 public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean, InitializingBean {
 
-    private final SpringAgentStatisticsVO springAgentStatisticsResult;
+    private final SpringAgentStatistics springAgentStatistics;
 
-    public SpringBeanCreationPointcutAdvisor(SpringAgentStatisticsVO springAgentStatisticsResult) {
-        this.springAgentStatisticsResult = springAgentStatisticsResult;
+    public SpringBeanCreationPointcutAdvisor(SpringAgentStatistics springAgentStatistics) {
+        this.springAgentStatistics = springAgentStatistics;
     }
 
     /**
@@ -34,7 +34,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
         BeanCreateVO creatingBean = new BeanCreateVO(invokeVO.getInvokeId(), String.valueOf(invokeVO.getParams()[0]));
 
         //采集已创建的Bean
-        springAgentStatisticsResult.addCreatedBean(creatingBean);
+        springAgentStatistics.addCreatedBean(creatingBean);
 
         CreateBeanHolder.push(creatingBean);
     }
@@ -89,7 +89,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
             SmartInstantiateSingletonEvent smartInstantiateSingletonEvent = (SmartInstantiateSingletonEvent) beanCreationEvent;
 
-            springAgentStatisticsResult.fillBeanCreate(smartInstantiateSingletonEvent.getBeanName(), beanCreateVO -> {
+            springAgentStatistics.fillBeanCreate(smartInstantiateSingletonEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, smartInstantiateSingletonEvent.getDuration());
 
@@ -99,7 +99,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
             BeanAopProxyCreatedEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedEvent) beanCreationEvent;
 
-            springAgentStatisticsResult.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
+            springAgentStatistics.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getDuration());
                 beanCreateVO.addTag(BeanCreateTag.proxiedClassName, beanAopProxyCreatedEvent.getProxiedClassName());
@@ -110,7 +110,7 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
 
             BeanInitMethodInvokeEvent beanInitMethodInvokeEvent = (BeanInitMethodInvokeEvent) beanCreationEvent;
 
-            springAgentStatisticsResult.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
+            springAgentStatistics.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
 
                 beanCreateVO.addTag(BeanCreateTag.initMethodName, beanInitMethodInvokeEvent.getInitMethods());
                 beanCreateVO.addTag(BeanCreateTag.initMethodDuration, beanInitMethodInvokeEvent.getDuration());

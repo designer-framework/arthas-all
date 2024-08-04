@@ -1,6 +1,5 @@
 package com.taobao.arthas.plugin.core.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.taobao.arthas.core.vo.DurationVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import lombok.Getter;
@@ -27,8 +26,9 @@ public class InitializedComponent extends DurationVO {
     /**
      * Echarts展示名
      */
-    @JSONField(name = "name")
     private String name;
+
+    private String desc;
 
     private ConcurrentLinkedDeque<InitializedComponent> children = new ConcurrentLinkedDeque<>();
 

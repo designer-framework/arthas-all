@@ -8,7 +8,6 @@ import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
-import com.taobao.arthas.plugin.core.events.ComponentChildInitializedEvent;
 import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
 import com.taobao.arthas.plugin.core.profiling.component.AbstractComponentChildCreatorPointcutAdvisor;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
@@ -16,6 +15,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -26,7 +26,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -56,12 +59,6 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
         if (invokeVO.getReturnObj() != null && !(invokeVO.getReturnObj() == invokeVO.getParams()[0])) {
             super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
 
-            //Bean耗时统计
-            InitializedComponent child = InitializedComponent.child(
-                    SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, invokeVO.getReturnObj().getClass().getName(), methodInvokeVO.getStartMillis()
-            );
-            applicationEventPublisher.publishEvent(new ComponentChildInitializedEvent(this, Collections.singletonList(child)));
-
             //为Bean添加标签
             applicationEventPublisher.publishEvent(
                     new BeanAopProxyCreatedEvent(this, childName(invokeVO), invokeVO.getReturnObj().getClass().getName(), methodInvokeVO.getStartMillis())
@@ -78,7 +75,8 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
     public void start() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-        applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(this, InitializedComponent.root(SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, BigDecimal.ZERO, true)));
+        InitializedComponent root = InitializedComponent.root(SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, BigDecimal.ZERO, true);
+        applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(this, root));
 
         CompletableFuture.runAsync(() -> {
 
@@ -97,21 +95,12 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
                             scanner.setResourceLoader(new DefaultResourceLoader(ClassUtils.getDefaultClassLoader()));
 
                             //扫包组件
-                            List<InitializedComponent> children = findBasePackages(stack.getClassName()).stream()
+                            String aopDesc = findBasePackages(stack.getClassName()).stream()
                                     .map(scanner::findCandidateComponents)
                                     .flatMap(Collection::stream)
-                                    .map(beanDefinition -> {
-
-                                        InitializedComponent child = InitializedComponent.child(SpringComponentEnum.ABSTRACT_AUTO_PROXY_CREATOR, beanDefinition.getBeanClassName(), BigDecimal.ZERO);
-                                        child.setEndMillis(child.getStartMillis());
-                                        child.setDuration(BigDecimal.ZERO);
-                                        return child;
-
-                                    })
-                                    .collect(Collectors.toList());
-                            if (!children.isEmpty()) {
-                                applicationEventPublisher.publishEvent(new ComponentChildInitializedEvent(this, children));
-                            }
+                                    .map(BeanDefinition::getBeanClassName)
+                                    .collect(Collectors.joining("</br>"));
+                            root.setDesc("</br> Aspectj Classes: </br> " + aopDesc);
 
                         }
                         break;
@@ -121,7 +110,7 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
 
             } catch (Exception e) {
                 //ignore
-                log.info("Ignore Aspectj scanner", e);
+                log.info("Ignores scan @Aspectj classes", e);
             }
         });
 

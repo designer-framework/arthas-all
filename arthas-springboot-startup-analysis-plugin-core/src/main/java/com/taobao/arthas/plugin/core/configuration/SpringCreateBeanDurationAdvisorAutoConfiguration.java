@@ -2,7 +2,7 @@ package com.taobao.arthas.plugin.core.configuration;
 
 import com.taobao.arthas.core.configuration.advisor.AdvisorUtils;
 import com.taobao.arthas.plugin.core.profiling.bean.SpringBeanCreationPointcutAdvisor;
-import com.taobao.arthas.plugin.core.vo.SpringAgentStatisticsVO;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,9 +13,9 @@ public class SpringCreateBeanDurationAdvisorAutoConfiguration {
      * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])
      */
     @Bean
-    public SpringBeanCreationPointcutAdvisor springBeanCreationPointcutAdvisor(SpringAgentStatisticsVO springAgentStatisticsVO) {
+    public SpringBeanCreationPointcutAdvisor springBeanCreationPointcutAdvisor(SpringAgentStatistics springAgentStatistics) {
         return AdvisorUtils.build(
-                new SpringBeanCreationPointcutAdvisor(springAgentStatisticsVO)
+                new SpringBeanCreationPointcutAdvisor(springAgentStatistics)
                 , "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean(java.lang.String, org.springframework.beans.factory.support.RootBeanDefinition, java.lang.Object[])");
     }
 

@@ -71,7 +71,7 @@ public abstract class AbstractComponentChildCreatorPointcutAdvisor extends Simpl
         initializedComponent.setDuration(methodInvokeVO.getDuration());
 
         applicationEventPublisher.publishEvent(
-                new ComponentChildInitializedEvent(this, Collections.singletonList(getInitializedComponent()))
+                new ComponentChildInitializedEvent(this, Collections.singletonList(initializedComponent))
         );
     }
 

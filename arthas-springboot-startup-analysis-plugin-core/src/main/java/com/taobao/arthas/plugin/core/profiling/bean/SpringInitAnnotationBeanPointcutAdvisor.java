@@ -9,9 +9,7 @@ import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
-import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeEvent;
-import com.taobao.arthas.plugin.core.events.ComponentChildInitializedEvent;
 import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
 import com.taobao.arthas.plugin.core.profiling.component.AbstractComponentChildCreatorPointcutAdvisor;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
@@ -58,17 +56,11 @@ public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractComponentCh
     @Override
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
         super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
-        
-        //Bean耗时统计
-        InitializedComponent child = InitializedComponent.child(
-                SpringComponentEnum.INIT_DESTROY_ANNOTATION_BEAN, String.valueOf(invokeVO.getParams()[1]), methodInvokeVO.getStartMillis()
-        );
 
         //为Bean添加标签
         applicationEventPublisher.publishEvent(
                 new BeanInitMethodInvokeEvent(this, String.valueOf(invokeVO.getParams()[1]), String.valueOf(invokeVO.getAttach().get("initMethods")))
         );
-        applicationEventPublisher.publishEvent(new ComponentChildInitializedEvent(this, Collections.singletonList(child)));
     }
 
     @Override

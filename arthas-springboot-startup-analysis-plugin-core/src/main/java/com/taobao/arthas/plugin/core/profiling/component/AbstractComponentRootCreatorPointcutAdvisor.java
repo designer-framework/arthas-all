@@ -68,10 +68,6 @@ public abstract class AbstractComponentRootCreatorPointcutAdvisor extends Simple
         return InitializedComponent.root(componentEnum, methodInvokeVO.getStartMillis());
     }
 
-    protected String childName(InvokeVO invokeVO) {
-        return null;
-    }
-
     @Override
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
         //继承方法调用的耗时

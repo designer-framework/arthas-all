@@ -29,12 +29,6 @@ public class FeignClientsCreatorPointcutAdvisor extends AbstractComponentRootCre
     }
 
     @Override
-    protected String childName(InvokeVO invokeVO) {
-        Map<String, Object> attach = invokeVO.getAttach();
-        return ((Class<?>) attach.get(TYPE)).getName();
-    }
-
-    @Override
     protected Object[] getParams(InvokeVO invokeVO) {
         Map<String, Object> attach = invokeVO.getAttach();
         return new Object[]{((Class<?>) attach.get(TYPE)).getName()};
