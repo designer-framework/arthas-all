@@ -1,12 +1,5 @@
-3. 组件耗时占比
-6. netty服务器改成jdk服务器
-2. Jar包依赖功能
-
-
-1. AOP及切面提示
-2. InitBean
-3. SmartBean ?
-4. Apollo
-5. OpenFeign -
-6. Scanner
-7. Swagger ?
+1. 前端界面展示优化
+2. 检查拓展功能是否正常, 提升程序拓展性, 更易于插件开发
+3. 搜集常用组件, 将其加入到性能分析表格中
+4. netty服务器改成jdk服务器, 减少内存占用
+5. 完善MD文档
