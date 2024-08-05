@@ -5,7 +5,6 @@ import com.taobao.arthas.core.flamegraph.FlameGraph;
 import com.taobao.arthas.core.properties.AgentOutputProperties;
 import com.taobao.arthas.plugin.core.profiling.hook.StartReporterServerHook;
 import com.taobao.arthas.plugin.core.profiling.hook.WriteStartUpAnalysisHtmlHook;
-import com.taobao.arthas.plugin.core.profiling.loader.ClassLoaderLoadJarStatisticsBuilder;
 import com.taobao.arthas.plugin.core.profiling.statistics.*;
 import com.taobao.arthas.plugin.core.properties.AgentServerProperties;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;

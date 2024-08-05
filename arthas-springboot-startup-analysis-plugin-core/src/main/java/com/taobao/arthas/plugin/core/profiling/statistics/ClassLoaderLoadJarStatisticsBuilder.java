@@ -1,7 +1,6 @@
-package com.taobao.arthas.plugin.core.profiling.loader;
+package com.taobao.arthas.plugin.core.profiling.statistics;
 
 import com.alibaba.bytekit.utils.ClassLoaderUtils;
-import com.taobao.arthas.plugin.core.profiling.statistics.StatisticsBuilder;
 import com.taobao.arthas.plugin.core.vo.SimpleStatisticsInfo;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
