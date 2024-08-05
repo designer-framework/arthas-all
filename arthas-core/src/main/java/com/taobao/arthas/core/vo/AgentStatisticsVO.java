@@ -24,6 +24,9 @@ public class AgentStatisticsVO implements AgentStatistics {
         methodInvokes.add(methodInvokeVO);
     }
 
+    /**
+     * 在线程运算或等待的时间里, 采样的数据会一致, 如果一致则累加1
+     */
     @Override
     public void addInvokeTrace(String stackTraceElements) {
         invokeStackTrace.put(stackTraceElements, invokeStackTrace.getOrDefault(stackTraceElements, 0) + 1);
