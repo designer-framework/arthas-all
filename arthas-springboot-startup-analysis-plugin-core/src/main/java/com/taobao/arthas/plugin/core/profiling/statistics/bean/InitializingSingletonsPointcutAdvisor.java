@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.profiling.bean;
+package com.taobao.arthas.plugin.core.profiling.statistics.bean;
 
 import com.alibaba.bytekit.asm.binding.Binding;
 import com.alibaba.bytekit.asm.interceptor.annotation.AtExceptionExit;
@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class InitializingSingletonsPointcutAdvisor extends AbstractComponentChildCreatorPointcutAdvisor implements DisposableBean, InitializingBean, AgentLifeCycleHook {
 
@@ -34,6 +35,20 @@ public class InitializingSingletonsPointcutAdvisor extends AbstractComponentChil
         applicationEventPublisher.publishEvent(new ComponentRootInitializedEvent(
                 this, InitializedComponent.root(SpringComponentEnum.SMART_INITIALIZING_SINGLETON, BigDecimal.ZERO, true)
         ));
+    }
+
+    /**
+     * @param invokeVO
+     * @return
+     * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons()
+     * @see InitializingSingletonsPointcutAdvisor.AfterSingletonsInstantiatedSpyInterceptorApi#atEnter(java.lang.Object, java.lang.Class, java.lang.String, java.lang.String, java.lang.Object[], java.lang.Object[], java.lang.String[])
+     */
+    @Override
+    protected Object[] getParams(InvokeVO invokeVO) {
+        return Optional.of(invokeVO.getAttach())
+                .map(singletonInstance -> singletonInstance.get("singletonInstance"))
+                .map(object -> new Object[]{object.getClass().getName()})
+                .orElseGet(() -> new Object[0]);
     }
 
     @Override

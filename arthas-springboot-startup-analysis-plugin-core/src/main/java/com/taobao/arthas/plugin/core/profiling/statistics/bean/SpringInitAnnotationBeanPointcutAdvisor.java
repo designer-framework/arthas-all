@@ -1,4 +1,4 @@
-package com.taobao.arthas.plugin.core.profiling.bean;
+package com.taobao.arthas.plugin.core.profiling.statistics.bean;
 
 import com.alibaba.bytekit.asm.binding.Binding;
 import com.alibaba.bytekit.asm.interceptor.annotation.AtEnter;
