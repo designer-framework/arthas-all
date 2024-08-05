@@ -3,7 +3,6 @@ package com.taobao.arthas.plugin.core.profiling.statistics;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.taobao.arthas.plugin.core.constants.BeanCreateTag;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.vo.*;
 import org.springframework.util.CollectionUtils;
@@ -12,7 +11,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -29,9 +27,6 @@ public class ComponentsMetricStatisticsBuilder implements StatisticsBuilder {
     private InitializedComponentsMetric getComponentsMetric(SpringAgentStatistics statistics) {
         //构建报表
         InitializedComponentsMetric rootMetric = createRootMetric(SpringComponentEnum.SPRING_APPLICATION, statistics.getAgentTime());
-
-        //InitDestroyBean
-        rootMetric.addChildren(createInitMethodDurationBeanMetric(statistics.getCreatedBeans()));
 
         //各组件耗时统计, 如: Apollo, Swagger
         Collection<InitializedComponent> initializedComponents = statistics.getInitializedComponents();
@@ -57,42 +52,6 @@ public class ComponentsMetricStatisticsBuilder implements StatisticsBuilder {
      */
     public InitializedComponentsMetric createRootMetric(SpringComponentEnum showName, BigDecimal duration) {
         return new InitializedComponentsMetric(showName.getShowName(), duration);
-    }
-
-    /**
-     * 组件子节点
-     *
-     * @param showName
-     * @param duration
-     * @return
-     */
-    public InitializedComponentsMetric createMetricItem(String showName, BigDecimal duration) {
-        return new InitializedComponentsMetric(showName, duration);
-    }
-
-    public InitializedComponentsMetric createInitMethodDurationBeanMetric(Collection<BeanCreateVO> createBeans) {
-        //SmartInitializingBean
-        List<BeanCreateVO> smartInitializingBean = createBeans.stream()
-                .filter(beanCreateVO -> beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration) != null)
-                .collect(Collectors.toList());
-
-        //totalCost
-        BigDecimal totalCost = smartInitializingBean.stream()
-                .map(beanCreateVO -> (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        //构建SmartInitializingBean根节点
-        InitializedComponentsMetric initAnnotationBeanMetric = createRootMetric(SpringComponentEnum.INIT_DESTROY_ANNOTATION_BEAN, totalCost);
-        smartInitializingBean.forEach((beanCreateVO) -> {
-
-            Object className = beanCreateVO.getTags().get(BeanCreateTag.className);
-            Object initMethods = beanCreateVO.getTags().get(BeanCreateTag.initMethodName);
-            BigDecimal createProxyDuration = (BigDecimal) beanCreateVO.getTags().get(BeanCreateTag.initMethodDuration);
-            initAnnotationBeanMetric.addChildren(createMetricItem(className + "," + initMethods, createProxyDuration));
-
-        });
-
-        return initAnnotationBeanMetric;
     }
 
     /**
