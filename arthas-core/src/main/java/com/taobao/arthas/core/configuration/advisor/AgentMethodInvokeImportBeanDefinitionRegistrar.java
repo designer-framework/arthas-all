@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.configuration.advisor;
 
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.annotation.EnabledMethodInvokeWatch;
 import com.taobao.arthas.core.annotation.MethodInvokeWatch;
 import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
@@ -37,7 +37,7 @@ public class AgentMethodInvokeImportBeanDefinitionRegistrar implements ImportBea
                                     methodInvokeWatch.getString("value")
                                     , methodInvokeWatch.getBoolean("canRetransform")
                                     , (Class<? extends SpyInterceptorApi>) methodInvokeWatch.getClass("interceptor")
-                                    , (Class<? extends SimpleMethodAbstractMethodInvokePointcutAdvisor>) methodInvokeWatch.getClass("pointcutAdvisor")
+                                    , (Class<? extends SimpleMethodInvokePointcutAdvisor>) methodInvokeWatch.getClass("pointcutAdvisor")
                             )
                     );
 

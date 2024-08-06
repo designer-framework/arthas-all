@@ -3,7 +3,7 @@ package com.taobao.arthas.plugin.core.profiling.component;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
@@ -18,7 +18,7 @@ import java.util.Collections;
  * Spring项目启动耗时分析
  */
 @Slf4j
-public abstract class AbstractComponentChildCreatorPointcutAdvisor extends SimpleMethodAbstractMethodInvokePointcutAdvisor implements AgentLifeCycleHook {
+public abstract class AbstractComponentChildCreatorPointcutAdvisor extends SimpleMethodInvokePointcutAdvisor implements AgentLifeCycleHook {
 
     private final ThreadLocal<InitializedComponent> children = new ThreadLocal<>();
 

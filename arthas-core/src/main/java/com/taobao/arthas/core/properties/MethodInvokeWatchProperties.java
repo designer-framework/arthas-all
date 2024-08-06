@@ -2,7 +2,7 @@ package com.taobao.arthas.core.properties;
 
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,13 +32,13 @@ public class MethodInvokeWatchProperties {
     /**
      * 只能继承该类
      */
-    private Class<? extends SimpleMethodAbstractMethodInvokePointcutAdvisor> pointcutAdvisor = SimpleMethodAbstractMethodInvokePointcutAdvisor.class;
+    private Class<? extends SimpleMethodInvokePointcutAdvisor> pointcutAdvisor = SimpleMethodInvokePointcutAdvisor.class;
 
     public MethodInvokeWatchProperties(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor) {
-        this(method, canRetransform, interceptor, SimpleMethodAbstractMethodInvokePointcutAdvisor.class);
+        this(method, canRetransform, interceptor, SimpleMethodInvokePointcutAdvisor.class);
     }
 
-    public MethodInvokeWatchProperties(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor, Class<? extends SimpleMethodAbstractMethodInvokePointcutAdvisor> pointcutAdvisor) {
+    public MethodInvokeWatchProperties(String method, Boolean canRetransform, Class<? extends SpyInterceptorApi> interceptor, Class<? extends SimpleMethodInvokePointcutAdvisor> pointcutAdvisor) {
         this.method = method;
         this.canRetransform = canRetransform;
         this.interceptor = interceptor;

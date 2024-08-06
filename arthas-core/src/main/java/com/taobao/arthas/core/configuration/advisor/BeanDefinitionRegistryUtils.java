@@ -1,6 +1,6 @@
 package com.taobao.arthas.core.configuration.advisor;
 
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -33,7 +33,7 @@ class BeanDefinitionRegistryUtils {
     }
 
     private static String getBeanName(MethodInvokeWatchProperties methodInvokeWatchProperties) {
-        return SimpleMethodAbstractMethodInvokePointcutAdvisor.class.getSimpleName() + "." + methodInvokeWatchProperties;
+        return SimpleMethodInvokePointcutAdvisor.class.getSimpleName() + "." + methodInvokeWatchProperties;
     }
 
 }

@@ -26,17 +26,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see com.taobao.arthas.core.configuration.advisor.AgentMethodInvokeRegistryPostProcessor
  */
 @Slf4j
-public class SimpleMethodAbstractMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered {
+public class SimpleMethodInvokePointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements DisposableBean, Ordered {
 
     private final Map<String, MethodInvokeVO> methodInvokeMap = new ConcurrentHashMap<>();
 
     private AgentStatistics agentStatistics;
 
-    public SimpleMethodAbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
+    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo) {
         super(classMethodInfo, Boolean.FALSE, SimpleSpyInterceptorApi.class);
     }
 
-    public SimpleMethodAbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
+    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
         super(classMethodInfo, Boolean.FALSE, interceptor);
     }
 
@@ -47,7 +47,7 @@ public class SimpleMethodAbstractMethodInvokePointcutAdvisor extends AbstractMet
      * @param canRetransform
      * @see com.taobao.arthas.core.configuration.advisor.BeanDefinitionRegistryUtils#registry(BeanDefinitionRegistry, MethodInvokeWatchProperties)
      */
-    public SimpleMethodAbstractMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
+    public SimpleMethodInvokePointcutAdvisor(ClassMethodInfo classMethodInfo, Boolean canRetransform, Class<? extends SpyInterceptorApi> spyInterceptorClass) {
         super(classMethodInfo, canRetransform, spyInterceptorClass);
     }
 

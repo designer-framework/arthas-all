@@ -2,7 +2,7 @@ package com.taobao.arthas.core.annotation;
 
 import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
 import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.interceptor.SimpleSpyInterceptorApi;
 
 import java.lang.annotation.Documented;
@@ -19,6 +19,6 @@ public @interface MethodInvokeWatch {
 
     Class<? extends SpyInterceptorApi> interceptor() default SimpleSpyInterceptorApi.class;
 
-    Class<? extends AbstractMethodInvokePointcutAdvisor> pointcutAdvisor() default SimpleMethodAbstractMethodInvokePointcutAdvisor.class;
+    Class<? extends AbstractMethodInvokePointcutAdvisor> pointcutAdvisor() default SimpleMethodInvokePointcutAdvisor.class;
 
 }

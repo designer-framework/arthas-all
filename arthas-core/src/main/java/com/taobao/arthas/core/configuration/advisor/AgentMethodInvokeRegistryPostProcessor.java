@@ -1,6 +1,6 @@
 package com.taobao.arthas.core.configuration.advisor;
 
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.properties.AgentMethodTraceProperties;
 import com.taobao.arthas.core.properties.MethodInvokeWatchProperties;
 import lombok.Setter;
@@ -25,7 +25,7 @@ public class AgentMethodInvokeRegistryPostProcessor implements BeanDefinitionReg
     /**
      * @param registry the bean definition registry used by the application context
      * @throws BeansException
-     * @see SimpleMethodAbstractMethodInvokePointcutAdvisor
+     * @see SimpleMethodInvokePointcutAdvisor
      */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {

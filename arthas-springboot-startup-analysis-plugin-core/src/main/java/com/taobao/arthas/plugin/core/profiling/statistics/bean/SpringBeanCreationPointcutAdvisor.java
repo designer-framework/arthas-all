@@ -2,7 +2,7 @@ package com.taobao.arthas.plugin.core.profiling.statistics.bean;
 
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
-import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.advisor.SimpleMethodInvokePointcutAdvisor;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.constants.BeanCreateTag;
 import com.taobao.arthas.plugin.core.enums.BeanLifeCycleEnum;
@@ -19,7 +19,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 
 @Slf4j
-public class SpringBeanCreationPointcutAdvisor extends SimpleMethodAbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationLifeCycleEvent>, DisposableBean, InitializingBean {
+public class SpringBeanCreationPointcutAdvisor extends SimpleMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationLifeCycleEvent>, DisposableBean, InitializingBean {
 
     private final SpringAgentStatistics springAgentStatistics;
 
