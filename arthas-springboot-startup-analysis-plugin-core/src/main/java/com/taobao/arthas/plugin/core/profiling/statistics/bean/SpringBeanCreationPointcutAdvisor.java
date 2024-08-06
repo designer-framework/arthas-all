@@ -1,12 +1,15 @@
 package com.taobao.arthas.plugin.core.profiling.statistics.bean;
 
-import com.taobao.arthas.api.advisor.AbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
+import com.taobao.arthas.core.advisor.SimpleMethodAbstractMethodInvokePointcutAdvisor;
+import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.constants.BeanCreateTag;
-import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
-import com.taobao.arthas.plugin.core.events.BeanCreationEvent;
-import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeEvent;
-import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonEvent;
+import com.taobao.arthas.plugin.core.enums.BeanLifeCycleEnum;
+import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedLifeCycleEvent;
+import com.taobao.arthas.plugin.core.events.BeanCreationLifeCycleEvent;
+import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeLifeCycleEvent;
+import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonLifeCycleEvent;
 import com.taobao.arthas.plugin.core.utils.CreateBeanHolder;
 import com.taobao.arthas.plugin.core.vo.BeanCreateVO;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
@@ -16,11 +19,12 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 
 @Slf4j
-public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationEvent>, DisposableBean, InitializingBean {
+public class SpringBeanCreationPointcutAdvisor extends SimpleMethodAbstractMethodInvokePointcutAdvisor implements ApplicationListener<BeanCreationLifeCycleEvent>, DisposableBean, InitializingBean {
 
     private final SpringAgentStatistics springAgentStatistics;
 
-    public SpringBeanCreationPointcutAdvisor(SpringAgentStatistics springAgentStatistics) {
+    public SpringBeanCreationPointcutAdvisor(ClassMethodInfo classMethodInfo, SpringAgentStatistics springAgentStatistics) {
+        super(classMethodInfo);
         this.springAgentStatistics = springAgentStatistics;
     }
 
@@ -30,7 +34,8 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
      * @param invokeVO
      */
     @Override
-    public void atBefore(InvokeVO invokeVO) {
+    protected void atMethodInvokeBefore(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
+        super.atMethodInvokeBefore(invokeVO, methodInvokeVO);
         BeanCreateVO creatingBean = new BeanCreateVO(invokeVO.getInvokeId(), String.valueOf(invokeVO.getParams()[0]));
 
         //采集已创建的Bean
@@ -43,7 +48,8 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
      * 创建Bean成功, 出栈
      */
     @Override
-    protected void atExit(InvokeVO invokeVO) {
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
+        super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
         //bean初始化结束, 出栈
         BeanCreateVO beanCreateVO = CreateBeanHolder.pop();
         beanCreateVO.initialized();
@@ -81,45 +87,37 @@ public class SpringBeanCreationPointcutAdvisor extends AbstractMethodInvokePoint
     /**
      * AOP,InstantiateSingleton 等类型的耗时推送
      *
-     * @param beanCreationEvent the event to respond to
+     * @param beanCreationLifeCycleEvent the event to respond to
      */
     @Override
-    public void onApplicationEvent(BeanCreationEvent beanCreationEvent) {
-        if (beanCreationEvent instanceof SmartInstantiateSingletonEvent) {
+    public void onApplicationEvent(BeanCreationLifeCycleEvent beanCreationLifeCycleEvent) {
+        if (beanCreationLifeCycleEvent instanceof SmartInstantiateSingletonLifeCycleEvent) {
 
-            SmartInstantiateSingletonEvent smartInstantiateSingletonEvent = (SmartInstantiateSingletonEvent) beanCreationEvent;
+            SmartInstantiateSingletonLifeCycleEvent smartInstantiateSingletonEvent = (SmartInstantiateSingletonLifeCycleEvent) beanCreationLifeCycleEvent;
 
             springAgentStatistics.fillBeanCreate(smartInstantiateSingletonEvent.getBeanName(), beanCreateVO -> {
-
-                beanCreateVO.addTag(BeanCreateTag.smartInitializingDuration, smartInstantiateSingletonEvent.getDuration());
-
+                beanCreateVO.addBeanLifeCycle(BeanLifeCycleEnum.afterSingletonsInstantiated, smartInstantiateSingletonEvent.getLifeCycleDurations());
             });
 
-        } else if (beanCreationEvent instanceof BeanAopProxyCreatedEvent) {
+        } else if (beanCreationLifeCycleEvent instanceof BeanAopProxyCreatedLifeCycleEvent) {
 
-            BeanAopProxyCreatedEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedEvent) beanCreationEvent;
+            BeanAopProxyCreatedLifeCycleEvent beanAopProxyCreatedEvent = (BeanAopProxyCreatedLifeCycleEvent) beanCreationLifeCycleEvent;
 
             springAgentStatistics.fillBeanCreate(beanAopProxyCreatedEvent.getBeanName(), beanCreateVO -> {
-
-                beanCreateVO.addTag(BeanCreateTag.createProxyDuration, beanAopProxyCreatedEvent.getDuration());
-                beanCreateVO.addTag(BeanCreateTag.proxiedClassName, beanAopProxyCreatedEvent.getProxiedClassName());
-
+                beanCreateVO.addBeanLifeCycle(BeanLifeCycleEnum.createAopProxyClass, beanAopProxyCreatedEvent.getLifeCycleDurations());
             });
 
-        } else if (beanCreationEvent instanceof BeanInitMethodInvokeEvent) {
+        } else if (beanCreationLifeCycleEvent instanceof BeanInitMethodInvokeLifeCycleEvent) {
 
-            BeanInitMethodInvokeEvent beanInitMethodInvokeEvent = (BeanInitMethodInvokeEvent) beanCreationEvent;
+            BeanInitMethodInvokeLifeCycleEvent beanInitMethodInvokeEvent = (BeanInitMethodInvokeLifeCycleEvent) beanCreationLifeCycleEvent;
 
             springAgentStatistics.fillBeanCreate(beanInitMethodInvokeEvent.getBeanName(), beanCreateVO -> {
-
-                beanCreateVO.addTag(BeanCreateTag.initMethodName, beanInitMethodInvokeEvent.getInitMethods());
-                beanCreateVO.addTag(BeanCreateTag.initMethodDuration, beanInitMethodInvokeEvent.getDuration());
-
+                beanCreateVO.addBeanLifeCycle(BeanLifeCycleEnum.afterPropertiesSet, beanInitMethodInvokeEvent.getLifeCycleDurations());
             });
 
         } else {
 
-            log.warn("Source: {}, BeanName: {}", beanCreationEvent.getSource(), beanCreationEvent.getBeanName());
+            log.warn("Source: {}, BeanName: {}", beanCreationLifeCycleEvent.getSource(), beanCreationLifeCycleEvent.getBeanName());
 
         }
     }

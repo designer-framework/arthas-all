@@ -3,13 +3,13 @@ package com.taobao.arthas.plugin.core.profiling.statistics.bean;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
-import com.taobao.arthas.core.vo.DurationUtils;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
-import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedEvent;
+import com.taobao.arthas.plugin.core.events.BeanAopProxyCreatedLifeCycleEvent;
 import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
 import com.taobao.arthas.plugin.core.profiling.component.AbstractComponentChildCreatorPointcutAdvisor;
+import com.taobao.arthas.plugin.core.vo.BeanLifeCycleDuration;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -59,9 +59,11 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
         if (invokeVO.getReturnObj() != null && !(invokeVO.getReturnObj() == invokeVO.getParams()[0])) {
             super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
 
-            //为Bean添加标签
+            String beanName = childName(invokeVO);
+            //统计耗时
+            BeanLifeCycleDuration beanLifeCycleDuration = BeanLifeCycleDuration.create(beanName, methodInvokeVO);
             applicationEventPublisher.publishEvent(
-                    new BeanAopProxyCreatedEvent(this, childName(invokeVO), invokeVO.getReturnObj().getClass().getName(), methodInvokeVO.getStartMillis())
+                    new BeanAopProxyCreatedLifeCycleEvent(this, childName(invokeVO), beanLifeCycleDuration)
             );
         }
     }
@@ -149,19 +151,6 @@ public class SpringBeanAopProxyPointcutAdvisor extends AbstractComponentChildCre
     @Override
     public void destroy() {
         super.destroy();
-    }
-
-    static class AopInfo {
-
-        private final BigDecimal startTime;
-
-        private final String beanName;
-
-        public AopInfo(String beanName) {
-            this.beanName = beanName;
-            startTime = DurationUtils.nowMillis();
-        }
-
     }
 
 }

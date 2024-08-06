@@ -18,14 +18,4 @@ public final class BeanCreateTag {
 
     public static final String className = "className";
 
-    public static final String createProxyDuration = "createProxyDuration";
-
-    public static final String proxiedClassName = "proxiedClassName";
-
-    public static final String smartInitializingDuration = "smartInitializingDuration";
-
-    public static final String initMethodName = "initMethodName";
-
-    public static final String initMethodDuration = "initMethodDuration";
-
 }

@@ -35,4 +35,10 @@ public class DurationVO {
                 .setDuration(getEndMillis().subtract(startMillis));
     }
 
+    public void copyDuration(DurationVO durationVO) {
+        startMillis = durationVO.getStartMillis();
+        endMillis = durationVO.getEndMillis();
+        duration = durationVO.getDuration();
+    }
+
 }

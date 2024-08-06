@@ -7,10 +7,13 @@ import com.taobao.arthas.api.interceptor.SpyInterceptorApi;
 import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
+import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
 import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
+import com.taobao.arthas.plugin.core.events.SmartInstantiateSingletonLifeCycleEvent;
 import com.taobao.arthas.plugin.core.profiling.component.AbstractComponentChildCreatorPointcutAdvisor;
+import com.taobao.arthas.plugin.core.vo.BeanLifeCycleDuration;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -56,6 +59,18 @@ public class InitializingSingletonsPointcutAdvisor extends AbstractComponentChil
         return String.valueOf(invokeVO.getAttach().get(beanName));
     }
 
+    @Override
+    protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
+        super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
+
+        String beanName = childName(invokeVO);
+        //统计耗时
+        BeanLifeCycleDuration beanLifeCycleDuration = BeanLifeCycleDuration.create(beanName, methodInvokeVO);
+        applicationEventPublisher.publishEvent(
+                new SmartInstantiateSingletonLifeCycleEvent(this, beanName, beanLifeCycleDuration)
+        );
+    }
+
     public static class AfterSingletonsInstantiatedSpyInterceptorApi implements SpyInterceptorApi {
 
         @AtInvoke(whenComplete = false, inline = true, name = "afterSingletonsInstantiated")
@@ -79,7 +94,15 @@ public class InitializingSingletonsPointcutAdvisor extends AbstractComponentChil
                 (@Binding.This Object target, @Binding.Class Class<?> clazz, @Binding.MethodName String methodName, @Binding.MethodDesc String methodDesc, @Binding.Args Object[] args
                         , @Binding.LocalVars Object[] vars, @Binding.LocalVarNames String[] varNames
                 ) {
-            SpyAPI.atExit(clazz, methodName, methodDesc, target, args, null, null);
+            if (varNames != null && varNames.length > 0) {
+                Map<String, Object> attach = new HashMap<>();
+                for (int i = 0; i < varNames.length; i++) {
+                    attach.put(varNames[i], vars[i]);
+                }
+                SpyAPI.atExit(clazz, methodName, methodDesc, target, args, null, attach);
+            } else {
+                SpyAPI.atExit(clazz, methodName, methodDesc, target, args, null, Collections.emptyMap());
+            }
         }
 
         @AtExceptionExit(inline = true)

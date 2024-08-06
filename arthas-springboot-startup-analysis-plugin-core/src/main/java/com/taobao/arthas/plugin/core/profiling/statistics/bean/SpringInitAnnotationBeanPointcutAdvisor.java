@@ -9,9 +9,10 @@ import com.taobao.arthas.api.vo.ClassMethodInfo;
 import com.taobao.arthas.api.vo.InvokeVO;
 import com.taobao.arthas.core.vo.MethodInvokeVO;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
-import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeEvent;
+import com.taobao.arthas.plugin.core.events.BeanInitMethodInvokeLifeCycleEvent;
 import com.taobao.arthas.plugin.core.events.ComponentRootInitializedEvent;
 import com.taobao.arthas.plugin.core.profiling.component.AbstractComponentChildCreatorPointcutAdvisor;
+import com.taobao.arthas.plugin.core.vo.BeanLifeCycleDuration;
 import com.taobao.arthas.plugin.core.vo.InitializedComponent;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,6 +32,12 @@ import java.util.*;
  */
 public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractComponentChildCreatorPointcutAdvisor implements DisposableBean, InitializingBean {
 
+    /**
+     * @param componentEnum
+     * @param classMethodInfo
+     * @param interceptor
+     * @see org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.LifecycleMetadata#invokeInitMethods(java.lang.Object, java.lang.String)
+     */
     public SpringInitAnnotationBeanPointcutAdvisor(ComponentEnum componentEnum, ClassMethodInfo classMethodInfo, Class<? extends SpyInterceptorApi> interceptor) {
         super(componentEnum, classMethodInfo, interceptor);
     }
@@ -57,9 +64,10 @@ public class SpringInitAnnotationBeanPointcutAdvisor extends AbstractComponentCh
     protected void atMethodInvokeAfter(InvokeVO invokeVO, MethodInvokeVO methodInvokeVO) {
         super.atMethodInvokeAfter(invokeVO, methodInvokeVO);
 
-        //为Bean添加标签
+        //记录耗时
+        BeanLifeCycleDuration beanLifeCycleDuration = BeanLifeCycleDuration.create(String.valueOf(invokeVO.getAttach().get("initMethods")), methodInvokeVO);
         applicationEventPublisher.publishEvent(
-                new BeanInitMethodInvokeEvent(this, String.valueOf(invokeVO.getParams()[1]), String.valueOf(invokeVO.getAttach().get("initMethods")))
+                new BeanInitMethodInvokeLifeCycleEvent(this, String.valueOf(invokeVO.getParams()[1]), beanLifeCycleDuration)
         );
     }
 
