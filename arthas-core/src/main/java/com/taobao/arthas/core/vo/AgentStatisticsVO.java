@@ -1,18 +1,16 @@
 package com.taobao.arthas.core.vo;
 
-import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
-@Getter
 public class AgentStatisticsVO implements AgentStatistics {
 
-    protected final List<MethodInvokeVO> methodInvokes = new LinkedList<>();
+    protected final Collection<MethodInvokeVO> methodInvokes = new ConcurrentLinkedDeque<>();
 
     protected final Map<String, Integer> invokeStackTrace = new ConcurrentHashMap<>();
 
@@ -20,8 +18,18 @@ public class AgentStatisticsVO implements AgentStatistics {
     protected volatile BigDecimal agentTime;
 
     @Override
+    public BigDecimal getAgentTime() {
+        return agentTime;
+    }
+
+    @Override
     public void addMethodInvoke(MethodInvokeVO methodInvokeVO) {
         methodInvokes.add(methodInvokeVO);
+    }
+
+    @Override
+    public Collection<MethodInvokeVO> getMethodInvokes() {
+        return methodInvokes;
     }
 
     /**

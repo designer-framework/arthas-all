@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.vo;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -22,7 +22,7 @@ public interface AgentStatistics {
 
     void addMethodInvoke(MethodInvokeVO methodInvokeVO);
 
-    List<MethodInvokeVO> getMethodInvokes();
+    Collection<MethodInvokeVO> getMethodInvokes();
 
     /**
      * 可以同时分析多个线程的火焰图

@@ -9,6 +9,7 @@ import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class MethodInvokeMetricsStatisticsBuilder implements StatisticsBuilder {
         return new SimpleStatisticsInfo("methodInvokeDetailList", getMethodInvokeMetrics(springAgentStatistics.getMethodInvokes()));
     }
 
-    private List<MethodInvokeMetrics> getMethodInvokeMetrics(List<MethodInvokeVO> methodInvokes) {
+    private List<MethodInvokeMetrics> getMethodInvokeMetrics(Collection<MethodInvokeVO> methodInvokes) {
         List<MethodInvokeMetrics> metricsList = new ArrayList<>();
 
         //全限定方法名分组

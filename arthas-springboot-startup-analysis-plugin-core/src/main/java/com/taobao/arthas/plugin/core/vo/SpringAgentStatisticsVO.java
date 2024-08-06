@@ -4,10 +4,9 @@ import com.taobao.arthas.core.vo.AgentStatisticsVO;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Consumer;
 
 public class SpringAgentStatisticsVO extends AgentStatisticsVO implements SpringAgentStatistics {
@@ -15,7 +14,7 @@ public class SpringAgentStatisticsVO extends AgentStatisticsVO implements Spring
     private final Map<String, BeanCreateVO> createdBeansMap = new ConcurrentHashMap<>();
 
     @Getter
-    private final List<InitializedComponent> initializedComponents = new LinkedList<>();
+    private final Collection<InitializedComponent> initializedComponents = new ConcurrentLinkedDeque<>();
 
     @Override
     public void fillBeanCreate(String beanName, Consumer<BeanCreateVO> consumer) {
