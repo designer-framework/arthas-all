@@ -9,14 +9,18 @@ import com.alibaba.fastjson.JSON;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class JDKHttpServer extends Thread implements Executor, HttpHandler {
 
@@ -80,6 +84,21 @@ public class JDKHttpServer extends Thread implements Executor, HttpHandler {
         } finally {
             exchange.close();
         }
+    }
+
+    public Map<String, String> getParam(URI requestURI) {
+        if (StringUtils.isEmpty(requestURI.getQuery())) {
+            return Collections.emptyMap();
+        }
+
+        String[] params = StringUtils.split(requestURI.getQuery(), "&");
+        if (params.length == 0) {
+            return Collections.emptyMap();
+        }
+
+        return Arrays.stream(params)
+                .map(param -> StringUtils.split("="))
+                .collect(Collectors.toMap(s -> StringUtils.stripToNull(s[0]), s -> StringUtils.stripToNull(s[1])));
     }
 
     private void sendResponse(HttpExchange exchange, int code, String body) throws IOException {
