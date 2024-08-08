@@ -5,6 +5,8 @@ import com.taobao.arthas.core.flamegraph.FlameGraph;
 import com.taobao.arthas.core.properties.AgentOutputProperties;
 import com.taobao.arthas.plugin.core.profiling.hook.StartReporterServerHook;
 import com.taobao.arthas.plugin.core.profiling.hook.WriteStartUpAnalysisHtmlHook;
+import com.taobao.arthas.plugin.core.profiling.hook.server.HandlerMapping;
+import com.taobao.arthas.plugin.core.profiling.hook.server.MethodHandlerMapping;
 import com.taobao.arthas.plugin.core.profiling.statistics.*;
 import com.taobao.arthas.plugin.core.properties.AgentServerProperties;
 import com.taobao.arthas.plugin.core.utils.ProfilingHtmlUtil;
@@ -29,8 +31,13 @@ import java.util.List;
 public class SpringApplicationReporterAutoConfiguration {
 
     @Bean
-    StartReporterServerHook startReporterServerHook(AgentServerProperties agentServerProperties) {
-        return new StartReporterServerHook(agentServerProperties);
+    HandlerMapping handlerMapping() {
+        return new MethodHandlerMapping();
+    }
+
+    @Bean
+    StartReporterServerHook startReporterServerHook(AgentServerProperties agentServerProperties, HandlerMapping handlerMapping) {
+        return new StartReporterServerHook(agentServerProperties, handlerMapping);
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package com.taobao.arthas.plugin.core.web;
 
+import com.sun.net.httpserver.HttpExchange;
 import com.taobao.arthas.plugin.core.annotation.WebController;
 import com.taobao.arthas.plugin.core.annotation.WebMapping;
 import com.taobao.arthas.plugin.core.profiling.statistics.StatisticsAggregation;
@@ -20,44 +21,44 @@ public class AgentWebApi {
     /**
      * 报表首页
      *
-     * @param uri
+     * @param exchange
      * @return
      */
     @WebMapping({"/", ProfilingHtmlUtil.startupAnalysis_})
-    public String startupAnalysis(String uri) {
+    public String startupAnalysis(HttpExchange exchange) {
         return profilingHtmlUtil.readOutputResourrceToString(ProfilingHtmlUtil.startupAnalysis_);
     }
 
     /**
      * 火焰图
      *
-     * @param uri
+     * @param exchange
      * @return
      */
     @WebMapping({ProfilingHtmlUtil.flameGraph_})
-    public String flameGraph(String uri) {
-        return profilingHtmlUtil.readOutputResourrceToString(uri);
+    public String flameGraph(HttpExchange exchange) {
+        return profilingHtmlUtil.readOutputResourrceToString(exchange.getRequestURI().getPath());
     }
 
     /**
      * 静态资源
      *
-     * @param uri
+     * @param exchange
      * @return
      */
     @WebMapping({"/*.js"})
-    public String statics(String uri) {
-        return profilingHtmlUtil.resourrceToString(uri);
+    public String statics(HttpExchange exchange) {
+        return profilingHtmlUtil.resourrceToString(exchange.getRequestURI().getPath());
     }
 
     /**
      * 报表统计数据
      *
-     * @param uri
+     * @param exchange
      * @return
      */
     @WebMapping({"/analysis/json"})
-    public Map<String, Object> springAgentStatisticsVO(String uri) {
+    public Map<String, Object> springAgentStatisticsVO(HttpExchange exchange) {
         return statisticsAggregation.statisticsAggregation();
     }
 

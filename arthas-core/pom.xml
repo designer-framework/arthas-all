@@ -125,11 +125,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -194,10 +189,6 @@
                                     <pattern>ch.qos.logback</pattern>
                                     <shadedPattern>${arthas.deps.package}.ch.qos.logback</shadedPattern>
                                 </relocation>
-                                <!--<relocation>
-                                    <pattern>io.netty</pattern>
-                                    <shadedPattern>${arthas.deps.package}.io.netty</shadedPattern>
-                                </relocation>-->
                                 <!--<relocation>
                                     <pattern>com.alibaba.fastjson</pattern>
                                     <shadedPattern>${arthas.deps.package}.com.alibaba.fastjson</shadedPattern>

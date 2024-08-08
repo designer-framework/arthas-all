@@ -30,7 +30,6 @@
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <flatten-maven-plugin.version>1.2.2</flatten-maven-plugin.version>
 
-        <netty.version>4.1.112.Final</netty.version>
         <!-- <spring-boot.version>2.7.18</spring-boot.version> -->
         <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <project.build.outputTimestamp>2020-09-27T15:10:43Z</project.build.outputTimestamp>
