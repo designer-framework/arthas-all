@@ -1,7 +1,5 @@
 package com.taobao.arthas.plugin.core.profiling.hook.server;
 
-import java.util.Map;
-
 /**
  * @description:
  * @author: Designer
@@ -13,10 +11,9 @@ public interface HandlerMapping {
      * 匹配API接口
      *
      * @param uri
-     * @param param
      * @return
      */
-    Handler getHandler(String uri, Map<String, Object> param);
+    Handler getHandler(String uri);
 
 }
 

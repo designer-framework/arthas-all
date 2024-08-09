@@ -1,7 +1,6 @@
 package com.taobao.arthas.plugin.core.profiling.statistics;
 
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
-import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
 
 /**
  * @description:
@@ -10,6 +9,8 @@ import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
  */
 public interface StatisticsBuilder {
 
-    StatisticsInfo build(SpringAgentStatistics springAgentStatistics);
+    Object build(SpringAgentStatistics springAgentStatistics);
+
+    boolean support(String statisticsType);
 
 }

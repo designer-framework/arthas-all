@@ -1,5 +1,7 @@
 package com.taobao.arthas.plugin.core.profiling.statistics;
 
+import com.taobao.arthas.plugin.core.enums.StatisticsType;
+
 import java.util.Map;
 
 /**
@@ -10,5 +12,7 @@ import java.util.Map;
 public interface StatisticsAggregation {
 
     Map<String, Object> statisticsAggregation();
+
+    Object statistics(StatisticsType statisticsType);
 
 }

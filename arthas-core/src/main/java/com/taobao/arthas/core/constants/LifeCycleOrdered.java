@@ -11,7 +11,6 @@ public class LifeCycleOrdered {
      */
     public static final Integer AGENT_RETRANSFORM = Ordered.HIGHEST_PRECEDENCE;
 
-
     //------STOP------//
     /**
      * 1. 性能分析完毕, 停止采集火焰图数据
@@ -24,10 +23,15 @@ public class LifeCycleOrdered {
     public static final Integer UPLOAD_STATISTICS = STOP_FLAME_GRAPH_PROFILER + 20;
 
     /**
+     * 3. 等待组件耗时数据统计完毕
+     */
+    public static final Integer WAIT_COMPONENTS_STATISTICS = UPLOAD_STATISTICS + 1;
+
+    /**
      * 3. 性能分析完毕, 停止容器, 触发Bean销毁, 释放资源
      *
      * @see DisposableBean#destroy()
      */
-    public static final Integer STOP_PROFILER_CONTAINER = UPLOAD_STATISTICS + 20;
+    public static final Integer STOP_PROFILER_CONTAINER = WAIT_COMPONENTS_STATISTICS + 20;
 
 }

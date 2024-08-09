@@ -1,10 +1,9 @@
 package com.taobao.arthas.plugin.core.profiling.statistics;
 
 import com.taobao.arthas.core.vo.MethodInvokeVO;
+import com.taobao.arthas.plugin.core.enums.StatisticsEnum;
 import com.taobao.arthas.plugin.core.vo.MethodInvokeMetrics;
-import com.taobao.arthas.plugin.core.vo.SimpleStatisticsInfo;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
-import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,8 +21,13 @@ import java.util.stream.Collectors;
 public class MethodInvokeMetricsStatisticsBuilder implements StatisticsBuilder {
 
     @Override
-    public StatisticsInfo build(SpringAgentStatistics springAgentStatistics) {
-        return new SimpleStatisticsInfo("methodInvokeDetailList", getMethodInvokeMetrics(springAgentStatistics.getMethodInvokes()));
+    public Object build(SpringAgentStatistics springAgentStatistics) {
+        return getMethodInvokeMetrics(springAgentStatistics.getMethodInvokes());
+    }
+
+    @Override
+    public boolean support(String statisticsType) {
+        return StatisticsEnum.methodInvokeDetailList.getType().equals(statisticsType);
     }
 
     private List<MethodInvokeMetrics> getMethodInvokeMetrics(Collection<MethodInvokeVO> methodInvokes) {

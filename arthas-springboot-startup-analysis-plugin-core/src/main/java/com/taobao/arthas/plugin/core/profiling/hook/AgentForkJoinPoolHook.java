@@ -1,13 +1,13 @@
 package com.taobao.arthas.plugin.core.profiling.hook;
 
-import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
+import com.taobao.arthas.plugin.core.configuration.trubo.ApplicationTurboLifeCycleHook;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Spring项目启动耗时分析
  */
 @Slf4j
-public class AgentForkJoinPoolHook implements AgentLifeCycleHook {
+public class AgentForkJoinPoolHook implements ApplicationTurboLifeCycleHook {
 
     private static final String parallelism = "java.util.concurrent.ForkJoinPool.common.parallelism";
 

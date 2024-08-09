@@ -1,8 +1,7 @@
 package com.taobao.arthas.plugin.core.profiling.statistics;
 
-import com.taobao.arthas.plugin.core.vo.SimpleStatisticsInfo;
+import com.taobao.arthas.plugin.core.enums.StatisticsEnum;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
-import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
 
 /**
  * @description:
@@ -12,8 +11,13 @@ import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
 public class CreatedBeansStatisticsBuilder implements StatisticsBuilder {
 
     @Override
-    public StatisticsInfo build(SpringAgentStatistics springAgentStatistics) {
-        return new SimpleStatisticsInfo("beanInitResultList", springAgentStatistics.getCreatedBeans());
+    public Object build(SpringAgentStatistics springAgentStatistics) {
+        return springAgentStatistics.getCreatedBeans();
+    }
+
+    @Override
+    public boolean support(String statisticsType) {
+        return StatisticsEnum.beanInitResultList.getType().equals(statisticsType);
     }
 
 }

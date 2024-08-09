@@ -1,9 +1,8 @@
 package com.taobao.arthas.plugin.core.profiling.statistics;
 
 import com.alibaba.bytekit.utils.ClassLoaderUtils;
-import com.taobao.arthas.plugin.core.vo.SimpleStatisticsInfo;
+import com.taobao.arthas.plugin.core.enums.StatisticsEnum;
 import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
-import com.taobao.arthas.plugin.core.vo.StatisticsInfo;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -78,10 +77,15 @@ public class ClassLoaderLoadJarStatisticsBuilder implements StatisticsBuilder {
     }
 
     @Override
-    public StatisticsInfo build(SpringAgentStatistics springAgentStatistics) {
-        return new SimpleStatisticsInfo("unusedJarMap", getClassLoaderNotLoadedJars(classLoader -> {
+    public Object build(SpringAgentStatistics springAgentStatistics) {
+        return getClassLoaderNotLoadedJars(classLoader -> {
             return Thread.currentThread().getContextClassLoader().toString().equals(classLoader.toString());
-        }));
+        });
+    }
+
+    @Override
+    public boolean support(String statisticsType) {
+        return StatisticsEnum.unusedJarMap.getType().equals(statisticsType);
     }
 
 }

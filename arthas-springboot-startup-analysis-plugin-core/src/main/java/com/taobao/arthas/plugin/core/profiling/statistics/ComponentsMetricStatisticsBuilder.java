@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.taobao.arthas.plugin.core.enums.SpringComponentEnum;
-import com.taobao.arthas.plugin.core.vo.*;
+import com.taobao.arthas.plugin.core.enums.StatisticsEnum;
+import com.taobao.arthas.plugin.core.vo.InitializedComponent;
+import com.taobao.arthas.plugin.core.vo.InitializedComponentsMetric;
+import com.taobao.arthas.plugin.core.vo.SpringAgentStatistics;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -20,8 +23,13 @@ import java.util.List;
 public class ComponentsMetricStatisticsBuilder implements StatisticsBuilder {
 
     @Override
-    public StatisticsInfo build(SpringAgentStatistics springAgentStatistics) {
-        return new SimpleStatisticsInfo("componentsMetric", getComponentsMetric(springAgentStatistics));
+    public Object build(SpringAgentStatistics springAgentStatistics) {
+        return getComponentsMetric(springAgentStatistics);
+    }
+
+    @Override
+    public boolean support(String statisticsType) {
+        return StatisticsEnum.componentsMetric.getType().equals(statisticsType);
     }
 
     private InitializedComponentsMetric getComponentsMetric(SpringAgentStatistics statistics) {

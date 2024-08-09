@@ -1,5 +1,7 @@
 package com.taobao.arthas.plugin.core.profiling.hook.server;
 
+import com.sun.net.httpserver.HttpExchange;
+
 /**
  * @description:
  * @author: Designer
@@ -7,13 +9,6 @@ package com.taobao.arthas.plugin.core.profiling.hook.server;
  */
 public interface Handler {
 
-    Handler INDEX = new MethodHandler(null, null) {
-        @Override
-        public Object handler(Object param) throws Exception {
-            return "Spring-Agent-Web-Server";
-        }
-    };
-
-    Object handler(Object param) throws Exception;
+    void handler(HttpExchange exchange) throws Exception;
 
 }

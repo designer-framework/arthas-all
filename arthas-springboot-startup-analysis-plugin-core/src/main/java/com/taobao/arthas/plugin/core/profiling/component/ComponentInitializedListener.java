@@ -1,6 +1,7 @@
 package com.taobao.arthas.plugin.core.profiling.component;
 
 import com.alibaba.fastjson.JSON;
+import com.taobao.arthas.core.constants.LifeCycleOrdered;
 import com.taobao.arthas.core.lifecycle.AgentLifeCycleHook;
 import com.taobao.arthas.plugin.core.enums.ComponentEnum;
 import com.taobao.arthas.plugin.core.events.ComponentChildInitializedEvent;
@@ -233,6 +234,11 @@ public class ComponentInitializedListener implements ApplicationListener<Compone
         eventProcessed.await();
         //
         springAgentStatistics.addInitializedComponents(componentsRoot.values());
+    }
+
+    @Override
+    public int getOrder() {
+        return LifeCycleOrdered.WAIT_COMPONENTS_STATISTICS;
     }
 
 }

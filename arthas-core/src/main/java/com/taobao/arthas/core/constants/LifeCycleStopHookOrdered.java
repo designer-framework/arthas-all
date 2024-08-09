@@ -2,6 +2,9 @@ package com.taobao.arthas.core.constants;
 
 import org.springframework.core.Ordered;
 
+/**
+ *
+ */
 public class LifeCycleStopHookOrdered {
 
     // -------------      启动性能报告服务器      ------------- //

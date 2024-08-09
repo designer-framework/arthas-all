@@ -27,7 +27,7 @@ public class MethodHandlerMapping implements HandlerMapping, ApplicationContextA
     private ApplicationContext applicationContext;
 
     @Override
-    public Handler getHandler(String uri, Map<String, Object> param) {
+    public Handler getHandler(String uri) {
         //
         MethodHandler handler = handlerMap.get(uri);
         //
@@ -67,7 +67,7 @@ public class MethodHandlerMapping implements HandlerMapping, ApplicationContextA
                 if (webMapping != null) {
 
                     for (String mapping : webMapping.value()) {
-                        handlerMap.put(mapping, new MethodHandler(bean, method));
+                        handlerMap.put(mapping, new MethodHandler(bean, method, webMapping.contentType()));
                     }
 
                 }
